@@ -35,6 +35,8 @@ namespace Culture.DataAccess.Context
 			ConfigureUserInEvent(builder);
 			ConfigureEventReaction(builder);
 
+			base.OnModelCreating(builder);
+
 		}
 
 
@@ -44,7 +46,9 @@ namespace Culture.DataAccess.Context
 
 			userBuilder
 				.HasOne(x => x.Calendar)
-				.WithOne(x => x.BelongsTo);
+				.WithOne(x => x.BelongsTo)
+				.HasForeignKey<Calendar>(x=>x.BelongsToId)
+				.OnDelete(DeleteBehavior.Cascade);
 
 			userBuilder
 				.HasMany(x => x.HostedEvents)
@@ -112,7 +116,7 @@ namespace Culture.DataAccess.Context
 			userNotificationBuilder
 				.HasOne(x => x.User)
 				.WithMany(x => x.Notifications)
-				.HasForeignKey(x => x.User);
+				.HasForeignKey(x => x.UserId);
 
 		}
 		private void ConfigureUserInEvent(ModelBuilder builder)

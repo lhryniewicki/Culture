@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Culture.Web
 {
@@ -37,7 +38,7 @@ namespace Culture.Web
 				options.UseSqlServer(Configuration.GetConnectionString("Default")));
 
 
-			services.AddIdentity<AppUser, IdentityRole>()
+			services.AddIdentity<AppUser, IdentityRole<Guid>>()
 				.AddEntityFrameworkStores<CultureDbContext>();
 			services.Configure<IdentityOptions>(options =>
 			{
