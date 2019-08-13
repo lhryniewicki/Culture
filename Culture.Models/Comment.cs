@@ -10,7 +10,9 @@ namespace Culture.Models
 	{
 		public int Id { get; set; }
 		public string Content { get; set; }
-		//nullowalne zdjecie tez zdecydowac jak ma byc przechowywane
+		public byte[] Image { get; set; }
+		public DateTime CreationDate { get; set; }
+
 		public int EventId{ get; set; }
 		public Event Event { get; set; }
 

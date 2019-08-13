@@ -4,14 +4,16 @@ using Culture.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Culture.DataAccess.Migrations
 {
     [DbContext(typeof(CultureDbContext))]
-    partial class CultureDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190810071519_migration2")]
+    partial class migration2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,8 +105,6 @@ namespace Culture.DataAccess.Migrations
                     b.Property<string>("Content");
 
                     b.Property<int>("EventId");
-
-                    b.Property<byte[]>("Image");
 
                     b.HasKey("Id");
 

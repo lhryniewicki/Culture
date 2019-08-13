@@ -1,7 +1,13 @@
+using Culture.Contracts.IRepositories;
+using Culture.Contracts.IServices;
 using Culture.DataAccess.Context;
+using Culture.DataAccess.Repositories;
 using Culture.Models;
+using Culture.Services.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +15,9 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Text;
 
 namespace Culture.Web
 {
@@ -25,6 +33,19 @@ namespace Culture.Web
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+
+			services.AddScoped<CultureDbContext, CultureDbContext>();
+
+
+			services.AddScoped<IUserService, UserService>();
+			services.AddScoped<IEventService, EventService>();
+			services.AddScoped<IAuthService, AuthService>();
+
+
+
+			services.AddScoped<IEventRepository, EventRepository>();
+
+
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
 			// In production, the React files will be served from this directory
@@ -40,6 +61,7 @@ namespace Culture.Web
 
 			services.AddIdentity<AppUser, IdentityRole<Guid>>()
 				.AddEntityFrameworkStores<CultureDbContext>();
+
 			services.Configure<IdentityOptions>(options =>
 			{
 				// Default Password settings.
@@ -56,6 +78,35 @@ namespace Culture.Web
 
 			});
 
+
+			ConfigureAuthentication(services);
+
+		}
+
+		private void ConfigureAuthentication(IServiceCollection services)
+		{
+			var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Values:IssuerToken"]));
+
+			services
+				.AddAuthentication(options =>
+				{
+					options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+					options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+					options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+				})
+				.AddJwtBearer(config =>
+				{
+					config.RequireHttpsMetadata = false;
+					config.SaveToken = true;
+					config.TokenValidationParameters = new TokenValidationParameters
+					{
+						IssuerSigningKey = signingKey,
+						ValidateLifetime = true,
+						ValidateAudience = false,
+						ValidateIssuer = false,
+						ValidateIssuerSigningKey = true
+					};
+				});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
