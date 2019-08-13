@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.572
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Culture.Web", "Culture.Web\Culture.Web.csproj", "{8AB55451-1504-4A33-8F5D-27C43D784C61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.Web", "Culture.Web\Culture.Web.csproj", "{8AB55451-1504-4A33-8F5D-27C43D784C61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Culture.Services", "Culture.Services\Culture.Services.csproj", "{3D62EC46-79C9-4C0A-A3A0-8585850F8424}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.Services", "Culture.Services\Culture.Services.csproj", "{3D62EC46-79C9-4C0A-A3A0-8585850F8424}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Culture.Contracts", "Culture.Contracts\Culture.Contracts.csproj", "{D070DA4E-1C42-45FF-B1D4-009F480BB82F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.Contracts", "Culture.Contracts\Culture.Contracts.csproj", "{D070DA4E-1C42-45FF-B1D4-009F480BB82F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Culture.Utilities", "Culture.Utilities\Culture.Utilities.csproj", "{89F40DF7-A23B-4E2A-B3C1-900F39C3A66B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.Utilities", "Culture.Utilities\Culture.Utilities.csproj", "{89F40DF7-A23B-4E2A-B3C1-900F39C3A66B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Culture.DataAccess", "Culture.DataAccess\Culture.DataAccess.csproj", "{65F7A654-A3EB-4448-BD3D-D2E8320C9989}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.DataAccess", "Culture.DataAccess\Culture.DataAccess.csproj", "{65F7A654-A3EB-4448-BD3D-D2E8320C9989}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Culture.Models", "Culture.Models\Culture.Models.csproj", "{1D592376-EFB9-4BEB-84BE-EAD46D796D9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.Models", "Culture.Models\Culture.Models.csproj", "{1D592376-EFB9-4BEB-84BE-EAD46D796D9D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

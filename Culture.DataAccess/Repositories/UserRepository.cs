@@ -1,6 +1,6 @@
-﻿using Culture.DataAccess.Context;
+﻿using Culture.Contracts.IRepositories;
+using Culture.DataAccess.Context;
 using Culture.Models;
-using Culture.Services.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;

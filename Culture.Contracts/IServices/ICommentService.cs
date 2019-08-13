@@ -10,7 +10,7 @@ namespace Culture.Contracts.IServices
 	public interface ICommentService
 	{
 		Task<Comment> CreateCommentAsync(string content, int eventId, Guid userId);
-		Task<Comment> GetCommentAsync(int id);
-		Task EditCommentAsync(CommentViewModel comment, Guid id);
-	}
+		Task<Comment> EditCommentAsync(CommentViewModel comment, Guid id);
+        Task<IEnumerable<Comment>> GetEventCommentsAsync(int id, int skip, int take);
+    }
 }

@@ -29,13 +29,13 @@ namespace Culture.Web.Controllers
 			_userService = userService;
 			_commentService = commentService;
 		}
-		[HttpPost("event/create")]
+		[HttpPost("create")]
 		public async Task<JsonResult> CreateEvent([FromBody]EventViewModel eventt)
 		{
 			try
 			{
 
-				var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
+				var user = await _userService.GetUserByName("lukasz");
 				var _event = await _eventService.CreateEventAsync(eventt, user.Id);
 				return Json(_event);
 
@@ -43,44 +43,11 @@ namespace Culture.Web.Controllers
 			catch (Exception e)
 			{
 				Response.StatusCode = 500;
-				return Json(e.Message);
+				return Json(e.Message+e.InnerException);
 			}
 		}
-		[HttpPost("comment/create")]
-		public async Task<JsonResult> CreateEventComment([FromBody]CommentViewModel comment)
-		{
-			try
-			{
-				var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
-				var _comment = await _commentService.CreateCommentAsync(comment.Content,comment.EventId, user.Id);
 
-				return Json(_comment);
-
-			}
-			catch (Exception e)
-			{
-				Response.StatusCode = 500;
-				return Json(e.Message);
-			}
-		}
-		[HttpPut("comment/edit")]
-		public async Task<JsonResult> EditEventComment([FromBody]CommentViewModel comment)
-		{
-			try
-			{
-				var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
-				var _comment = await _commentService.EditCommentAsync(comment, user.Id);
-
-				return Json(_comment);
-
-			}
-			catch (Exception e)
-			{
-				Response.StatusCode = 500;
-				return Json(e.Message);
-			}
-		}
-		[HttpGet("event/get")]
+		[HttpGet("get")]
 		public async Task<JsonResult> GetEvent([FromQuery]int id)
 		{
 			try
@@ -92,13 +59,30 @@ namespace Culture.Web.Controllers
 			catch(Exception e)
 			{
 				Response.StatusCode = 500;
-				return Json(e.Message);
+				return Json(e.Message+e.InnerException);
 			}
 			
 		}
+        [HttpPut("edit")]
+        public async Task<JsonResult> EditEvent([FromBody]EventViewModel eventViewModel)
+        {
+            try
+            {
+                var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
+                var _comment = await _eventService.EditEvent(eventViewModel, user.Id);
+
+                return Json(_comment);
+
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+        }
 
 
 
 
-	}
+    }
 }

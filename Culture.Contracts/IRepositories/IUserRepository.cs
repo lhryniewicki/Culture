@@ -1,7 +1,6 @@
-﻿using Culture.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Culture.Services.Services
+namespace Culture.Contracts.IRepositories
 {
 	public interface IUserRepository
 	{

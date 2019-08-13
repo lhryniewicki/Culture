@@ -1,4 +1,4 @@
-﻿using Culture.Contracts.IRepositories;
+﻿using Culture.Contracts;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
 using Culture.Models;
@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace Culture.Services.Services
 {
-	class CommentService:ICommentService
+	public class CommentService:ICommentService
 	{
-		private readonly ICommentRepository _commentRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-		public CommentService(ICommentRepository commentRepository)
+        public CommentService(IUnitOfWork unitOfWork)
 		{
-			_commentRepository = commentRepository;
-		}
+           _unitOfWork = unitOfWork;
+        }
 
 		public async Task<Comment> CreateCommentAsync(string content, int eventId, Guid userId)
 		{
@@ -29,24 +29,26 @@ namespace Culture.Services.Services
 				EventId = eventId
 
 			};
-			await _commentRepository.AddComentAsync(comment);
+			await _unitOfWork.CommentRepository.AddCommentAsync(comment);
+            await _unitOfWork.Commit();
 			return comment;
 		}
 
-		public async Task EditCommentAsync(CommentViewModel comment, Guid id)
+		public async Task<Comment> EditCommentAsync(CommentViewModel comment, Guid id)
 		{
-			if (comment.AuthorId != id) return;
+			if (comment.AuthorId != id) return null;
 
-			var _comment = await _commentRepository.GetCommentAsync(comment.CommentId);
+			var _comment = await _unitOfWork.CommentRepository.GetCommentAsync(comment.CommentId);
 			_comment.Content = comment.Content;
-			
+            await _unitOfWork.Commit();
+
+            return _comment;
 			
 		}
 
-		public Task<Comment> GetCommentAsync(int id)
-		{
-			throw new NotImplementedException();
-		}
-
-	}
+        public async Task<IEnumerable<Comment>> GetEventCommentsAsync(int id, int skip, int take)
+        {
+            return await _unitOfWork.CommentRepository.GetEventCommentsAsync(id, skip, take);
+        }
+    }
 }

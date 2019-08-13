@@ -18,11 +18,9 @@ namespace Culture.DataAccess.Repositories
 		{
 			_dbContext = dbContext;
 		}
-		public async Task AddComentAsync(Comment comment)
+		public async Task AddCommentAsync(Comment comment)
 		{
 			await _dbContext.Comments.AddAsync(comment);
-			await _dbContext.SaveChangesAsync();
-
 		}
 
 		public Task<Comment> GetCommentAsync(int id)
@@ -30,5 +28,16 @@ namespace Culture.DataAccess.Repositories
 			return _dbContext.Comments
 				.SingleOrDefaultAsync(x => x.Id == id);
 		}
-	}
+        
+        public async Task<IEnumerable<Comment>> GetEventCommentsAsync(int id, int skip, int take)
+        {
+            return await _dbContext.Comments
+                .Include(x => x.Author)
+                .Include(x => x.Image)
+                .Where(x => x.EventId == id)
+                .Skip(skip * take)
+                .Take(take)
+                .ToListAsync();
+        }
+    }
 }

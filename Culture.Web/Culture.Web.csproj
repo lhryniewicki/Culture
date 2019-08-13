@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Culture.DataAccess\Culture.DataAccess.csproj" />
+    <ProjectReference Include="..\Culture.Contracts\Culture.Contracts.csproj" />
     <ProjectReference Include="..\Culture.Services\Culture.Services.csproj" />
   </ItemGroup>
 

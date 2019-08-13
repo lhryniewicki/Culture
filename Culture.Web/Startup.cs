@@ -3,6 +3,8 @@ using Culture.Contracts.IServices;
 using Culture.DataAccess.Context;
 using Culture.DataAccess.Repositories;
 using Culture.Models;
+using Culture.Contracts;
+using Culture.DataAccess;
 using Culture.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -40,11 +42,14 @@ namespace Culture.Web
 			services.AddScoped<IUserService, UserService>();
 			services.AddScoped<IEventService, EventService>();
 			services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 
-			services.AddScoped<IEventRepository, EventRepository>();
-
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
@@ -56,7 +61,7 @@ namespace Culture.Web
 
 
 			services.AddDbContext<CultureDbContext>(options =>
-				options.UseSqlServer(Configuration.GetConnectionString("Default")));
+				options.UseSqlServer(Configuration.GetConnectionString("Firmowe")));
 
 
 			services.AddIdentity<AppUser, IdentityRole<Guid>>()

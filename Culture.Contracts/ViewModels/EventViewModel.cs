@@ -7,7 +7,10 @@ namespace Culture.Contracts.ViewModels
 {
 	public class EventViewModel
 	{
-		public int Price { get; set; }
+        public Guid AuthorId { get; set; }
+        public int Id { get; set; }
+
+        public int Price { get; set; }
 		public string Name { get; set; }
 		public string Content { get; set; }
 		public byte[] Image { get; set; }

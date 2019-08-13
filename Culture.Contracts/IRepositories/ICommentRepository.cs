@@ -8,7 +8,8 @@ namespace Culture.Contracts.IRepositories
 {
 	public interface ICommentRepository
 	{
-		Task AddComentAsync(Comment comment);
+		Task AddCommentAsync(Comment comment);
 		Task<Comment> GetCommentAsync(int id);
-	}
+        Task<IEnumerable<Comment>> GetEventCommentsAsync(int id, int skip, int take);
+    }
 }

@@ -12,6 +12,6 @@ namespace Culture.Contracts.IServices
 	{
 		Task<Event> CreateEventAsync(EventViewModel eventViewModel, Guid id);
 		Task<Event> GetEventDetailsAsync(int id);
-
-	}
+        Task<Event> EditEvent(EventViewModel eventViewModel, Guid id);
+    }
 }

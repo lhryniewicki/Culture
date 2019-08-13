@@ -23,10 +23,15 @@ namespace Culture.DataAccess.Repositories
 		public async Task AddEventAsync(Event eventt)
 		{
 			await _dbContext.Events.AddAsync(eventt);
-			await _dbContext.SaveChangesAsync();
 		}
 
-		public Task<Event> GetEventDetailsAsync(int id)
+        public Task<Event> GetEventAsync(int id)
+        {
+            return _dbContext.Events
+                .SingleOrDefaultAsync(x => x.Id == id);
+        }
+
+        public Task<Event> GetEventDetailsAsync(int id)
 		{
 			return  _dbContext.Events
 				.Include(x=>x.Participants)
