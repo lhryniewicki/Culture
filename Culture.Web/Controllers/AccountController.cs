@@ -32,6 +32,7 @@ namespace Culture.Web.Controllers
 			try
 			{
 				var token = await _authService.Login(loginViewModel);
+
 				return Json(token);
 			}
 			catch(LoginErrorException e)
@@ -52,7 +53,8 @@ namespace Culture.Web.Controllers
 			try
 			{
 				var token = await _authService.Register(registerViewModel);
-				return Json(token);
+
+                return Json(token);
 			}
 			catch (RegistrationErrorException e)
 			{

@@ -9,7 +9,7 @@ namespace Culture.Models
 	public class Emoticon
 	{
 		public int Id { get; set; }
-		public string Name { get; set; }
+		public Emoticon Name { get; set; }
 		//zdecydowac o sposobie przechowania obrazka url vs byte[]
 	}
 }

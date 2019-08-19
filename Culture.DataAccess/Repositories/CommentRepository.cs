@@ -39,5 +39,9 @@ namespace Culture.DataAccess.Repositories
                 .Take(take)
                 .ToListAsync();
         }
+        public void  DeleteComment(Comment comment)
+        {
+             _dbContext.Comments.Remove(comment);
+        }
     }
 }

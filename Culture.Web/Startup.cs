@@ -44,12 +44,16 @@ namespace Culture.Web
 			services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ICalendarService, CalendarService>();
 
 
 
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+
+
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 

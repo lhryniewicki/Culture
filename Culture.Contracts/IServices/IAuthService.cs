@@ -10,6 +10,6 @@ namespace Culture.Contracts.IServices
 	{
 		Task<string> Login(LoginViewModel loginViewModel);
 		Task<string> Register(RegisterViewModel registerViewModel);
-
+        
 	}
 }

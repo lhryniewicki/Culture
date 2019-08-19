@@ -11,5 +11,6 @@ namespace Culture.Contracts.IRepositories
 		Task AddCommentAsync(Comment comment);
 		Task<Comment> GetCommentAsync(int id);
         Task<IEnumerable<Comment>> GetEventCommentsAsync(int id, int skip, int take);
+        void DeleteComment(Comment comment);
     }
 }

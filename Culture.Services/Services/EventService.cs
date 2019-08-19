@@ -34,8 +34,7 @@ namespace Culture.Services.Services
 				StreetName = eventViewModel.StreetName,
 				Price = eventViewModel.Price
 			};
-			await _unitOfWork.EventRepository.AddEventAsync(eventt);
-            await _unitOfWork.Commit();
+			await _unitOfWork.EventRepository.CreateEventAsync(eventt);
 
             return eventt;
 
@@ -46,7 +45,7 @@ namespace Culture.Services.Services
            
                if (eventViewModel.AuthorId != id) return null;
 
-            var _event = await _unitOfWork.EventRepository.GetEventAsync(eventViewModel.Id);
+            var _event = await GetEventAsync(eventViewModel.Id);
 
             _event.Name = eventViewModel.Name;
             _event.Price = eventViewModel.Price;
@@ -55,17 +54,33 @@ namespace Culture.Services.Services
             _event.Category = eventViewModel.Category;
             _event.CityName = eventViewModel.CityName;
 
-            await _unitOfWork.Commit();
 
             return _event;
 
             
+        }
+        public Task<Event> GetEventAsync(int id)
+        {
+            return _unitOfWork.EventRepository.GetEventAsync(id);
+        }
+
+        public async Task DeleteEvent(int id,Guid userId,IList<string> userRoles)
+        {
+            var _event = await _unitOfWork.EventRepository.GetEventAsync(id);
+            if (_event.CreatedById== userId || userRoles.Contains("Admin"))
+            {
+                _unitOfWork.EventRepository.DeleteEvent(_event);
+            }
+            return;
         }
 
         public Task<Event> GetEventDetailsAsync(int id)
 		{
             return _unitOfWork.EventRepository.GetEventDetailsAsync(id);
 		}
-
-	}
+        public Task Commit()
+        {
+            return _unitOfWork.Commit();
+        }
+    }
 }

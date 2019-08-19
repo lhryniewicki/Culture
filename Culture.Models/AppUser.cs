@@ -14,7 +14,7 @@ namespace Culture.Models
 		public ICollection<UserInEvent> ParticipatedEvents{ get; set; }
 		public ICollection<Event> HostedEvents { get; set; }
 		public ICollection<EventReaction> EventReactions { get; set; }
-		public ICollection<UserNotification> Notifications { get; set; }
+		public ICollection<Notification> Notifications { get; set; }
 		public ICollection<Comment> Comments { get; set; }
 
 		public int CalendarId { get; set; }
@@ -25,7 +25,8 @@ namespace Culture.Models
 			ParticipatedEvents = new List<UserInEvent>();
 			HostedEvents = new List<Event>();
 			EventReactions = new List<EventReaction>();
-			Notifications = new List<UserNotification>();
+			Notifications = new List<Notification>();
+            Comments = new List<Comment>();
 		}
 	}
 }

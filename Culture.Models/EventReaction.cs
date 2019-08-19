@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Culture.Utilities.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +9,9 @@ namespace Culture.Models
 {
 	public class EventReaction
 	{
-		public string Name { get; set; }
-		//jakis obrazek te zzdecydowac jak przechowac
+		public ReactionType Type{ get; set; }
 		public int EventId { get; set; }
 		public Event Event { get; set; }
-
 		public Guid UserId { get; set; }
 		public AppUser User { get; set; }
 	}

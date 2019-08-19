@@ -30,17 +30,27 @@ namespace Culture.Services.Services
 
 			};
 			await _unitOfWork.CommentRepository.AddCommentAsync(comment);
-            await _unitOfWork.Commit();
+
 			return comment;
 		}
 
-		public async Task<Comment> EditCommentAsync(CommentViewModel comment, Guid id)
+        public async Task DeleteComment(int commentId, Guid userId, IList<string> userRoles)
+        {
+            var comment = await _unitOfWork.CommentRepository.GetCommentAsync(commentId);
+            if(comment.AuthorId==userId || userRoles.Contains("Admin"))
+            {
+                 _unitOfWork.CommentRepository.DeleteComment(comment);
+            }
+          
+            return;
+        }
+
+        public async Task<Comment> EditCommentAsync(CommentViewModel comment, Guid id)
 		{
 			if (comment.AuthorId != id) return null;
 
 			var _comment = await _unitOfWork.CommentRepository.GetCommentAsync(comment.CommentId);
 			_comment.Content = comment.Content;
-            await _unitOfWork.Commit();
 
             return _comment;
 			
@@ -50,5 +60,10 @@ namespace Culture.Services.Services
         {
             return await _unitOfWork.CommentRepository.GetEventCommentsAsync(id, skip, take);
         }
+        public Task Commit()
+        {
+            return _unitOfWork.Commit();
+        }
+ 
     }
 }

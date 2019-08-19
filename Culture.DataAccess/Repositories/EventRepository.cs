@@ -20,10 +20,15 @@ namespace Culture.DataAccess.Repositories
 			_dbContext = dbContext;
 		}
 
-		public async Task AddEventAsync(Event eventt)
+		public async Task CreateEventAsync(Event eventt)
 		{
 			await _dbContext.Events.AddAsync(eventt);
 		}
+
+        public void DeleteEvent(Event _event)
+        {
+            _dbContext.Events.Remove(_event);
+        }
 
         public Task<Event> GetEventAsync(int id)
         {

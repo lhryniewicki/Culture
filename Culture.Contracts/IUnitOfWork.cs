@@ -11,6 +11,7 @@ namespace Culture.Contracts
         ICommentRepository CommentRepository { get;}
         IEventRepository EventRepository { get; }
         IUserRepository UserRepository { get;}
+        INotificationRepository NotificationRepository { get; }
 
        Task Commit();
 

@@ -37,7 +37,9 @@ namespace Culture.Web.Controllers
 
 				var user = await _userService.GetUserByName("lukasz");
 				var _event = await _eventService.CreateEventAsync(eventt, user.Id);
-				return Json(_event);
+                await _eventService.Commit();
+
+                return Json(_event);
 
 			}
 			catch (Exception e)
@@ -70,8 +72,28 @@ namespace Culture.Web.Controllers
             {
                 var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
                 var _comment = await _eventService.EditEvent(eventViewModel, user.Id);
+                await _eventService.Commit();
 
                 return Json(_comment);
+
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+        }
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteEvent([FromQuery]int eventId)
+        {
+            try
+            {
+                var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
+                var userRoles = await _userService.GetUserRoles(user);
+                await _eventService.DeleteEvent(eventId, user.Id, userRoles);
+                await _eventService.Commit();
+
+                return Ok();
 
             }
             catch (Exception e)

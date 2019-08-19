@@ -1,6 +1,7 @@
 ﻿using Culture.Contracts.IServices;
 using Culture.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,16 +18,26 @@ namespace Culture.Services.Services
 			_userManager = userManager;
 		}
 
-		public async Task<AppUser> GetUserById(string id)
+		public  Task<AppUser> GetUserById(string id)
 		{
-			var user = await _userManager.FindByIdAsync(id);
-			return user;
+			return  _userManager.FindByIdAsync(id);
 		}
 
-		public async Task<AppUser> GetUserByName(string name)
+		public  Task<AppUser> GetUserByName(string name)
 		{
-			var user = await _userManager.FindByNameAsync(name);
-			return user;
+			return _userManager.FindByNameAsync(name);
 		}
-	}
+
+        public Task<AppUser> GetUserByNameWithCalendar(string userName)
+        {
+            return _userManager.Users
+                 .Include(x => x.Calendar)
+                 .FirstOrDefaultAsync(x => x.UserName == userName);
+        }
+
+        public  Task<IList<string>> GetUserRoles(AppUser user)
+        {
+            return  _userManager.GetRolesAsync(user);
+        }
+    }
 }

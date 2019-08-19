@@ -10,7 +10,8 @@ namespace Culture.Contracts.IRepositories
 	public interface IEventRepository
 	{
 		Task<Event> GetEventDetailsAsync(int id);
-		Task AddEventAsync(Event eventt);
+		Task CreateEventAsync(Event eventt);
         Task<Event> GetEventAsync(int id);
+        void DeleteEvent(Event _event);
     }
 }

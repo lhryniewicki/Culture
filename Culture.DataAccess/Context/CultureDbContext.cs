@@ -16,7 +16,6 @@ namespace Culture.DataAccess.Context
 		public DbSet<Event> Events { get; set; }
 		public DbSet<EventReaction> EventReactions { get; set; }
 		public DbSet<Notification> Notifications { get; set; }
-		public DbSet<UserNotification> UserNotifications { get; set; }
 		public DbSet<UserInEvent> UsersInEvent { get; set; }
 		public DbSet<EventInCalendar> EventsInCalendar { get; set; }
 
@@ -103,20 +102,11 @@ namespace Culture.DataAccess.Context
 		}
 		private void ConfigureUserNotification(ModelBuilder builder)
 		{
-			var userNotificationBuilder = builder.Entity<UserNotification>();
+            var userNotificationBuilder = builder.Entity<Notification>();
 
-			userNotificationBuilder
-			.HasKey(k => new { k.NotificationId, k.UserId });
-
-			userNotificationBuilder
-				.HasOne(x => x.Notification)
-				.WithMany(x => x.Users)
-				.HasForeignKey(x => x.NotificationId);
-
-			userNotificationBuilder
-				.HasOne(x => x.User)
-				.WithMany(x => x.Notifications)
-				.HasForeignKey(x => x.UserId);
+            userNotificationBuilder
+                .HasOne(x => x.User)
+                .WithMany(x => x.Notifications);
 
 		}
 		private void ConfigureUserInEvent(ModelBuilder builder)

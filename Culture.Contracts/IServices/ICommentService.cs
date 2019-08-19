@@ -12,5 +12,8 @@ namespace Culture.Contracts.IServices
 		Task<Comment> CreateCommentAsync(string content, int eventId, Guid userId);
 		Task<Comment> EditCommentAsync(CommentViewModel comment, Guid id);
         Task<IEnumerable<Comment>> GetEventCommentsAsync(int id, int skip, int take);
+        Task DeleteComment(int commentId,Guid userId,IList<string> userRoles);
+        Task Commit();
+
     }
 }
