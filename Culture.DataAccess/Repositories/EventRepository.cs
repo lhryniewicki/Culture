@@ -35,6 +35,12 @@ namespace Culture.DataAccess.Repositories
             return _dbContext.Events
                 .SingleOrDefaultAsync(x => x.Id == id);
         }
+		public Task<Event> GetEventWithReactions(int id)
+		{
+			return _dbContext.Events
+				.Include(x=>x.Reactions)
+				.SingleOrDefaultAsync(x => x.Id == id);
+		}
 
         public Task<Event> GetEventDetailsAsync(int id)
 		{

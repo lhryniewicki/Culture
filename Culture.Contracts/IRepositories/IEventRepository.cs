@@ -12,6 +12,7 @@ namespace Culture.Contracts.IRepositories
 		Task<Event> GetEventDetailsAsync(int id);
 		Task CreateEventAsync(Event eventt);
         Task<Event> GetEventAsync(int id);
-        void DeleteEvent(Event _event);
+		Task<Event> GetEventWithReactions(int id);
+		void DeleteEvent(Event _event);
     }
 }

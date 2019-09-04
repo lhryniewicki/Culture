@@ -17,5 +17,6 @@ namespace Culture.Contracts.ViewModels
 		public string Category { get; set; } //zrobic enum
 		public string StreetName { get; set; }
 		public string CityName { get; set; }
+		public List<ReactionViewModel> Reactions { get; set; }
 	}
 }

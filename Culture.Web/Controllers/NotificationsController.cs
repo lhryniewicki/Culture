@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Culture.Contracts.DTOs;
+using Culture.Contracts.Dtos.NotificationWebJob;
 using Culture.Contracts.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,14 +15,17 @@ namespace Culture.Web.Controllers
     {
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
+		private readonly IEventService _eventService;
 
-        public NotificationsController(
+		public NotificationsController(
             IUserService userService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+			IEventService eventService)
         {
             _userService = userService;
             _notificationService = notificationService;
-        }
+			_eventService = eventService;
+		}
 
         [HttpGet]
         public async Task<JsonResult> GetNumberOfNotifications()
@@ -33,12 +36,15 @@ namespace Culture.Web.Controllers
             return Json(numberOfNotifications);
         }
         [HttpPost]
-        public async Task<JsonResult> CreateNotificationsWebJob([FromBody]NotificationWebJob notificationWebJob)
+        public async Task CreateNotificationsWebJob([FromBody]NotificationWebJob notificationWebJob)
         {
-           var notification= await _notificationService.CreateNotificationsAsync(notificationWebJob.Content, notificationWebJob.TargetUsers, notificationWebJob.EventId);
-           await _notificationService.Commit();
+			foreach(var _event in notificationWebJob.Notifications)
+			{
+				var targetEvent = await _eventService.GetEventAsync(_event.EventId);
+				var notification = await _notificationService.CreateNotificationsAsync($"Masz nadchodzace wydarzenie: {targetEvent.Name}!", _event.TargetUsers, _event.EventId);
 
-            return Json(notification);
+			}
+			await _notificationService.Commit();
         }
         [HttpPut]
         public async Task MarkAsRead([FromBody]int notificationId)

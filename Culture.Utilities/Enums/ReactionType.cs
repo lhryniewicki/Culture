@@ -7,9 +7,9 @@ namespace Culture.Utilities.Enums
     public enum ReactionType
     {
         Like,
-        Love,
+        Heart,
         Anger,
-        Laughter,
-        Sadness
+        Laugh,
+        Saddness
     }
 }

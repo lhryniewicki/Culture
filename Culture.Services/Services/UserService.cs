@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Culture.Services.Services
@@ -17,6 +18,15 @@ namespace Culture.Services.Services
 		{
 			_userManager = userManager;
 		}
+
+		public async Task<IEnumerable<Guid>> GetEventParticipants(int id)
+		{
+			return await _userManager.Users
+				.Where(x => x.ParticipatedEvents.Any(y => y.EventId == id))
+				.Select(x=>x.Id)
+				.ToListAsync();
+		}
+
 
 		public  Task<AppUser> GetUserById(string id)
 		{

@@ -36,10 +36,11 @@ namespace Culture.Web.Controllers
             try
             {
                 var user = await _userService.GetUserByName("lukasz");
-                var _comment = await _commentService.CreateCommentAsync(comment.Content, comment.EventId, user.Id);
-                var eventOrganizer = await _userService.GetUserByEventId();
-                var notificationTargets = new List<Guid>() { comment.}
-                _notificationService.CreateNotificationsAsync
+				var _event = await _eventService.GetEventAsync(comment.EventId);
+				var notificationTargets = new List<Guid>() { _event.CreatedById};
+
+				var _comment = await _commentService.CreateCommentAsync(comment.Content, comment.EventId, user.Id);
+				await _notificationService.CreateNotificationsAsync($"Twoje wydarzenie zostało skomentowane: {_event.Name}", notificationTargets, _event.Id);
                 await _commentService.Commit();
 
                 return Json(_comment);
@@ -52,7 +53,7 @@ namespace Culture.Web.Controllers
             }
         }
         [HttpGet("get")]
-        public async Task<JsonResult> GetEventComments([FromQuery]int id,int skip=0,int take=5)
+        public async Task<JsonResult> GetEventComments(int id,int skip=0,int take=5)
         {
             try
             {
@@ -86,7 +87,7 @@ namespace Culture.Web.Controllers
             }
         }
         [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteEventComment([FromQuery] int commentId)
+        public async Task<IActionResult> DeleteEventComment(int commentId)
         {
             try
             {

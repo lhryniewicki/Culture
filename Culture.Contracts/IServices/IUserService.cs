@@ -12,8 +12,7 @@ namespace Culture.Contracts.IServices
 		Task<AppUser> GetUserByName(string name);
         Task<IList<string>> GetUserRoles(AppUser user);
         Task<AppUser> GetUserByNameWithCalendar(string userName);
-        Task<AppUser> GetUserByEventId(Guid id);
+		Task<IEnumerable<Guid>> GetEventParticipants(int id);
 
-
-    }
+	}
 }
