@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import NavBar from '../NavBar/NavBar';
 import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import EventsView from '../EventsView/EventsView';
+import Register from '../Register/Register';
+import Login from '../Login/Login';
 
 export default class App extends Component {
   displayName = App.name
@@ -13,6 +15,9 @@ export default class App extends Component {
               <Router>
                   <Switch>
                       <Route exact path="/" render={()=><EventsView/>}/>
+                      <Route exact path="/register" render={() => <Register />} />
+                      <Route exact path="/login" render={() => <Login />} />
+
 
                   </Switch>
               </Router>
