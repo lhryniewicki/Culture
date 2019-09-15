@@ -7,7 +7,7 @@ class Login extends React.Component {
     render() {
         return (
             <div className="container">
-                <form className="text-center border border-gray col-xs-4 col-xs-offset-4 " style={{ marginTop: '20%' }} onSubmit>
+                <form className="text-center border border-gray col-md-4 col-md-offset-4 " style={{ marginTop: '20%' }} onSubmit>
 
                     <p className="h4 mb-4">Logowanie</p>
 

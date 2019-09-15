@@ -17,6 +17,7 @@ namespace Culture.Models
 		public string StreetName { get; set; }
 		public string CityName { get; set; }
 		public DateTime CreationDate { get; set; }
+		public DateTime TakesPlaceDate { get; set; }
 		public ICollection<UserInEvent> Participants { get; set; }
 		public ICollection<Comment> Comments { get; set; }
 		public ICollection<EventReaction> Reactions { get; set; }

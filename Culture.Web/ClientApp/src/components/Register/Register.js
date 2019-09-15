@@ -8,7 +8,7 @@ class Register extends React.Component {
         return (
             <div className="container">
 
-                <form className="text-center border border-gray p-5 col-xs-4 col-xs-offset-4 " style={{ marginTop: '17%' }} >
+                <form className="text-center border border-gray p-5 col-md-4 col-md-offset-4 " style={{ marginTop: '17%' }} >
 
                     <p className="h4 mb-4">Zarejestruj</p>
 

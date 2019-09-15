@@ -27,7 +27,6 @@ namespace Culture.Web.Controllers
         [HttpPost("signuser")]
         public async Task<IActionResult> SignUserToEvent([FromBody]int eventId)
         {
-
             try
             {
                 var user = await _userService.GetUserByName("lukasz");

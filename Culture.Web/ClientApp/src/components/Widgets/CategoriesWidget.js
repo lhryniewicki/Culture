@@ -6,7 +6,7 @@ class CategoriesWidget extends React.Component {
     render() {
         return (
             <div className="card my-4">
-                <h5 className="card-header">Categories</h5>
+                <h5 className="card-header">Kategorie</h5>
                 <div className="card-body">
                     <div className="row">
                         <div className="col-lg-6">

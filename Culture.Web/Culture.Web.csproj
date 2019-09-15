@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\src\api\" />
-    <Folder Include="ClientApp\src\assets\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

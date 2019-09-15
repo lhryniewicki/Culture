@@ -1,6 +1,15 @@
 ﻿import React from 'react';
 import '../EventPost/EventPost.css';
 import Comment from '../Comment/Comment';
+import Reactions from '../Reactions/Reactions';
+const images = {
+      like:require('../../assets/reactions/like.svg'),
+      love: require('../../assets/reactions/love.svg'),
+      wow: require('../../assets/reactions/wow.svg'),
+      haha: require('../../assets/reactions/haha.svg'),
+      angry: require('../../assets/reactions/angry.svg'),
+      sad: require('../../assets/reactions/sad.svg')
+};
 
 class EventPost extends React.Component {
     constructor(props) {
@@ -9,13 +18,58 @@ class EventPost extends React.Component {
         this.state = {
             source: null,
             comments: [],
+            reactions: {
+                angry: 0,
+                haha: 0,
+                like: 0,
+                love: 0,
+                sad: 0,
+                wow:0
+            },
+            reactionsCount: 0,
+            commentsCount:0,
+            showReactionModal:false,
             showComments: false,
-            commentsPage:0
+            commentsPage: 0,
+            mouseCoords:0
         };
 
         
         this.showComments = this.showComments.bind(this);
         this.moreComments = this.moreComments.bind(this);
+        this.onReactionClick = this.onReactionClick.bind(this);
+        this.onReactionSend = this.onReactionSend.bind(this);
+        this.closeModal = this.closeModal.bind(this);
+        this.sortReactions = this.sortReactions.bind(this);
+
+    }
+
+    
+    componentDidMount() {
+    }
+    closeModal() {
+        this.setState({ showReactionModal: false });
+    }
+    onReactionClick(e) {
+        e.preventDefault();
+        this.setState({
+            mouseCoords:e.clientY
+            ,
+            showReactionModal: true
+        });
+    }
+    async onReactionSend(e) {
+        
+        var reactionState = { ...this.state.reactions };
+
+        reactionState[e.target.name] += 1;
+
+        await this.setState({
+            reactions: reactionState,
+            reactionsCount: this.state.reactionsCount+1
+        });
+        this.sortReactions();
+
 
     }
     showComments(event) {
@@ -73,6 +127,37 @@ class EventPost extends React.Component {
             comments:items
         });
     }
+     sortReactions() {
+        var sorted = [];
+        for (var reaction in this.state.reactions) {
+            sorted.push([reaction, this.state.reactions[reaction]]);
+        }
+        sorted.sort( (a, b) => {
+            return b[1] - a[1];
+        });
+        var result = {};
+        sorted.forEach((item) => {
+            result[item[0]] = item[1];
+       });
+         this.setState({ reactions: result });
+    }
+    displaySortedReactions() {
+        var items = [];
+        Object.keys(this.state.reactions).forEach((element, index) => {
+            if (this.state.reactions[element]>0)
+            items.push(<img draggable={false}
+                onMouseOver={this.onReactionMouseOver}
+                name={element}
+                src={images[element]}
+                width="25px"
+                height="25px"
+                data-toggle="popover"
+                key={index}
+                data-placement="top"
+                title={`Ilość reakcji: ` + this.state.reactions[element]} />)
+        });
+        return items;
+    }
     render() {
         return (
             <div className="card mb-4">
@@ -85,13 +170,25 @@ class EventPost extends React.Component {
                 <div className="card-footer text-muted">
                     Posted on January 1, 2017 by
             <a href="#">Start Bootstrap</a>
+                    {
+                        this.displaySortedReactions()
+                    }
+                                        
+                    
+                    {this.state.reactionsCount}
                     <div className="pull-right">
-                        <span style={{ marginRight: "50px" }}> Reakcje</span>
+                        <a href="" onClick={this.onReactionClick} className="comment" style={{ marginRight: "50px" }}> Reaguj</a>
 
-                        <a href="#" onClick={this.showComments} className="comment">  Komentarze</a>
+                        <a href="" onClick={this.showComments} className="comment">  Komentarze</a>
                         
                     </div>
-                   
+
+                    <Reactions images={images}
+                        onReactionSend={this.onReactionSend}
+                        mouseCoords={this.state.mouseCoords}
+                        closeModal={this.closeModal}
+                        showModal={this.state.showReactionModal} />
+                     
                 </div>
                 {this.state.showComments === true
                     ?
