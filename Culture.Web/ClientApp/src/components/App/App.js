@@ -23,9 +23,6 @@ export default class App extends Component {
                       <Route exact path="/create" render={() => <EventForm />} />
                       <Route exact path="/calendar" render={() => <CalendarView />} /> 
                       <Route exact path="/event/details/:eventId" render={() => <EventDetailsView />} />
-
-
-
                   </Switch>
               </Router>
           </div>

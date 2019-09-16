@@ -49,7 +49,7 @@ class EventsView extends React.Component {
                                 </li>
                             </ul>
                         </div>
-                        <div className="col-md-4" >
+                        <div className="col-md-3 fixed" >
                             <div className="affix">
                                 <SearchWidget />
                                 <CategoriesWidget />
