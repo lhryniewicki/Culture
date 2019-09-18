@@ -24,7 +24,7 @@ namespace Culture.Web.Controllers
 		{
 			return View();
 		}
-		[HttpGet("login")]
+		[HttpPost("login")]
 
 		public async Task<JsonResult> Login([FromBody] LoginViewModel loginViewModel)
 		{
@@ -32,7 +32,7 @@ namespace Culture.Web.Controllers
 			try
 			{
 				var token = await _authService.Login(loginViewModel);
-
+                
 				return Json(token);
 			}
 			catch(LoginErrorException e)

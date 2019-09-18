@@ -54,7 +54,6 @@ namespace Culture.Services.Services
             _event.Category = eventViewModel.Category;
             _event.CityName = eventViewModel.CityName;
 
-
             return _event;
 
             

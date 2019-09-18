@@ -2,7 +2,9 @@
 import DayPickerInput from 'react-day-picker/DayPickerInput';
 import TimePicker from 'rc-time-picker';
 import EventPost from '../EventPost/EventPost';
+import { createEvent } from '../../api/EventApi';
 import 'react-day-picker/lib/style.css';
+import '../EventForm/EventForm.css'
 import 'rc-time-picker/assets/index.css';
 
 
@@ -18,8 +20,10 @@ class EventForm extends React.Component {
             eventPrice: 0,
             eventCity: "",
             eventStreet: "",
-            file:"",
-            category: "",
+            file: {
+                name: "Wybierz plik"
+            },
+            eventCategory: "",
             showPreview: false,
             time:"",
             date: {
@@ -33,7 +37,7 @@ class EventForm extends React.Component {
         this.handleTimeChange = this.handleTimeChange.bind(this);
         this.handleFilePick = this.handleFilePick.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
-        this.sumbitForm = this.sumbitForm.bind(this);
+        this.submitForm = this.submitForm.bind(this);
         this.previewForm = this.previewForm.bind(this);
 
     }
@@ -46,9 +50,10 @@ class EventForm extends React.Component {
         timePicker[0].readonly = true;
         timePicker[0].setAttribute("class", "form-control");
     }
-    handleDayChange(day, modifiers, picker) {
+
+     handleDayChange(day, modifiers, picker) {
         var dateArray = picker.getInput().value.split('-');
-        this.setState({
+         this.setState({
             date: {
                 year: dateArray[0],
                 month: dateArray[1],
@@ -68,18 +73,37 @@ class EventForm extends React.Component {
             item.checked = false;
         });
         e.target.checked = true;
-
+        this.setState({ [e.target.name]: e.target.value });
     }
-    async handleFilePick(event) {
-        await this.setState({
-            file: event.target.files[0]
-        });
+     handleFilePick(event) {
+        if (event.target.files[0] === undefined) {
+            let file = { name: 'Wybierz plik' }
+            this.setState({ file: file })
+        }
+        else {
+             this.setState({
+                file: event.target.files[0]
+            });
+        }
     }
-    sumbitForm() {
-
+    async submitForm(e) {
+        e.preventDefault();
+        console.log(this.state)
+      await  createEvent(this.state);
     }
     previewForm() {
-        return <EventPost />;
+        return <EventPost
+            isPreview={false}
+            eventName={this.state.eventName}
+            eventDescription={this.state.eventDescription}
+            eventCity={this.state.eventCity}
+            eventPrice={this.state.eventPrice}
+            eventStreet={this.state.eventStreet}
+            picture={this.state.file}
+            category={this.state.category}
+            date={this.state.date}
+            time={this.state.time}
+        />;
     }
     render() {
 
@@ -110,29 +134,54 @@ class EventForm extends React.Component {
 
         return (
             <div className="container">
-                <form onSubmit={this.submitForm}>
+                <form  onSubmit={this.submitForm}>
                 <div className="row">
                     <div className="card my-4 col-md-3">
                         <h5 className="card-header">Kategorie</h5>
                         <div className="card-body">
                             <div className="row">
-                                <div className="col-md-7">
+                                <div className="col-md-9">
                                     <div className="custom-control custom-checkbox" onClick={this.onCheckBoxClick} >
                                         <div className="form-check-inline"  >
                                             <label htmlFor="check1">
-                                                    <input type="checkbox" className="form-check-input" id="check1" value="Kat1" />Kat1
+                                                    <input type="checkbox" name="eventCategory" className="form-check-input" id="check1" value="Nauka i Edukacja" />Nauka i Edukacja
                                         </label>
                                         </div>
                                         <div className="form-check-inline">
                                             <label htmlFor="check2">
-                                                    <input type="checkbox" className="form-check-input" id="check2" value="Kat2" />Kat2
+                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check2" value="Sport i Rekreacja" />Sport i Rekreacja
                                         </label>
                                         </div>
                                         <div className="form-check-inline">
                                             <label htmlFor="check3">
-                                                    <input type="checkbox" className="form-check-input" id="check3" value="Kat3" />Kat3
+                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check3" value="Dom i Rodzina" />Dom i Rodzina
                                         </label>
-                                        </div>
+                                            </div>
+                                            <div className="form-check-inline"  >
+                                                <label htmlFor="check4">
+                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check4" value="Kultura i Sztuka" />Kultura i Sztuka
+                                        </label>
+                                            </div>
+                                            <div className="form-check-inline">
+                                                <label htmlFor="check5">
+                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check5" value="Muzyka" />Muzyka
+                                        </label>
+                                            </div>
+                                            <div className="form-check-inline">
+                                                <label htmlFor="check6">
+                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check6" value="Turystyka" />Turystyka
+                                        </label>
+                                            </div>
+                                            <div className="form-check-inline">
+                                                <label htmlFor="check7">
+                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check7" value="Styl Życia" />Styl Życia
+                                        </label>
+                                            </div>
+                                            <div className="form-check-inline">
+                                                <label htmlFor="check8">
+                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check8" value="Regionalia" />Regionalia
+                                        </label>
+                                            </div>
 
                                     </div>
                                 </div>
@@ -145,7 +194,8 @@ class EventForm extends React.Component {
                         
                             <div className="mt-4">
                                 <input type="text"
-                                    name={this.state.eventName}
+                                    name="eventName"
+                                    value={this.state.eventName}
                                     onChange={this.handleInputChange}
                                     className="form-control"
                                     placeholder="Nazwa wydarzenia"
@@ -154,8 +204,10 @@ class EventForm extends React.Component {
                             </div>
                             <div className="mt-4">
                                 <textarea type="text"
-                                    className="form-control"
-                                    name={this.state.eventDescription}
+                                    className="form-control showSpace"
+                                    name="eventDescription"
+                                    style={{ whiteSpace:"pre-Wrap"}}
+                                    value={this.state.eventDescription}
                                     onChange={this.handleInputChange}
                                     placeholder="Opis wydarzenia"
                                     required
@@ -202,8 +254,8 @@ class EventForm extends React.Component {
 
                                         type="button"
                                         onClick={() => this.fileInput.click()}
+                                        onChange={() => this.fileInput.click()}
                                         className="form-control "
-                                        placeholder="Wybierz zdjęcie"
                                         value={this.state.file.name}
 
                                    />
@@ -212,21 +264,24 @@ class EventForm extends React.Component {
                             <div className="row "> 
                                 <div className=" col-md-5 mb-4">
                                     <input type="text"
-                                        name={this.state.eventCity}
+                                        name="eventCity"
+                                        value={this.state.eventCity}
                                         onChange={this.handleInputChange}
                                         className="form-control" placeholder="Miasto"
                                         required />
                                 </div>
                                 <div className="col-md-4 mb-4">
                                     <input type="text"
-                                        name={this.state.eventStreet}
+                                        name="eventStreet"
+                                        value={this.state.eventStreet}
                                         onChange={this.handleInputChange}
                                         className="form-control" placeholder="Ulica numer/lokal"
                                         required />
                                 </div>
                                 <div className=" col-md-3 mb-4">
                                     <input type="number"
-                                        name={this.state.eventPrice}
+                                        name="eventPrice"
+                                        value={this.state.eventPrice}
                                         onChange={this.handleInputChange}
                                         className="form-control"
                                         placeholder="Cena biletu"
@@ -238,7 +293,7 @@ class EventForm extends React.Component {
                                     <button type="button"
                                         onClick={() => { this.setState({ showPreview: !this.state.showPreview }); }}
                                         className="btn btn-success mr-1">Podgląd</button>
-                                    <button type="submit" className="btn btn-primary">Wyślij</button>
+                                    <button  className="btn btn-primary">Wyślij</button>
                                 </div>
                             </div>
                     </div>

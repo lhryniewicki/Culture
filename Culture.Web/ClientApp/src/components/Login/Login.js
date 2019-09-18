@@ -1,19 +1,53 @@
 ﻿import React from 'react';
+import {signIn} from '../../api/AccountApi';
+import { Redirect } from 'react-router-dom'
+
 
 
 class Login extends React.Component {
+    constructor(props) {
+        super(props);
 
+        this.state = {
+            userName: '',
+            password:'',
+            redirect:false
+        }
+        this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleSumbit = this.handleSumbit.bind(this);
 
+    }
+    handleInputChange(e) {
+        this.setState({
+            [e.target.name]: e.target.value
+        });
+    }
+   async handleSumbit(e) {
+        e.preventDefault();
+       let token = await signIn(
+            this.state.userName,
+            this.state.password
+        );
+    this.props.setToken(token);
+    this.setState({redirect:true});
+        
+    }
+renderRedirect = () => {
+    if (this.state.redirect) {
+      return <Redirect to='/' />
+    }
+}
     render() {
         return (
             <div className="container">
-                <form className="text-center border border-gray col-md-4 col-md-offset-4 " style={{ marginTop: '20%' }} onSubmit>
+                 {this.renderRedirect()}
+                <form className="text-center border border-gray col-md-4 col-md-offset-4 " style={{ marginTop: '20%' }} onSubmit={this.handleSumbit}>
 
                     <p className="h4 mb-4">Logowanie</p>
 
-                    <input type="email" id="defaultLoginFormEmail" className="form-control mb-4" placeholder="Nazwa użytkownika" required />
+                    <input type="text" name="userName" value={this.state.userName} onChange={this.handleInputChange} className="form-control mb-4" placeholder="Nazwa użytkownika" required />
 
-                    <input type="password" id="defaultLoginFormPassword" className="form-control mb-4" placeholder="Hasło" required />
+                    <input type="password" name="password" value={this.state.password} onChange={this.handleInputChange} className="form-control mb-4" placeholder="Hasło" required />
                     <button className="btn btn-info btn-block my-4" type="submit">Zaloguj</button>
                     <hr />
                     <div className="d-flex justify-content-around">
@@ -26,11 +60,6 @@ class Login extends React.Component {
                             <a href="">Załóż</a>
                         </p>
                     </div>
-
-
-
-                   
-
 
                 </form>
             </div>

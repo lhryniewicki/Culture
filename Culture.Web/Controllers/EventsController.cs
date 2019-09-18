@@ -42,7 +42,7 @@ namespace Culture.Web.Controllers
 			try
 			{
 
-				var user = await _userService.GetUserByName("lukasz");
+				var user = await _userService.GetUserByName("maciek");
 				var _event = await _eventService.CreateEventAsync(eventt, user.Id);
                 await _eventService.Commit();
 
@@ -72,15 +72,32 @@ namespace Culture.Web.Controllers
 			}
 			
 		}
+        [HttpGet("get")]
+        public async Task<JsonResult> GetEventPreviewList(int page=0,string category=null)
+        {
+            try
+            {//todo
+                var _event = await _eventService.GetEventDetailsAsync(page);
+
+                return Json(_event);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+
+        }
         [HttpPut("edit")]
         public async Task<JsonResult> EditEvent([FromBody]EventViewModel eventViewModel)
         {
             try
             {
                 var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
-                var _event = await _eventService.EditEvent(eventViewModel, user.Id);
-				var eventParticipants = await _userService.GetEventParticipants(eventViewModel.Id);
-
+                var _eventReq = _eventService.EditEvent(eventViewModel, user.Id);
+				var eventParticipantsReq = _userService.GetEventParticipants(eventViewModel.Id);
+                var _event = await _eventReq;
+                var eventParticipants = await eventParticipantsReq;
 				await _notificationService.CreateNotificationsAsync(
 					$"Wydarzenie zostało zmienione: {_event.Name}! Sprawdz jego szczegóły",eventParticipants, eventViewModel.Id);
 
@@ -108,7 +125,7 @@ namespace Culture.Web.Controllers
                 await _eventService.DeleteEvent(eventId, user.Id, userRoles);
 
 				await _notificationService.CreateNotificationsAsync(
-					$"Wydarzenie zostało usunięte: {_event.Name}! Sprawdz jego szczegóły!", eventParticipants, _event.Id);
+					$"Wydarzenie zostało usunięte: {_event.Name}!", eventParticipants, _event.Id);
 
 				await _eventService.Commit();
 

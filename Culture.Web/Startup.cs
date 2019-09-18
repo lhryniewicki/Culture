@@ -9,8 +9,6 @@ using Culture.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -42,8 +40,10 @@ namespace Culture.Web
 			services.AddScoped<IUserService, UserService>();
 			services.AddScoped<IEventService, EventService>();
 			services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IReactionService, ReactionService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ICalendarService, CalendarService>();
 
 
@@ -51,6 +51,7 @@ namespace Culture.Web
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<IEventReactionRepository, EventReactionRepository> ();
             services.AddScoped<INotificationRepository, NotificationRepository>();
 
 

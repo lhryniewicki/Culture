@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-
+import { Redirect } from 'react-router';
 
 class NavBar extends React.Component{
 
@@ -8,26 +8,29 @@ class NavBar extends React.Component{
         super(props);
 
         this.state = {
-            menu: false
+            menu: false,
+            redirect:false
         };
 
         this.toggleMenu = this.toggleMenu.bind(this);
+        this.logOut = this.logOut.bind(this);
 
     }
 
     toggleMenu() {
         this.setState({ menu: !this.state.menu });
     }
+    async logOut() {
+        this.props.removeToken();
+       await this.setState({ redirect: true });
 
-
+    }
     render() {
         const show = (this.state.menu) ? "show" : "";
         const move = (this.state.menu) ? "pull-left" : "pull-right";
 
         return (
-
-
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top affix">
+            <nav className="navbar navbar-expand-md navbar-dark bg-dark fixed-top affix">
                 <div className="container">
                     <a className="navbar-brand" href="">MyCulture</a>
                     <button className="navbar-toggler" type="button" onClick={this.toggleMenu} >
@@ -44,10 +47,10 @@ class NavBar extends React.Component{
                                     ?
                                     <React.Fragment>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="/login">Login</a>
+                                            <a className="nav-link" href="/account/login">Login</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="/register">Rejestracja</a>
+                                            <a className="nav-link" href="/account/register">Rejestracja</a>
                                         </li>
 
                                     </React.Fragment>  
@@ -58,10 +61,10 @@ class NavBar extends React.Component{
                                             <a className="nav-link" href="#">Moje konto</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="#">Wyloguj</a>
+                                            <a className="nav-link" href="#">Powiadomienia</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="#">Powiadomienia</a>
+                                            <a className="nav-link" href="" onClick={this.logOut}>Wyloguj</a>
                                         </li>
                                     </React.Fragment>
                                    
