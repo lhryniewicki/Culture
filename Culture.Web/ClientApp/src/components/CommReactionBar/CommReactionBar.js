@@ -25,11 +25,11 @@ class CommReactionBar extends React.Component {
                 sad: 0,
                 wow: 0
             },
-            reactionsCount: 0,
-            commentsCount: 0,
+            reactionsCount: this.props.reactionsCount,
+            commentsCount: this.props.commentsCount,
             showReactionModal: false,
             showComments: false,
-            commentsPage: 0,
+            commentsPage: 1,
             mouseCoords: 0
         }
 
@@ -41,6 +41,9 @@ class CommReactionBar extends React.Component {
         this.onReactionSend = this.onReactionSend.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.sortReactions = this.sortReactions.bind(this);
+    }
+    componentDidMount() {
+
     }
     closeModal() {
         this.setState({ showReactionModal: false });
@@ -156,8 +159,9 @@ class CommReactionBar extends React.Component {
         return (
             <div>
                 <div className="card-footer text-muted">
-                    Umieszczono dnia {this.props.date.day}-{this.props.date.month}-{this.props.date.year} przez
-            <a href="#"> Andrzejek12xx </a>
+                    {console.log(this.props.createdBy)}
+                    Umieszczono dnia {this.props.date} przez
+            <a href="#"> {this.props.createdBy} </a>
                     {
                         this.displaySortedReactions()
                     }
@@ -168,7 +172,7 @@ class CommReactionBar extends React.Component {
                         <div className="float-left">
                         <a href="" onClick={this.onReactionClick} className="comment" style={{ marginRight: "50px" }}> Reaguj</a>
 
-                        <a href="" onClick={this.showComments} className="comment">  Komentarze</a>
+                            <a href="" onClick={this.showComments} className="comment">  Komentarze: {this.state.commentsCount}</a>
                         </div>
                     </div>
 

@@ -50,7 +50,19 @@ namespace Culture.DataAccess.Repositories
 				.Include(x=>x.Comments)
 				.Include(x=>x.CreatedBy)
 				.SingleOrDefaultAsync(x => x.Id == id);
-
 		}
-	}
+
+        public async Task<IEnumerable<Event>> GetEventPreviewList(int page=0, string category=null)
+        {
+            var batchSize = 5;
+            return await _dbContext.Events
+                .Include(x=>x.Reactions)
+                .Include(x=>x.Comments)
+                .Include(x=>x.CreatedBy)
+                .Where(x => category != null ? x.Category == category : true)
+                .Skip(page * batchSize)
+                .Take(batchSize)
+                .ToListAsync();
+        }
+    }
 }

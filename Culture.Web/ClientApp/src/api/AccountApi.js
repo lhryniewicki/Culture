@@ -19,7 +19,6 @@ export const signIn = async (userName, password) => {
             return resp.json();
         })
         .then(token => {
-            console.log(token);
             return token
         })
         .catch(e => console.log(e));

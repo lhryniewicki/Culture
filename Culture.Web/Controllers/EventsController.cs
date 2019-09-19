@@ -22,28 +22,42 @@ namespace Culture.Web.Controllers
 		private readonly ICommentService _commentService;
 		private readonly INotificationService _notificationService;
 		private readonly IReactionService _reactionService;
+        private readonly IFileService _fileService;
 
-		public EventsController(
+        public EventsController(
 			IEventService eventService,
 			IUserService userService,
 			ICommentService commentService,
 			INotificationService notificationService,
-			IReactionService reactionService)
+			IReactionService reactionService,
+            IFileService fileService)
         {
 			_eventService = eventService;
 			_userService = userService;
 			_commentService = commentService;
 			_notificationService = notificationService;
 			_reactionService = reactionService;
-		}
+            _fileService = fileService;
+        }
 		[HttpPost("create")]
-		public async Task<JsonResult> CreateEvent([FromBody]EventViewModel eventt)
+		public async Task<JsonResult> CreateEvent([FromForm]EventViewModel eventt)
 		{
 			try
 			{
 
-				var user = await _userService.GetUserByName("maciek");
-				var _event = await _eventService.CreateEventAsync(eventt, user.Id);
+				var user =  await _userService.GetUserByName("maciek");
+
+                if (user == null)
+                {
+                    Response.StatusCode = 401;
+                    return Json("User not found in database");
+                }
+
+                var imagePath = await _fileService.UploadImage(eventt.Image);
+
+                var _event = await _eventService.CreateEventAsync(eventt,imagePath, user.Id);
+
+
                 await _eventService.Commit();
 
                 return Json(_event);
@@ -56,7 +70,7 @@ namespace Culture.Web.Controllers
 			}
 		}
 
-		[HttpGet("get")]
+		[HttpGet("/get/details")]
 		public async Task<JsonResult> GetEvent(int id)
 		{
 			try
@@ -76,8 +90,12 @@ namespace Culture.Web.Controllers
         public async Task<JsonResult> GetEventPreviewList(int page=0,string category=null)
         {
             try
-            {//todo
-                var _event = await _eventService.GetEventDetailsAsync(page);
+            {   
+                var _eventList = await _eventService.GetEventPreviewList(page,category);
+                var _event = new EventPreviewListViewModel()
+                {
+                    Events = _eventList
+                };
 
                 return Json(_event);
             }

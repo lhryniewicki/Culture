@@ -26,6 +26,10 @@ namespace Culture.Contracts.ViewModels
         public string StreetName { get; set; }
         [Required]
         public string CityName { get; set; }
-		public List<ReactionViewModel> Reactions { get; set; }
+        [Required]
+        public string[] EventDate { get; set; }
+        [Required]
+        public string EventTime { get; set; }
+        public List<ReactionViewModel> Reactions { get; set; }
 	}
 }

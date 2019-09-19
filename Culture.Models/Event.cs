@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace Culture.Models
 		public int Price { get; set; }
 		public string Name { get; set; }
 		public string Content { get; set; }
-		public byte[] Image { get; set; }
+		public string ImagePath { get; set; }
 		public string Category { get; set; } //zrobic enum
 		public string StreetName { get; set; }
 		public string CityName { get; set; }

@@ -45,6 +45,7 @@ namespace Culture.Web
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ICalendarService, CalendarService>();
+            services.AddScoped<IFileService, FileService>();
 
 
 

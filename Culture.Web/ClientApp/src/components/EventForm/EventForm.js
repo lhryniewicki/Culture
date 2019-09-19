@@ -26,11 +26,7 @@ class EventForm extends React.Component {
             eventCategory: "",
             showPreview: false,
             time:"",
-            date: {
-                day: "",
-                month: "",
-                year:""
-            }
+            date: []
         };
         this.onCheckBoxClick = this.onCheckBoxClick.bind(this);
         this.handleDayChange = this.handleDayChange.bind(this);
@@ -52,13 +48,9 @@ class EventForm extends React.Component {
     }
 
      handleDayChange(day, modifiers, picker) {
-        var dateArray = picker.getInput().value.split('-');
+        var dateArray= picker.getInput().value.split('-');
          this.setState({
-            date: {
-                year: dateArray[0],
-                month: dateArray[1],
-                day: dateArray[2]
-            }
+             date: dateArray
         });
     }
     handleTimeChange(newTime) {
@@ -88,7 +80,6 @@ class EventForm extends React.Component {
     }
     async submitForm(e) {
         e.preventDefault();
-        console.log(this.state)
       await  createEvent(this.state);
     }
     previewForm() {
