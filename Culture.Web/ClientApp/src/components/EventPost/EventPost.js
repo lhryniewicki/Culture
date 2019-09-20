@@ -42,6 +42,7 @@ class EventPost extends React.Component {
                     <a href="" onClick={() => { return !this.props.isPreview}} className="btn btn-primary">Szczegóły... &rarr;</a>
                 </div>
                 <CommReactionBar
+                    id={this.props.id}
                     createdBy={this.props.createdBy}
                     reactions={this.props.reactions}
                     reactionsCount={this.props.reactionsCount}

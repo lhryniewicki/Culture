@@ -93,20 +93,7 @@ namespace Culture.Services.Services
           
           var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page, category);
 
-
-            return eventList.Select(x => new EventsPreviewDto()
-            {
-                Comments = x.Comments,
-                CreatedBy = x.CreatedBy.UserName,
-                CreationDate = x.CreationDate,
-                Image = x.ImagePath,
-                Reactions = x.Reactions,
-                Name = x.Name,
-                CommentsCount = x.Comments.Count,
-                ReactionsCount = x.Reactions.Count,
-                ShortContent = x.Content.Substring(0, x.Content.Length > 255 ? 255 : x.Content.Length),
-                Id=x.Id
-            });
+          return eventList.Select(x => new EventsPreviewDto(x));
         }
         private DateTime convertDate(string[] date,string time)
         {

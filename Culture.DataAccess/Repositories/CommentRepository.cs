@@ -29,13 +29,12 @@ namespace Culture.DataAccess.Repositories
 				.SingleOrDefaultAsync(x => x.Id == id);
 		}
         
-        public async Task<IEnumerable<Comment>> GetEventCommentsAsync(int id, int skip, int take)
+        public async Task<IEnumerable<Comment>> GetEventCommentsAsync(int id, int page, int take)
         {
             return await _dbContext.Comments
                 .Include(x => x.Author)
-                .Include(x => x.Image)
                 .Where(x => x.EventId == id)
-                .Skip(skip * take)
+                .Skip(page * take)
                 .Take(take)
                 .ToListAsync();
         }

@@ -47,7 +47,6 @@ class EventsView extends React.Component {
                     picture={element.image}
                 />)
         });
-        console.log(items);
         return items;
     }
     render() {

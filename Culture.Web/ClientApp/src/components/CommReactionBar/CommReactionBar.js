@@ -1,6 +1,8 @@
-﻿import React from 'react';
+﻿
+import React from 'react';
 import Comment from '../Comment/Comment';
 import Reactions from '../Reactions/Reactions';
+import { sendComment, getMoreComments } from '../../api/CommentApi';
 
 
 const images = {
@@ -16,7 +18,7 @@ class CommReactionBar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            comments: [],
+            comments: this.props.comments,
             reactions: {
                 angry: 0,
                 haha: 0,
@@ -25,12 +27,14 @@ class CommReactionBar extends React.Component {
                 sad: 0,
                 wow: 0
             },
+            commentContent: '',
             reactionsCount: this.props.reactionsCount,
             commentsCount: this.props.commentsCount,
             showReactionModal: false,
             showComments: false,
             commentsPage: 1,
-            mouseCoords: 0
+            mouseCoords: 0,
+            canLoadMoreComments:this.props.comments.loadMore
         }
 
 
@@ -41,9 +45,11 @@ class CommReactionBar extends React.Component {
         this.onReactionSend = this.onReactionSend.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.sortReactions = this.sortReactions.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
+        this.displayComments = this.displayComments.bind(this);
     }
-    componentDidMount() {
-
+    handleInputChange(e) {
+        this.setState({ [e.target.name]: e.target.value });
     }
     closeModal() {
         this.setState({ showReactionModal: false });
@@ -57,7 +63,7 @@ class CommReactionBar extends React.Component {
         });
     }
     async onReactionSend(e) {
-         
+
         var reactionState = { ...this.state.reactions };
         reactionState[e.target.name] += 1;
 
@@ -71,53 +77,32 @@ class CommReactionBar extends React.Component {
     }
     showComments(event) {
         event.preventDefault();
-        if (this.state.comments.length === 0) {
-            this.setState({
-                comments: [{
-                    author: "Author",
-                    content: "Jakis tam komentarz",
-                    date: "10:35,January 1, 2017"
-                },
-                {
-                    author: "Author2",
-                    content: "Jakis tam komentarz2",
-                    date: "10:37,January 1, 2017"
-                }
-                ],
-                showComments: !this.state.showComments
-            });
-        }
-        else {
-            this.setState({
-                showComments: !this.state.showComments
-            });
-        }
+        this.setState({
+            showComments: !this.state.showComments
+        });
 
     }
-    moreComments(event) {
-        event.preventDefault();
-        let items = [{
-            author: "Author",
-            content: "Jakis tam komentarz",
-            date: "10:35,January 1, 2017"
-        },
-        {
-            author: "Author2",
-            content: "Jakis tam komentarz2",
-            date: "10:37,January 1, 2017"
-        },
-        {
-            author: "Author3",
-            content: "Jakis tam komentarz3",
-            date: "10:35,January 1, 2017"
-        },
-        {
-            author: "Author4",
-            content: "Jakis tam komentarz4",
-            date: "10:37,January 1, 2017"
-        }
-        ];
+    displayComments() {
+        let items = [];
+        this.state.comments.map((c, index) => {
+            let jsDate = new Date(Date.parse(c.creationDate));
+            let jsDateFormatted = `${jsDate.getDay()}-${jsDate.getMonth()}-${jsDate.getFullYear()} ${jsDate.getHours()}:${jsDate.getMinutes()}`;
+                items.push(
+                    <Comment
+                        key={index}
+                        content={c.content}
+                        author={c.authorName}
+                        creationDate={jsDateFormatted}
+                    />)
+        })
 
+        return items;
+    }
+   async moreComments(event) {
+        event.preventDefault();
+       const newComments = await getMoreComments(this.props.id, this.state.commentsPage );
+       console.log(newComments);
+        const items = [...this.state.comments, newComments.commentsList];
         //CALL API SERWER
         this.setState({
             commentsPage: this.state.commentsPage + 1,
@@ -139,27 +124,36 @@ class CommReactionBar extends React.Component {
         this.setState({ reactions: result });
     }
     displaySortedReactions() {
+        //this.sortReactions();
         var items = [];
-        Object.keys(this.state.reactions).forEach((element, index) => {
-            if (this.state.reactions[element] > 0)
+        Object.entries(this.state.reactions).forEach(([key, reaction], index) => {
+            if (reaction > 0)
                 items.push(<img draggable={false}
                     onMouseOver={this.onReactionMouseOver}
-                    name={element}
-                    src={images[element]}
+                    name={key}
+                    src={images[key]}
                     width="25px"
                     height="25px"
                     data-toggle="popover"
                     key={index}
                     data-placement="top"
-                    title={`Ilość reakcji: ` + this.state.reactions[element]} />)
+                    title={`Ilość reakcji: ` + reaction} />)
         });
         return items;
+    }
+    handleCommentSubmit = async (e) => {
+        e.preventDefault();
+         const newComment = await sendComment(this.props.id, this.state.commentContent, 'b5ce53d5-978f-42bf-74da-08d73cef40dc');
+
+        this.setState(prevState => ({
+            commentsCount: this.state.commentsCount+1,
+            comments: [newComment, ...prevState.comments ]
+         }))
     }
     render() {
         return (
             <div>
                 <div className="card-footer text-muted">
-                    {console.log(this.props.createdBy)}
                     Umieszczono dnia {this.props.date} przez
             <a href="#"> {this.props.createdBy} </a>
                     {
@@ -170,7 +164,7 @@ class CommReactionBar extends React.Component {
                     {this.state.reactionsCount}
                     <div className="pull-right">
                         <div className="float-left">
-                        <a href="" onClick={this.onReactionClick} className="comment" style={{ marginRight: "50px" }}> Reaguj</a>
+                            <a href="" onClick={this.onReactionClick} className="comment" style={{ marginRight: "50px" }}> Reaguj</a>
 
                             <a href="" onClick={this.showComments} className="comment">  Komentarze: {this.state.commentsCount}</a>
                         </div>
@@ -187,9 +181,8 @@ class CommReactionBar extends React.Component {
                     ?
                     <div>
 
-                        {this.state.comments.map((c) =>
-                            <Comment content={c.content} author={c.author} creationDate={c.date} />
-                        )
+                        {
+                            this.displayComments()
                         }
                         <div className="text-center">
                             <a href="#" onClick={this.moreComments}>Załaduj więcej</a>
@@ -201,14 +194,20 @@ class CommReactionBar extends React.Component {
                 }
 
                 <div className="card-footer text-muted">
-                    <form>
+                    <form onSubmit={this.handleCommentSubmit}>
                         <div className="form-group">
-                            <input className="form-control input-sm comment" placeholder="Wpisz komentarz..." type="text" />
+                            <input
+                                className="form-control input-sm comment"
+                                placeholder="Wpisz komentarz..."
+                                onChange={this.handleInputChange}
+                                type="text"
+                                value={this.state.commentContent}
+                                name="commentContent" />
                         </div>
                     </form>
                 </div>
-            
-                </div>
+
+            </div>
 
         );
     }

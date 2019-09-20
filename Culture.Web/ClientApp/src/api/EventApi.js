@@ -2,11 +2,9 @@
 
 
 export const createEvent = async (data) => {
-    let formData = new FormData();
+    const formData = new FormData();
 
-    for (var i = 0; i < data.date.length; i++) {
-        formData.append('eventDate', data.date[i]);
-    }
+    data.date.forEach(element => formData.append('eventDate', element));
 
     formData.append('authorId', 'd8dd385f-b87d-4136-da0e-08d73b6c836b');
     formData.append('price', data.eventPrice);
@@ -17,8 +15,8 @@ export const createEvent = async (data) => {
     formData.append('streetName', data.eventStreet);
     formData.append('cityName', data.eventCity);
     formData.append('eventTime', data.time);
-    let api = `${API_URL}/create`;
-     let options = {
+    const api = `${API_URL}/create`;
+    const options = {
         method: 'post',
          body: formData
     }
@@ -33,7 +31,7 @@ export const createEvent = async (data) => {
 }
 
 
-export const getPreviewEventList = async (page,category) => {
+export const getPreviewEventList = async (page, category) => {
     let categoryApi;
     category === null ? categoryApi = "" : categoryApi = `&category=${category}`;
     let api = `${API_URL}/get?page=${page}${categoryApi}`;

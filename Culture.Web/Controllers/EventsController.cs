@@ -10,7 +10,7 @@ using Culture.Models;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
 using Newtonsoft.Json;
-
+//to do iterator na more comments more events
 namespace Culture.Web.Controllers
 {
     [Route("api/[controller]")]
@@ -96,7 +96,6 @@ namespace Culture.Web.Controllers
                 {
                     Events = _eventList
                 };
-
                 return Json(_event);
             }
             catch (Exception e)

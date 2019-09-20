@@ -1,4 +1,5 @@
-﻿using Culture.Contracts.ViewModels;
+﻿using Culture.Contracts.DTOs;
+using Culture.Contracts.ViewModels;
 using Culture.Models;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,9 @@ namespace Culture.Contracts.IServices
 {
 	public interface ICommentService
 	{
-		Task<Comment> CreateCommentAsync(string content, int eventId, Guid userId);
-		Task<Comment> EditCommentAsync(CommentViewModel comment, Guid id);
-        Task<IEnumerable<Comment>> GetEventCommentsAsync(int id, int skip, int take);
+		Task<CommentDto> CreateCommentAsync(string content, int eventId, Guid userId,string username);
+		Task<Comment> EditCommentAsync(EditCommentViewModel comment, Guid id);
+        Task<IEnumerable<CommentDto>> GetEventCommentsAsync(int id, int skip, int take);
         Task DeleteComment(int commentId,Guid userId,IList<string> userRoles);
         Task Commit();
 

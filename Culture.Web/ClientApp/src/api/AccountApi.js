@@ -1,8 +1,8 @@
 ﻿const API_URL = 'http://localhost:52144/api/account';
 
 export const signIn = async (userName, password) => {
-    let api = `${API_URL}/login`;
-    let options = {
+    const api = `${API_URL}/login`;
+    const options = {
         method: 'post',
         headers:{
             'content-type': 'application/json'
@@ -25,8 +25,8 @@ export const signIn = async (userName, password) => {
 }
 
 const register = async (data) => {
-    let api = `${API_URL}/register`;
-    let options = {
+    const api = `${API_URL}/register`;
+    const options = {
         method: 'post',
         headers:{
             'content-type': 'application/json'

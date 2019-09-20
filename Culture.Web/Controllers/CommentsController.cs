@@ -35,12 +35,16 @@ namespace Culture.Web.Controllers
 
             try
             {
-                var user = await _userService.GetUserByName("lukasz");
-				var _event = await _eventService.GetEventAsync(comment.EventId);
-				var notificationTargets = new List<Guid>() { _event.CreatedById};
+                var userReq = _userService.GetUserById("b5ce53d5-978f-42bf-74da-08d73cef40dc");
+                var eventReq =  _eventService.GetEventAsync(comment.EventId);
 
-				var _comment = await _commentService.CreateCommentAsync(comment.Content, comment.EventId, user.Id);
+                var _event = await eventReq;
+                var notificationTargets = new List<Guid>() { _event.CreatedById };
 				await _notificationService.CreateNotificationsAsync($"Twoje wydarzenie zostało skomentowane: {_event.Name}", notificationTargets, _event.Id);
+
+                var user = await userReq;
+                var _comment = await _commentService.CreateCommentAsync(comment.Content, comment.EventId, user.Id,user.UserName);
+
                 await _commentService.Commit();
 
                 return Json(_comment);
@@ -53,11 +57,13 @@ namespace Culture.Web.Controllers
             }
         }
         [HttpGet("get")]
-        public async Task<JsonResult> GetEventComments(int id,int skip=0,int take=5)
+        public async Task<JsonResult> GetEventComments(int eventId,int page=0,int take=5)
         {
             try
             {
-                var comment = await _commentService.GetEventCommentsAsync(id,skip,take);
+                var comment = await _commentService.GetEventCommentsAsync(eventId,page,take);
+
+                var commentVM = new CommentsListViewModel(comment);
 
                 return Json(comment);
             }
@@ -69,7 +75,7 @@ namespace Culture.Web.Controllers
 
         }
         [HttpPut("edit")]
-        public async Task<JsonResult> EditEventComment([FromBody]CommentViewModel comment)
+        public async Task<JsonResult> EditEventComment([FromBody]EditCommentViewModel comment)
         {
             try
             {
