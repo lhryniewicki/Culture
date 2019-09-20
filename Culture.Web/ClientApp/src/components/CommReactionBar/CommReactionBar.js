@@ -64,7 +64,7 @@ class CommReactionBar extends React.Component {
     }
     async onReactionSend(e) {
 
-        var reactionState = { ...this.state.reactions };
+        let reactionState = { ...this.state.reactions };
         reactionState[e.target.name] += 1;
 
         await this.setState({
