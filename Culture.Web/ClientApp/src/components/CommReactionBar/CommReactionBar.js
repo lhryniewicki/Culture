@@ -3,6 +3,7 @@ import React from 'react';
 import Comment from '../Comment/Comment';
 import Reactions from '../Reactions/Reactions';
 import { sendComment, getMoreComments } from '../../api/CommentApi';
+import { sendReaction } from '../../api/EventApi';
 
 
 const images = {
@@ -19,14 +20,7 @@ class CommReactionBar extends React.Component {
         super(props);
         this.state = {
             comments: this.props.comments,
-            reactions: {
-                angry: 0,
-                haha: 0,
-                like: 0,
-                love: 0,
-                sad: 0,
-                wow: 0
-            },
+            reactions: this.props.reactions,
             commentContent: '',
             reactionsCount: this.props.reactionsCount,
             commentsCount: this.props.commentsCount,
@@ -34,7 +28,8 @@ class CommReactionBar extends React.Component {
             showComments: false,
             commentsPage: 1,
             mouseCoords: 0,
-            canLoadMoreComments:this.props.comments.loadMore
+            currentReaction: this.props.currentReaction,
+            canLoadMoreComments: this.props.canLoadMore
         }
 
 
@@ -63,17 +58,29 @@ class CommReactionBar extends React.Component {
         });
     }
     async onReactionSend(e) {
-
-        let reactionState = { ...this.state.reactions };
-        reactionState[e.target.name] += 1;
-
-        await this.setState({
-            reactions: reactionState,
-            reactionsCount: this.state.reactionsCount + 1
-        });
-        this.sortReactions();
-
-
+        const name = e.target.name;
+        const result = await sendReaction('b5676a5b-0c37-46f5-3147-08d73e6da2eb', this.props.id, name);
+        if (name === this.state.currentReaction) {
+            this.setState({
+                currentReaction: null,
+                reactions: result.reactions,
+                reactionsCount: this.state.reactionsCount - 1
+            });
+        }
+        else if (this.state.currentReaction === null) {
+            this.setState({
+                currentReaction: name,
+                reactions: result.reactions,
+                reactionsCount: this.state.reactionsCount + 1
+            });
+        }
+        else {
+            this.setState({
+                currentReaction: name,
+                reactions: result.reactions
+            });
+        }
+        this.closeModal();
     }
     showComments(event) {
         event.preventDefault();
@@ -86,7 +93,7 @@ class CommReactionBar extends React.Component {
         let items = [];
         this.state.comments.map((c, index) => {
             let jsDate = new Date(Date.parse(c.creationDate));
-            let jsDateFormatted = `${jsDate.getDay()}-${jsDate.getMonth()}-${jsDate.getFullYear()} ${jsDate.getHours()}:${jsDate.getMinutes()}`;
+            let jsDateFormatted = `${jsDate.getDay()}-${jsDate.getMonth()}-${jsDate.getFullYear()} ${jsDate.getHours()}:${(jsDate.getMinutes() < 10 ? '0' : '') + jsDate.getMinutes()}`;
                 items.push(
                     <Comment
                         key={index}
@@ -100,13 +107,13 @@ class CommReactionBar extends React.Component {
     }
    async moreComments(event) {
         event.preventDefault();
-       const newComments = await getMoreComments(this.props.id, this.state.commentsPage );
-       console.log(newComments);
-        const items = [...this.state.comments, newComments.commentsList];
+       const newComments = await getMoreComments(this.props.id, this.state.commentsPage);
+       const items = this.state.comments.concat(newComments.commentsList);
         //CALL API SERWER
         this.setState({
             commentsPage: this.state.commentsPage + 1,
-            comments: items
+            comments: items,
+            canLoadMoreComments: newComments.canLoadMore
         });
     }
     sortReactions() {
@@ -124,21 +131,24 @@ class CommReactionBar extends React.Component {
         this.setState({ reactions: result });
     }
     displaySortedReactions() {
+        console.log(this.state.reactions)
         //this.sortReactions();
-        var items = [];
-        Object.entries(this.state.reactions).forEach(([key, reaction], index) => {
-            if (reaction > 0)
+        let items = [];
+        if (this.state.reactions.length > 0) {
+            this.state.reactions.map((element, index) => {
+                console.log(element)
                 items.push(<img draggable={false}
-                    onMouseOver={this.onReactionMouseOver}
-                    name={key}
-                    src={images[key]}
+                    name={element.reactionType}
+                    src={images[element.reactionType]}
                     width="25px"
                     height="25px"
                     data-toggle="popover"
                     key={index}
                     data-placement="top"
-                    title={`Ilość reakcji: ` + reaction} />)
-        });
+                    title={`Ilość reakcji: ` + element.count} />);
+            });
+            
+        }
         return items;
     }
     handleCommentSubmit = async (e) => {
@@ -146,9 +156,22 @@ class CommReactionBar extends React.Component {
          const newComment = await sendComment(this.props.id, this.state.commentContent, 'b5ce53d5-978f-42bf-74da-08d73cef40dc');
 
         this.setState(prevState => ({
+            showComments:true,
+            commentContent:'',
             commentsCount: this.state.commentsCount+1,
             comments: [newComment, ...prevState.comments ]
          }))
+    }
+    displayCurrentReaction = () => {
+        if (this.state.currentReaction !== null)
+            return <img
+                    src={images[this.state.currentReaction]}
+                    data-placement="top"
+                    title={`Twoja reakcja`}
+                    data-toggle="popover"
+                    width="25px"
+                    height="25px"
+                    />
     }
     render() {
         return (
@@ -164,7 +187,7 @@ class CommReactionBar extends React.Component {
                     {this.state.reactionsCount}
                     <div className="pull-right">
                         <div className="float-left">
-                            <a href="" onClick={this.onReactionClick} className="comment" style={{ marginRight: "50px" }}> Reaguj</a>
+                            <a href="" onClick={this.onReactionClick} className="comment" style={{ marginRight: "50px" }}> Reaguj {this.displayCurrentReaction()}</a>
 
                             <a href="" onClick={this.showComments} className="comment">  Komentarze: {this.state.commentsCount}</a>
                         </div>
@@ -184,9 +207,14 @@ class CommReactionBar extends React.Component {
                         {
                             this.displayComments()
                         }
-                        <div className="text-center">
-                            <a href="#" onClick={this.moreComments}>Załaduj więcej</a>
-                        </div>
+                        {this.state.canLoadMoreComments === true
+                            ?
+                            <div className="text-center">
+                                <a href="#" onClick={this.moreComments}>Załaduj więcej</a>
+                            </div>
+                            :
+                            null
+                        }
                     </div>
 
                     :

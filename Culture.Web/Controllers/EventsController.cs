@@ -75,7 +75,7 @@ namespace Culture.Web.Controllers
 		{
 			try
 			{
-				var _event = await _eventService.GetEventDetailsAsync(id);
+                var _event = await _eventService.GetEventDetailsAsync(id);
 
 				return Json(_event);
 			}
@@ -87,11 +87,12 @@ namespace Culture.Web.Controllers
 			
 		}
         [HttpGet("get")]
-        public async Task<JsonResult> GetEventPreviewList(int page=0,string category=null)
+        public async Task<JsonResult> GetEventPreviewList(int page=0,int size=5,string category=null)
         {
             try
-            {   
-                var _eventList = await _eventService.GetEventPreviewList(page,category);
+            {
+                var user = await _userService.GetUserByName("maciek");
+                var _eventList = await _eventService.GetEventPreviewList(user.EventReactions,page, size,category);
                 var _event = new EventPreviewListViewModel()
                 {
                     Events = _eventList
@@ -157,33 +158,37 @@ namespace Culture.Web.Controllers
         }
 
 		[HttpPost("reaction")]
-		public async Task<int> SetReaction(SetReactionViewModel reactionViewModel)
+		public async Task<JsonResult> SetReaction(SetReactionViewModel reactionViewModel)
 		{
 			try
 			{
 
-				var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
-				if (user.Id != reactionViewModel.UserId) throw new Exception("User does not exist");
+				var user = await _userService.GetUserByName("maciek");
+				if (user.Id != reactionViewModel.UserId)
+                {
+                    Response.StatusCode = 401;
+                    return  Json("You can't set somebody's reaction");
+                }
 
-				await _reactionService.SetReaction(reactionViewModel);
+                await _reactionService.SetReaction(reactionViewModel);
 
-				var _event = await _eventService.GetEventAsync(reactionViewModel.EventId);
-				var targetList = new List<Guid>() { _event.CreatedById };
+				var _eventReactions = await _eventService.GetEventsReactions(reactionViewModel.EventId);
+				var targetList = new List<Guid>() { _eventReactions.Id};
 
 				await _notificationService.CreateNotificationsAsync($"{user.UserName} zareagował na twoje wydarzenie!" +
 					$"{reactionViewModel.ReactionType}", targetList, reactionViewModel.EventId);
 
+
 				await _reactionService.Commit();
 
-				return _event.Reactions
-					.GroupBy(x => x.Type)
-					.Sum(x => x.Count());
+                return Json(new SortedReactionsViewModel(_eventReactions.Reactions));
+
+                
 			}
 			catch(Exception e)
 			{
 				Response.StatusCode = 500;
-				return 0;
-				//return Json(e.Message + e.InnerException);
+				return Json(e.Message + e.InnerException);
 			}
 
 

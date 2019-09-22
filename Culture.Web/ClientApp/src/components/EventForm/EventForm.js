@@ -84,7 +84,7 @@ class EventForm extends React.Component {
     }
     previewForm() {
         return <EventPost
-            isPreview={false}
+            isPreview={true}
             eventName={this.state.eventName}
             eventDescription={this.state.eventDescription}
             eventCity={this.state.eventCity}
@@ -94,6 +94,7 @@ class EventForm extends React.Component {
             category={this.state.category}
             date={this.state.date}
             time={this.state.time}
+            canloadMore={false}
         />;
     }
     render() {

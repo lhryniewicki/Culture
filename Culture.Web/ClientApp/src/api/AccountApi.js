@@ -1,4 +1,4 @@
-﻿const API_URL = 'http://localhost:52144/api/account';
+﻿const API_URL = 'http://localhost:50882/api/account';
 
 export const signIn = async (userName, password) => {
     const api = `${API_URL}/login`;
@@ -14,7 +14,7 @@ export const signIn = async (userName, password) => {
     }
     return await fetch(api, options)
         .then(resp =>{ 
-            if(resp.status!=200)
+            if(resp.status!==200)
             throw "Logowanie się nie powiodło"
             return resp.json();
         })

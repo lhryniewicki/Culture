@@ -12,7 +12,8 @@ class EventsView extends React.Component {
         super(props);
 
         this.state = {
-            events:[]
+            events: [],
+            category:null
         };
 
         this.moreEvents = this.moreEvents.bind(this);
@@ -20,8 +21,10 @@ class EventsView extends React.Component {
 
     }
     async componentDidMount() {
-        let eventList = await getPreviewEventList(0, null);
-        this.setState({ events: eventList.events });
+        let eventList = await getPreviewEventList(0, this.state.category);
+        if (eventList.events.length >0)
+            this.setState({ events: eventList.events });
+
     }
     moreEvents(event) {
         event.preventDefault();
@@ -34,9 +37,11 @@ class EventsView extends React.Component {
             let jsDateFormatted = jsDate.getUTCDate() + "-" + (jsDate.getMonth() + 1) + "-" + jsDate.getFullYear() ;
             items.push(
                 <EventPost
+                    currentReaction={element.currentReaction}
                     key={index}
                     createdBy={element.createdBy}
                     comments={element.comments}
+                    canLoadMore={element.canLoadMore}
                     commentsCount={element.commentsCount}
                     eventName={element.name}
                     id={element.id}
@@ -45,7 +50,7 @@ class EventsView extends React.Component {
                     reactionsCount={element.reactionsCount}
                     eventDescription={element.shortContent}
                     picture={element.image}
-                />)
+                />);
         });
         return items;
     }

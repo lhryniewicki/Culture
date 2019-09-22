@@ -1,4 +1,4 @@
-﻿const API_URL = 'http://localhost:52144/api/events';
+﻿const API_URL = 'http://localhost:50882/api/events';
 
 
 export const createEvent = async (data) => {
@@ -23,7 +23,7 @@ export const createEvent = async (data) => {
 
     return await fetch(api, options)
         .then(resp => {
-            if (resp.status != 200)
+            if (resp.status !== 200)
                 throw "Stworzenie wydarzenia się nie powiodło"
             return resp.json();
         })
@@ -36,13 +36,37 @@ export const getPreviewEventList = async (page, category) => {
     category === null ? categoryApi = "" : categoryApi = `&category=${category}`;
     let api = `${API_URL}/get?page=${page}${categoryApi}`;
     let options = {
-        method: 'get',
+        method: 'get'
     }
 
     return await fetch(api, options)
         .then(resp => {
-            if (resp.status != 200)
+            if (resp.status !== 200)
                 throw "Pobranie wydarzen się nie powiodło"
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+}
+export const sendReaction= async(userId, eventId, reactionType)=>{
+    
+    let api = `${API_URL}/reaction`;
+    let options = {
+        method: 'post',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            userId: userId,
+            eventId: eventId,
+            reactionType: reactionType
+        })
+
+    }
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Wyslanie reakcji się nie powiodło"
             return resp.json();
         })
         .catch(e => console.log(e));

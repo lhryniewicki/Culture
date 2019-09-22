@@ -34,8 +34,9 @@ namespace Culture.DataAccess.Repositories
             return await _dbContext.Comments
                 .Include(x => x.Author)
                 .Where(x => x.EventId == id)
+                .OrderByDescending(x=>x.CreationDate)
                 .Skip(page * take)
-                .Take(take)
+                .Take(take+1)
                 .ToListAsync();
         }
         public void  DeleteComment(Comment comment)

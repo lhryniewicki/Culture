@@ -1,4 +1,4 @@
-﻿const API_URL = 'http://localhost:52144/api/comments';
+﻿const API_URL = 'http://localhost:50882/api/comments';
 
 export const sendComment = (eventId, content) => {
     let api = `${API_URL}/create`;
@@ -14,7 +14,7 @@ export const sendComment = (eventId, content) => {
     }
     return fetch(api, options)
         .then(resp => {
-            if (resp.status != 200)
+            if (resp.status !== 200)
                 throw "Pobranie komentarza podczas tworzenia się nie powiodło"
             return resp.json();
         })
@@ -24,7 +24,6 @@ export const sendComment = (eventId, content) => {
         .catch(e => console.log(e));
 }
 export const getMoreComments = (eventId, page) => {
-    console.log(eventId);
     let api = `${API_URL}/get?eventId=${eventId}&page=${page}`;
     let options = {
         method: 'get',
@@ -34,7 +33,7 @@ export const getMoreComments = (eventId, page) => {
     }
     return fetch(api, options)
         .then(resp => {
-            if (resp.status != 200)
+            if (resp.status !== 200)
                 throw "Pobranie komentarzy podczas loadMore się nie powiodło"
             return resp.json();
         })

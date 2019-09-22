@@ -27,6 +27,7 @@ class EventPost extends React.Component {
         else {
             this.setState({ source: this.props.picture })
         }
+        
     }
     render() {
         return (
@@ -42,6 +43,7 @@ class EventPost extends React.Component {
                     <a href="" onClick={() => { return !this.props.isPreview}} className="btn btn-primary">Szczegóły... &rarr;</a>
                 </div>
                 <CommReactionBar
+                    currentReaction={this.props.currentReaction}
                     id={this.props.id}
                     createdBy={this.props.createdBy}
                     reactions={this.props.reactions}
@@ -49,6 +51,7 @@ class EventPost extends React.Component {
                     date={this.props.date}
                     comments={this.props.comments}
                     commentsCount={this.props.commentsCount}
+                    canLoadMore={this.props.canLoadMore}
                 />
             </div>
 

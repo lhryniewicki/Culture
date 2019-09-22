@@ -35,7 +35,7 @@ namespace Culture.Web.Controllers
 
             try
             {
-                var userReq = _userService.GetUserById("b5ce53d5-978f-42bf-74da-08d73cef40dc");
+                var userReq = _userService.GetUserById("b5676a5b-0c37-46f5-3147-08d73e6da2eb");
                 var eventReq =  _eventService.GetEventAsync(comment.EventId);
 
                 var _event = await eventReq;
@@ -65,7 +65,7 @@ namespace Culture.Web.Controllers
 
                 var commentVM = new CommentsListViewModel(comment);
 
-                return Json(comment);
+                return Json(commentVM);
             }
             catch (Exception e)
             {

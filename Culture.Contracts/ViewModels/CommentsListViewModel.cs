@@ -7,12 +7,12 @@ namespace Culture.Contracts.ViewModels
 {
     public class CommentsListViewModel
     {
-
+        public IEnumerable<CommentDto> CommentsList { get; set; }
+        public bool CanLoadMore { get; set; }
         public CommentsListViewModel(IEnumerable<CommentDto> comments)
         {
             CommentsList = comments;
         }
 
-        public IEnumerable<CommentDto> CommentsList{ get; set; }
     }
 }

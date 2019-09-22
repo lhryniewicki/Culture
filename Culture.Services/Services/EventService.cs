@@ -79,6 +79,21 @@ namespace Culture.Services.Services
             }
             return;
         }
+        public async Task<EventReactionsWAuthorDto> GetEventsReactions(int id)
+        {
+            var _event = await _unitOfWork.EventRepository.GetEventAsync(id);
+            var eventReactions= _event.Reactions.GroupBy(x => x.Type).Select(x => new EventReactionDto()
+            {
+                ReactionType = x.Key.ToString().ToLower(),
+                Count = x.Count(),
+            }).OrderByDescending(x=>x.Count);
+            return new EventReactionsWAuthorDto()
+            {
+                Id = _event.CreatedById,
+                Reactions = eventReactions
+            };
+
+        }
 
         public Task<Event> GetEventDetailsAsync(int id)
 		{
@@ -88,12 +103,12 @@ namespace Culture.Services.Services
         {
             return _unitOfWork.Commit();
         }
-        public async Task<IEnumerable<EventsPreviewDto>> GetEventPreviewList(int page=0, string category=null)
+        public async Task<IEnumerable<EventsPreviewDto>> GetEventPreviewList(IEnumerable<EventReaction> userReactions, int page=0,int size=5, string category=null)
         {
           
-          var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page, category);
+          var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page,size, category);
 
-          return eventList.Select(x => new EventsPreviewDto(x));
+          return eventList.Select(x => new EventsPreviewDto(x,size,userReactions));
         }
         private DateTime convertDate(string[] date,string time)
         {

@@ -13,7 +13,8 @@ namespace Culture.Contracts.IServices
 	{
 		Task<Event> CreateEventAsync(EventViewModel eventViewModel,string imagePath, Guid id);
         Task<Event> GetEventAsync(int id);
-        Task<IEnumerable<EventsPreviewDto>> GetEventPreviewList(int page, string category);
+        Task<EventReactionsWAuthorDto> GetEventsReactions(int id);
+        Task<IEnumerable<EventsPreviewDto>> GetEventPreviewList(IEnumerable<EventReaction> eventReactions,int page,int size, string category);
         Task<Event> GetEventDetailsAsync(int id);
         Task<Event> EditEvent(EventViewModel eventViewModel, Guid id);
         Task DeleteEvent(int id, Guid userId, IList<string> userRoles);
