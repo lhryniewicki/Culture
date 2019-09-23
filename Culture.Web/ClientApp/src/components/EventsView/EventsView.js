@@ -22,8 +22,10 @@ class EventsView extends React.Component {
     }
     async componentDidMount() {
         let eventList = await getPreviewEventList(0, this.state.category);
-        if (eventList.events.length >0)
+        if (eventList !== undefined && eventList.events.length > 0)
             this.setState({ events: eventList.events });
+        console.log(eventList);
+
 
     }
     moreEvents(event) {
@@ -34,9 +36,11 @@ class EventsView extends React.Component {
         let items=[];
         this.state.events.map((element, index) => {
             let jsDate = new Date(Date.parse(element.creationDate));
-            let jsDateFormatted = jsDate.getUTCDate() + "-" + (jsDate.getMonth() + 1) + "-" + jsDate.getFullYear() ;
+            let jsDateFormatted = jsDate.getUTCDate() + "-" + (jsDate.getMonth() + 1) + "-" + jsDate.getFullYear();
             items.push(
-                <EventPost
+                <EventPost         
+                    urlSlug={element.urlSlug}
+                    isPreview={false}
                     currentReaction={element.currentReaction}
                     key={index}
                     createdBy={element.createdBy}

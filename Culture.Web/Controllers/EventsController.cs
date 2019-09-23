@@ -70,14 +70,18 @@ namespace Culture.Web.Controllers
 			}
 		}
 
-		[HttpGet("/get/details")]
-		public async Task<JsonResult> GetEvent(int id)
+		[HttpGet("get/details/{slug}")]
+		public async Task<JsonResult> GetEvent([FromRoute]string slug)
 		{
 			try
 			{
-                var _event = await _eventService.GetEventDetailsAsync(id);
+                var x = RouteData;
+                var user = await _userService.GetUserByName("maciek");
+                var _event = await _eventService.GetEventDetailsBySlugAsync(slug,user.EventReactions);
 
-				return Json(_event);
+                var eventVM = new EventDetailsViewModel(_event);
+
+				return Json(eventVM);
 			}
 			catch(Exception e)
 			{
@@ -172,8 +176,8 @@ namespace Culture.Web.Controllers
 
                 await _reactionService.SetReaction(reactionViewModel);
 
-				var _eventReactions = await _eventService.GetEventsReactions(reactionViewModel.EventId);
-				var targetList = new List<Guid>() { _eventReactions.Id};
+				var _newEventReactions = await _eventService.GetEventsReactions(reactionViewModel.EventId);
+				var targetList = new List<Guid>() { _newEventReactions.Id};
 
 				await _notificationService.CreateNotificationsAsync($"{user.UserName} zareagował na twoje wydarzenie!" +
 					$"{reactionViewModel.ReactionType}", targetList, reactionViewModel.EventId);
@@ -181,7 +185,7 @@ namespace Culture.Web.Controllers
 
 				await _reactionService.Commit();
 
-                return Json(new SortedReactionsViewModel(_eventReactions.Reactions));
+                return Json(new SortedReactionsViewModel(_newEventReactions.Reactions));
 
                 
 			}

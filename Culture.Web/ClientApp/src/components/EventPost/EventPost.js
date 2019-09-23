@@ -13,10 +13,12 @@ const images = {
 class EventPost extends React.Component {
     constructor(props) {
         super(props);
+        console.log("event post ctor");
 
         this.state = {
             source: null,
-            id:this.props.id
+            id: this.props.id,
+            urlSlug: this.props.urlSlug
         };
     }
     componentDidMount() {
@@ -32,6 +34,7 @@ class EventPost extends React.Component {
     render() {
         return (
             <div className="card mb-4">
+                {console.log}
                 <img className="card-img-top"
                     width="750px;"
                     height="300px;"
@@ -40,7 +43,7 @@ class EventPost extends React.Component {
                 <div className="card-body">
                     <h2 className="card-title">{this.props.eventName}</h2>
                     <p className="card-text showSpace">{this.props.eventDescription}</p>
-                    <a href="" onClick={() => { return !this.props.isPreview}} className="btn btn-primary">Szczegóły... &rarr;</a>
+                    <a href={`/wydarzenie/szczegoly/${this.state.urlSlug}`} onClick={() => { return !this.props.isPreview}} className="btn btn-primary">Szczegóły... &rarr;</a>
                 </div>
                 <CommReactionBar
                     currentReaction={this.props.currentReaction}
@@ -52,6 +55,7 @@ class EventPost extends React.Component {
                     comments={this.props.comments}
                     commentsCount={this.props.commentsCount}
                     canLoadMore={this.props.canLoadMore}
+                    isPreview={this.props.isPreview}
                 />
             </div>
 

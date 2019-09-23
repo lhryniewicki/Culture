@@ -27,9 +27,10 @@ namespace Culture.Services.Services
 		public async Task<Event> CreateEventAsync(EventViewModel eventViewModel,string imagePath,Guid userId)
 		{
             var eventDate = convertDate(eventViewModel.EventDate,eventViewModel.EventTime);
-
+            var urlSlug = $"{eventViewModel.Name.ToLower().Replace(' ', '-')}-{Guid.NewGuid().ToString()}";
 			var eventt = new Event()
 			{
+                UrlSlug=urlSlug,
 				Category = eventViewModel.Category,
 				CityName = eventViewModel.CityName,
 				Content = eventViewModel.Content,
@@ -95,9 +96,10 @@ namespace Culture.Services.Services
 
         }
 
-        public Task<Event> GetEventDetailsAsync(int id)
+        public async Task<EventDetailsDto> GetEventDetailsBySlugAsync(string slug,IEnumerable<EventReaction> eventReactions)
 		{
-            return _unitOfWork.EventRepository.GetEventDetailsAsync(id);
+            var eventDetails = await _unitOfWork.EventRepository.GetEventDetailsBySlugAsync(slug);
+            return new EventDetailsDto(eventDetails, eventReactions);
 		}
         public Task Commit()
         {

@@ -19,17 +19,11 @@ class CommReactionBar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            comments: this.props.comments,
-            reactions: this.props.reactions,
             commentContent: '',
-            reactionsCount: this.props.reactionsCount,
-            commentsCount: this.props.commentsCount,
             showReactionModal: false,
             showComments: false,
             commentsPage: 1,
             mouseCoords: 0,
-            currentReaction: this.props.currentReaction,
-            canLoadMoreComments: this.props.canLoadMore
         }
 
 
@@ -39,9 +33,24 @@ class CommReactionBar extends React.Component {
         this.onReactionClick = this.onReactionClick.bind(this);
         this.onReactionSend = this.onReactionSend.bind(this);
         this.closeModal = this.closeModal.bind(this);
-        this.sortReactions = this.sortReactions.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.displayComments = this.displayComments.bind(this);
+    }
+    componentDidUpdate() {
+        console.log(this.props.reactionsCount)
+        console.log(this.state.reactionsCount)
+
+        if (this.props.reactionsCount !== this.state.reactionsCount) {
+
+            this.setState( {
+                reactionsCount: this.props.reactionsCount,
+                reactions: this.props.reactions,
+                comments: this.props.comments,
+                commentsCount: this.props.commentsCount,
+                currentReaction: this.props.currentReaction,
+                canLoadMoreComments: this.props.canLoadMore
+            });
+        }
     }
     handleInputChange(e) {
         this.setState({ [e.target.name]: e.target.value });
@@ -51,6 +60,7 @@ class CommReactionBar extends React.Component {
     }
     onReactionClick(e) {
         e.preventDefault();
+        if (this.props.isPreview === true) return false;
         this.setState({
             mouseCoords: e.clientY
             ,
@@ -59,7 +69,8 @@ class CommReactionBar extends React.Component {
     }
     async onReactionSend(e) {
         const name = e.target.name;
-        const result = await sendReaction('b5676a5b-0c37-46f5-3147-08d73e6da2eb', this.props.id, name);
+        const result = await sendReaction('2acb229f-73ab-4202-1102-08d740193056', this.props.id, name);
+        if (result === undefined) return false;
         if (name === this.state.currentReaction) {
             this.setState({
                 currentReaction: null,
@@ -84,6 +95,7 @@ class CommReactionBar extends React.Component {
     }
     showComments(event) {
         event.preventDefault();
+        if (this.props.isPreview === true) return false;
         this.setState({
             showComments: !this.state.showComments
         });
@@ -109,32 +121,15 @@ class CommReactionBar extends React.Component {
         event.preventDefault();
        const newComments = await getMoreComments(this.props.id, this.state.commentsPage);
        const items = this.state.comments.concat(newComments.commentsList);
-        //CALL API SERWER
         this.setState({
             commentsPage: this.state.commentsPage + 1,
             comments: items,
             canLoadMoreComments: newComments.canLoadMore
         });
     }
-    sortReactions() {
-        var sorted = [];
-        for (var reaction in this.state.reactions) {
-            sorted.push([reaction, this.state.reactions[reaction]]);
-        }
-        sorted.sort((a, b) => {
-            return b[1] - a[1];
-        });
-        var result = {};
-        sorted.forEach((item) => {
-            result[item[0]] = item[1];
-        });
-        this.setState({ reactions: result });
-    }
     displaySortedReactions() {
-        console.log(this.state.reactions)
-        //this.sortReactions();
         let items = [];
-        if (this.state.reactions.length > 0) {
+        if (this.state.reactions !== undefined && this.state.reactions.length > 0) {
             this.state.reactions.map((element, index) => {
                 console.log(element)
                 items.push(<img draggable={false}
@@ -153,8 +148,7 @@ class CommReactionBar extends React.Component {
     }
     handleCommentSubmit = async (e) => {
         e.preventDefault();
-         const newComment = await sendComment(this.props.id, this.state.commentContent, 'b5ce53d5-978f-42bf-74da-08d73cef40dc');
-
+        const newComment = await sendComment(this.props.id, this.state.commentContent, 'b5ce53d5-978f-42bf-74da-08d73cef40dc');
         this.setState(prevState => ({
             showComments:true,
             commentContent:'',
@@ -163,7 +157,10 @@ class CommReactionBar extends React.Component {
          }))
     }
     displayCurrentReaction = () => {
-        if (this.state.currentReaction !== null)
+        console.log("event bar curr react");
+
+        console.log(this.state);
+        if (this.state.currentReaction !== null && this.state.currentReaction !== undefined)
             return <img
                     src={images[this.state.currentReaction]}
                     data-placement="top"

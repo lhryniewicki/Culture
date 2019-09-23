@@ -10,12 +10,12 @@ namespace Culture.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CalendarController : Controller
+    public class AttendanceController : Controller
     {
         private readonly ICalendarService _calendarService;
         private readonly IUserService _userService;
         private readonly IEventService _eventService;
-        public CalendarController(
+        public AttendanceController(
             ICalendarService calendarService,
             IUserService userService,
             IEventService eventService)
@@ -24,15 +24,35 @@ namespace Culture.Web.Controllers
             _userService = userService;
             _eventService = eventService;
         }
-        [HttpPost("signuser")]
+        [HttpPost("user/sign")]
         public async Task<IActionResult> SignUserToEvent([FromBody]int eventId)
+        {
+            try
+            {
+                var user = await _userService.GetUserByName("maciek");
+                var _event = await _eventService.GetEventAsync(eventId);
+
+                await _calendarService.SignUserToEvent(eventId, user.Id);
+                await _calendarService.Commit();
+
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+        }
+        [HttpPost("calendar/add")]
+        public async Task<IActionResult> AddToUsersCalendar([FromBody]int eventId)
         {
             try
             {
                 var user = await _userService.GetUserByName("lukasz");
                 var _event = await _eventService.GetEventAsync(eventId);
 
-                await _calendarService.SignUserToEvent(eventId,user);
+                await _calendarService.SignUserToEvent(eventId, user.Id);
                 await _calendarService.Commit();
 
                 return Ok();

@@ -8,7 +8,7 @@ namespace Culture.Contracts.IServices
 {
     public interface ICalendarService
     {
-        Task SignUserToEvent(int eventId, AppUser user);
+        Task SignUserToEvent(int eventId, Guid userId);
         Task Commit();
 
     }

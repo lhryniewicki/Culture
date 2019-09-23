@@ -35,7 +35,7 @@ namespace Culture.Web.Controllers
 
             try
             {
-                var userReq = _userService.GetUserById("b5676a5b-0c37-46f5-3147-08d73e6da2eb");
+                var userReq = _userService.GetUserById("2acb229f-73ab-4202-1102-08d740193056");
                 var eventReq =  _eventService.GetEventAsync(comment.EventId);
 
                 var _event = await eventReq;

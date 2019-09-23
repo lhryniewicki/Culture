@@ -10,7 +10,7 @@ namespace Culture.Contracts.IRepositories
 	public interface IEventRepository
 	{
         Task<IEnumerable<Event>> GetEventPreviewList(int page,int size, string category);
-		Task<Event> GetEventDetailsAsync(int id);
+		Task<Event> GetEventDetailsBySlugAsync(string slug);
 		Task CreateEventAsync(Event eventt);
         Task<Event> GetEventAsync(int id);
 		Task<Event> GetEventWithReactions(int id);

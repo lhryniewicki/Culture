@@ -1,4 +1,4 @@
-﻿const API_URL = 'http://localhost:50882/api/events';
+﻿const API_URL = 'http://localhost:52144/api/events';
 
 
 export const createEvent = async (data) => {
@@ -67,6 +67,24 @@ export const sendReaction= async(userId, eventId, reactionType)=>{
         .then(resp => {
             if (resp.status !== 200)
                 throw "Wyslanie reakcji się nie powiodło"
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+}
+
+export const getEventDetails = async (eventId) => {
+    let api = `${API_URL}/get/details/${eventId}`;
+    let options = {
+        method: 'get',
+        headers: {
+            'content-type': 'application/json'
+        }
+    }
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Pobieranie szczegolow wydarzenia się nie powiodło"
             return resp.json();
         })
         .catch(e => console.log(e));

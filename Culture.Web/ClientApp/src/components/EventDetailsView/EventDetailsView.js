@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import CommReactionBar from '../CommReactionBar/CommReactionBar';
+import { getEventDetails }from '../../api/EventApi';
 
 
 class EventDetailsView extends React.Component {
@@ -9,12 +10,63 @@ class EventDetailsView extends React.Component {
         super(props);
 
         this.state = {
+            name:"",
+            price: 0,
+            createdBy: "",
+            urlSlug: this.props.match.params.eventSlug,
+            category: "",
+            reactions:[],
+            comments:[],
+            date: null,
+            imagePath:null,
+            isPreview:false,
+            commentsCount:0,
+            reactionsCount: 0,
+            canLoadMore: false,
+            currentReaction: null,
+            cityName: "",
+            streetName: "",
+            takesPlaceHour: "00:00",
+            takesPlaceDate:null
         };
 
+        this.displayAddress = this.displayAddress.bind(this);
+    }
+    displayAddress() {
 
     }
+    async componentDidMount() {
+        const result = await getEventDetails(this.state.urlSlug);
+        console.log(result);
+        const jsDate = new Date(Date.parse(result.creationDate));
+        const jsDateFormatted = jsDate.getUTCDate() + "-" + (jsDate.getMonth() + 1) + "-" + jsDate.getFullYear();
 
+        const jsDatePlace = new Date(Date.parse(result.creationDate));
+        const jsDatePlaceFormatted = jsDatePlace.getUTCDate() + "-" + (jsDatePlace.getMonth() + 1) + "-" + jsDatePlace.getFullYear();
+        const jsDatePlaceTimeFormatted = jsDatePlace.getHours() + ":" + jsDatePlace.getMinutes();
+        
+        this.setState({
+            canLoadMore: result.canLoadMore,
+            category: result.category,
+            name: result.name,
+            id: result.id,
+            cityName: result.cityName,
+            imagePath: result.image,
+            reactions: result.reactions,
+            streetName: result.streetName,
+            comments: result.comments,
+            commentsCount: result.commentsCount,
+            reactionsCount: result.reactionsCount,
+            currentReaction: result.currentReaction,
+            content: result.content,
+            createdBy: result.createdBy,
+            date: jsDateFormatted,
+            price: result.price,
+            takesPlaceDate: jsDatePlaceFormatted,
+            takesPlaceHour: jsDatePlaceTimeFormatted
 
+        });
+    }
     render() {
         return (
 
@@ -24,7 +76,7 @@ class EventDetailsView extends React.Component {
 
                 <div className="row " >
                     <div className="col-md-8 h-100 " >
-                        <img class="img-fluid pull-right" src="http://placehold.it/730x615" />
+                        <img className="img-fluid pull-right" width="730" height="615" src={this.state.imagePath} />
                         
                     </div>
 
@@ -39,7 +91,7 @@ class EventDetailsView extends React.Component {
                                         Nazwa
                                      </div>
                                     <div className="card-body">
-                                        <b>Progress Days - warsztaty z certyfikatem </b>
+                                        <b>{this.state.name}</b>
                                     </div>
                                 </div>
                                 <div className="card mb-3">
@@ -47,7 +99,7 @@ class EventDetailsView extends React.Component {
                                         Data odbycia
                                      </div>
                                     <div className="card-body">
-                                        <b>10.09.2019</b>  godz. 17:00
+                                       Dnia <b> {this.state.takesPlaceDate}</b> godz. {this.state.takesPlaceHour}
                                     </div>
                                 </div>
                                 <div className="card mb-3">
@@ -55,7 +107,7 @@ class EventDetailsView extends React.Component {
                                         Adres
                                 </div>
                                     <div className="card-body">
-                                        <b> Wrocław, ul. Fabryczna 29-31</b>
+                                        <b> {this.state.streetName},  {this.state.cityName}</b>
                                     </div>
                                 </div>
                                 <div className="card mb-3">
@@ -63,7 +115,7 @@ class EventDetailsView extends React.Component {
                                         Kategoria
                                 </div>
                                     <div className="card-body">
-                                        <b> Muzyka</b>
+                                        <b> {this.state.category}</b>
                                     </div>
                                 </div>
                                 <div className="card mb-3">
@@ -71,7 +123,7 @@ class EventDetailsView extends React.Component {
                                         Cena
                                 </div>
                                     <div className="card-body">
-                                        <b> 12zł</b>
+                                        <b> {this.state.price}</b>
                                     </div>
                                 </div>
                                
@@ -98,15 +150,21 @@ class EventDetailsView extends React.Component {
                     <div className="col-md-8 mt-4">
                         <div className="card">
                             <div className="card-body">
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!
-                             </div>
-                            <CommReactionBar/>
+                                {this.state.content}
+                            </div>
+                            <CommReactionBar
+                                currentReaction={this.state.currentReaction}
+                                id={this.state.id}
+                                createdBy={this.state.createdBy}
+                                reactions={this.state.reactions}
+                                reactionsCount={this.state.reactionsCount}
+                                date={this.state.date}
+                                comments={this.state.comments}
+                                commentsCount={this.state.commentsCount}
+                                currentReaction={this.state.currentReaction}
+                                canLoadMore={this.state.canLoadMore}
+                                isPreview={this.state.isPreview} />
                         </div>
-                        
                     </div>
                     <div className="col-md-4 mt-4">
                         <div className="card ">

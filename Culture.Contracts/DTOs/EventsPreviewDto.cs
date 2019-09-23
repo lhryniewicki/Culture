@@ -21,8 +21,9 @@ namespace Culture.Contracts.DTOs
             public string CreatedBy { get; set; }
             public string CurrentReaction { get; set; }
             public bool CanLoadMore { get; set; }
+            public string UrlSlug { get; set; }
 
-            public EventsPreviewDto()
+        public EventsPreviewDto()
             {
                 Comments = new List<CommentDto>();
                 Reactions = new List<EventReactionDto>();
@@ -40,12 +41,14 @@ namespace Culture.Contracts.DTOs
                 Count=x.Count(),
                 ReactionType=x.Key.ToString().ToLower()
             }).OrderByDescending(x=>x.Count);
+            ReactionsCount = e.Reactions.Count;
             Name = e.Name;
             CommentsCount = e.Comments.Count;
             ReactionsCount = e.Reactions.Count;
             ShortContent = e.Content.Substring(0, e.Content.Length > 255 ? 255 : e.Content.Length);
             Id = e.Id;
             CurrentReaction = userReactions.Where(x => x.EventId == e.Id).Select(x => x.Type.ToString().ToLower()).FirstOrDefault();
+            UrlSlug = e.UrlSlug;
         }
     }
 }

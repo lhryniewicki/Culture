@@ -16,13 +16,15 @@ namespace Culture.Services.Services
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task SignUserToEvent(int eventId,AppUser user)
+        public async Task SignUserToEvent(int eventId,Guid userId)
         {
+            var userReq =_unitOfWork.UserRepository.GetUserById(userId.ToString());
             var userEvent = new UserInEvent()
             {
                 EventId = eventId,
-                UserId = user.Id
+                UserId = userId
             };
+            var user = await userReq;
             user.ParticipatedEvents.Add(userEvent);
         }
         public Task Commit()

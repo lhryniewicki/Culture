@@ -35,11 +35,11 @@ export default class App extends Component {
               <Router>
                   <Switch>
                       <Route exact path="/" render={()=><EventsView/>}/>
-                      <Route exact path="/account/register" render={() => <Register />} />
-                      <Route exact path="/account/login" render={() => <Login setToken={this.setToken} />} />
-                      <Route exact path="/event/create" render={() => <EventForm />} />
-                      <Route exact path="/account/calendar" render={() => <CalendarView />} /> 
-                      <Route exact path="/event/details/:eventId" render={() => <EventDetailsView />} />
+                      <Route exact path="/konto/rejestracja" render={() => <Register />} />
+                      <Route exact path="/konto/login" render={() => <Login setToken={this.setToken} />} />
+                      <Route exact path="/wydarzenia/nowe" render={() => <EventForm />} />
+                      <Route exact path="/konto/kalendarz" render={() => <CalendarView />} /> 
+                      <Route exact path="/wydarzenie/szczegoly/:eventSlug" render={(props) => <EventDetailsView {...props}/>} />
                   </Switch>
               </Router>
           </div>

@@ -17,7 +17,8 @@ namespace Culture.Models
 		public string Category { get; set; } //zrobic enum
 		public string StreetName { get; set; }
 		public string CityName { get; set; }
-		public DateTime CreationDate { get; set; }
+        public string UrlSlug { get; set; }
+        public DateTime CreationDate { get; set; }
 		public DateTime TakesPlaceDate { get; set; }
 		public ICollection<UserInEvent> Participants { get; set; }
 		public ICollection<Comment> Comments { get; set; }

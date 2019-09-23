@@ -7,47 +7,43 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
+using Culture.Contracts;
 
 namespace Culture.Services.Services
 {
 	public class UserService:IUserService
 	{
-		private readonly UserManager<AppUser> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
 
-		public UserService(UserManager<AppUser> userManager)
+		public UserService(IUnitOfWork unitOfWork)
 		{
-			_userManager = userManager;
-		}
+            _unitOfWork = unitOfWork;
+        }
 
 		public async Task<IEnumerable<Guid>> GetEventParticipants(int id)
 		{
-			return await _userManager.Users
-				.Where(x => x.ParticipatedEvents.Any(y => y.EventId == id))
-				.Select(x=>x.Id)
-				.ToListAsync();
+            return await _unitOfWork.UserRepository.GetEventParticipants(id);
 		}
 
 
 		public  Task<AppUser> GetUserById(string id)
 		{
-			return  _userManager.FindByIdAsync(id);
+			return _unitOfWork.UserRepository.GetUserById(id);
 		}
 
 		public  Task<AppUser> GetUserByName(string name)
 		{
-			return _userManager.FindByNameAsync(name);
+			return _unitOfWork.UserRepository.GetUserByName(name);
 		}
 
         public Task<AppUser> GetUserByNameWithCalendar(string userName)
         {
-            return _userManager.Users
-                 .Include(x => x.Calendar)
-                 .FirstOrDefaultAsync(x => x.UserName == userName);
+            return _unitOfWork.UserRepository.GetUserByNameWithCalendar(userName);
         }
 
         public  Task<IList<string>> GetUserRoles(AppUser user)
         {
-            return  _userManager.GetRolesAsync(user);
+            return _unitOfWork.UserRepository.GetUserRoles(user);
         }
     }
 }
