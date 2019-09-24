@@ -49,7 +49,8 @@ namespace Culture.DataAccess.Repositories
                 .Include(x => x.Reactions)
                 .Include(x => x.Comments)
                 .Include(x => x.CreatedBy)
-                .SingleOrDefaultAsync(x => x.UrlSlug == slug) ;
+                .Include(x=>x.EventsInCalendar)
+                .SingleOrDefaultAsync(x => x.UrlSlug == slug);
 		}
 
         public async Task<IEnumerable<Event>> GetEventPreviewList(int page=0,int size=5, string category=null)
@@ -57,11 +58,13 @@ namespace Culture.DataAccess.Repositories
             return await _dbContext.Events
                 .Include(x=>x.Reactions)
                 .Include(x=>x.Comments)
+                    .ThenInclude(y=>y.Author)
                 .Include(x=>x.CreatedBy)
                 .Where(x => category != null ? x.Category == category : true)
                 .OrderByDescending(x=>x.CreationDate)
                 .Skip(page * size)
                 .Take(size)
+                .AsNoTracking()
                 .ToListAsync();
         }
     }

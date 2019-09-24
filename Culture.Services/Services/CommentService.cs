@@ -31,6 +31,7 @@ namespace Culture.Services.Services
 				EventId = eventId
 
 			};
+            
 			await _unitOfWork.CommentRepository.AddCommentAsync(comment);
 
 			return new CommentDto()

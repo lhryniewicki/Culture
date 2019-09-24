@@ -21,6 +21,15 @@ namespace Culture.DataAccess.Repositories
             _userManager = userManager;
         }
 
+        public async Task<bool> DidUserAddToCal(Guid userId, int eventId)
+        {
+            return _userManager.Users
+                .FirstOrDefault(x=>x.Id == userId)
+                .Calendar
+                .Events
+                .FirstOrDefault(x => x.EventId == eventId) != null ? true : false;
+        }
+
         public async Task<IEnumerable<Guid>> GetEventParticipants(int id)
         {
             return await _userManager.Users
@@ -52,5 +61,12 @@ namespace Culture.DataAccess.Repositories
             return _userManager.GetRolesAsync(user);
         }
 
+        public async Task<bool> IsUserSigned(Guid userId, int eventId)
+        {
+            return _userManager.Users
+                .FirstOrDefault(x => x.Id == userId)
+                .ParticipatedEvents
+                .FirstOrDefault(x => x.EventId == eventId) != null ? true : false;
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace Culture.Services.Services
 				StreetName = eventViewModel.StreetName,
 				Price = eventViewModel.Price,
                 CreationDate= DateTime.Now,
-                TakesPlaceDate=eventDate
+                TakesPlaceDate=eventDate,
 			};
 			await _unitOfWork.EventRepository.CreateEventAsync(eventt);
 
@@ -96,10 +96,42 @@ namespace Culture.Services.Services
 
         }
 
-        public async Task<EventDetailsDto> GetEventDetailsBySlugAsync(string slug,IEnumerable<EventReaction> eventReactions)
+        public async Task<EventDetailsDto> GetEventDetailsBySlugAsync(string slug,IEnumerable<EventReaction> eventReactions,int size=5)
 		{
             var eventDetails = await _unitOfWork.EventRepository.GetEventDetailsBySlugAsync(slug);
-            return new EventDetailsDto(eventDetails, eventReactions);
+
+            var totalCommentsCount = eventDetails.Comments.Count;
+            var comments = eventDetails.Comments
+                .OrderByDescending(x => x.CreationDate).Take(size + 1)
+                .Select(y => new CommentDto(y));
+
+            var canLoadMore = comments.Count() == (size + 1) ? true : false;
+            comments = comments.Count() > 5 ? comments.Take(size) : comments;
+
+            var reactions = eventDetails.Reactions
+                .GroupBy(x => x.Type)
+                .Select(x => new EventReactionDto()
+                {
+                    Count = x.Count(),
+                    ReactionType = x.Key.ToString().ToLower()
+                })
+                .OrderByDescending(x => x.Count);
+            var reactionsCount = eventDetails.Reactions.Count;
+            var currentReactions = eventReactions
+                .Where(x => x.EventId == eventDetails.Id)
+                .Select(x => x.Type.ToString()
+                .ToLower())
+                .FirstOrDefault();
+
+            return new EventDetailsDto(eventDetails)
+            {
+                CurrentReaction=currentReactions,
+                CommentsCount=totalCommentsCount,
+                CanLoadMore=canLoadMore,
+                Comments=comments,
+                Reactions=reactions,
+                ReactionsCount=reactionsCount
+            };
 		}
         public Task Commit()
         {

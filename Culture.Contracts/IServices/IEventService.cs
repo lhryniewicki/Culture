@@ -15,7 +15,7 @@ namespace Culture.Contracts.IServices
         Task<Event> GetEventAsync(int id);
         Task<EventReactionsWAuthorDto> GetEventsReactions(int id);
         Task<IEnumerable<EventsPreviewDto>> GetEventPreviewList(IEnumerable<EventReaction> eventReactions,int page,int size, string category);
-        Task<EventDetailsDto> GetEventDetailsBySlugAsync(string slug, IEnumerable<EventReaction> eventReactions);
+        Task<EventDetailsDto> GetEventDetailsBySlugAsync(string slug, IEnumerable<EventReaction> eventReactions, int size=5);
         Task<Event> EditEvent(EventViewModel eventViewModel, Guid id);
         Task DeleteEvent(int id, Guid userId, IList<string> userRoles);
         Task Commit();

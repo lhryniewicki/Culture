@@ -51,6 +51,8 @@ namespace Culture.Web
 
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserInEventRepository, UserInEventRepository>();
+            services.AddScoped<IEventInCalendarRepository, EventInCalendarRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IEventReactionRepository, EventReactionRepository> ();
             services.AddScoped<INotificationRepository, NotificationRepository>();

@@ -21,6 +21,8 @@ namespace Culture.DataAccess
         public INotificationRepository NotificationRepository { get; }
 
 		public IEventReactionRepository EventReactionRepository { get; }
+        public IUserInEventRepository UserInEventRepository { get; }
+        public IEventInCalendarRepository EventInCalendarRepository { get; }
 
 		public UnitOfWork( 
             IUserRepository userRepository,
@@ -28,13 +30,17 @@ namespace Culture.DataAccess
             ICommentRepository commentRepository,
             INotificationRepository notificationRepository,
             CultureDbContext cultureDbContext,
-			IEventReactionRepository eventReactionRepository
+            IEventInCalendarRepository eventInCalendarRepository,
+			IEventReactionRepository eventReactionRepository,
+            IUserInEventRepository userInEventRepository
             )
         {
             CommentRepository = commentRepository;
             _cultureDbContext = cultureDbContext;
-			EventReactionRepository = eventReactionRepository;
-			UserRepository = userRepository;
+            EventInCalendarRepository = eventInCalendarRepository;
+            EventReactionRepository = eventReactionRepository;
+            UserInEventRepository = userInEventRepository;
+            UserRepository = userRepository;
             EventRepository = eventRepository;
             NotificationRepository = notificationRepository;
         }

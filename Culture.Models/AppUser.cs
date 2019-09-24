@@ -27,6 +27,7 @@ namespace Culture.Models
 			EventReactions = new List<EventReaction>();
 			Notifications = new List<Notification>();
             Comments = new List<Comment>();
+            Calendar = new Calendar();
 		}
 	}
 }

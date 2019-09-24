@@ -45,5 +45,15 @@ namespace Culture.Services.Services
         {
             return _unitOfWork.UserRepository.GetUserRoles(user);
         }
+        public Task<bool> IsUserSigned(Guid userId,int eventId)
+        {
+            return _unitOfWork.UserRepository.IsUserSigned(userId, eventId);
+        }
+        public Task<bool> DidUserAddToCal(Guid userId, int eventId)
+        {
+            return _unitOfWork.UserRepository.DidUserAddToCal(userId, eventId);
+
+        }
+
     }
 }

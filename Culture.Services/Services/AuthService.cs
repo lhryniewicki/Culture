@@ -56,7 +56,7 @@ namespace Culture.Services.Services
 				Email = registerViewModel.Email,
 				FirstName = registerViewModel.FirstName,
 				UserName= registerViewModel.UserName,
-				LastName = registerViewModel.LastName,
+				LastName = registerViewModel.LastName,                
 			};
 
 			var result = await _userManager.CreateAsync(appUser, registerViewModel.Password);

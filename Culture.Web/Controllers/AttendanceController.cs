@@ -32,7 +32,7 @@ namespace Culture.Web.Controllers
                 var user = await _userService.GetUserByName("maciek");
                 var _event = await _eventService.GetEventAsync(eventId);
 
-                await _calendarService.SignUserToEvent(eventId, user.Id);
+                await _calendarService.SignUserToEvent(eventId, user);
                 await _calendarService.Commit();
 
                 return Ok();
@@ -44,15 +44,33 @@ namespace Culture.Web.Controllers
                 return Json(e.Message + e.InnerException);
             }
         }
-        [HttpPost("calendar/add")]
-        public async Task<IActionResult> AddToUsersCalendar([FromBody]int eventId)
+        [HttpPost("calendar")]
+        public async Task<IActionResult> AddToEventCalendar([FromBody]int eventId)
         {
             try
             {
-                var user = await _userService.GetUserByName("lukasz");
-                var _event = await _eventService.GetEventAsync(eventId);
+                var user = await _userService.GetUserByName("maciek");
 
-                await _calendarService.SignUserToEvent(eventId, user.Id);
+                await _calendarService.AddToCalendar(eventId, user);
+                await _calendarService.Commit();
+
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+        }
+        [HttpDelete("calendar")]
+        public async Task<IActionResult> RemoveEventFromCalendar([FromBody]int eventId)
+        {
+            try
+            {
+                var user = await _userService.GetUserByName("maciek");
+
+                await _calendarService.RemoveEventFromCalendar(eventId,user.Id);
                 await _calendarService.Commit();
 
                 return Ok();

@@ -75,11 +75,17 @@ namespace Culture.Web.Controllers
 		{
 			try
 			{
-                var x = RouteData;
                 var user = await _userService.GetUserByName("maciek");
                 var _event = await _eventService.GetEventDetailsBySlugAsync(slug,user.EventReactions);
 
-                var eventVM = new EventDetailsViewModel(_event);
+                var isEventInCalendar = _userService.isEventInCalendar(user.Id,_event.Id);
+                var isUserSigned = _userService.isUserSigned(user.Id, _event.Id);
+
+                var eventVM = new EventDetailsViewModel(_event)
+                {
+                    IsUserSigned=,
+                    IsInCalendar=
+                };
 
 				return Json(eventVM);
 			}

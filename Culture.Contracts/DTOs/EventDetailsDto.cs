@@ -25,7 +25,9 @@ namespace Culture.Contracts.DTOs
         public string CurrentReaction { get; set; }
         public string Category { get; set; }
         public bool CanLoadMore { get; set; }
-        public EventDetailsDto(Event e, IEnumerable<EventReaction> userReactions, int size=5)
+
+
+        public EventDetailsDto(Event e)
         {
             Id = e.Id;
             Name = e.Name;
@@ -33,22 +35,15 @@ namespace Culture.Contracts.DTOs
             Image = e.ImagePath;
             CreationDate = e.CreationDate;
             TakesPlaceDate = e.TakesPlaceDate;
-            Comments = e.Comments.OrderByDescending(x => x.CreationDate).Take(size + 1).Select(y => new CommentDto(y));
-            CanLoadMore = Comments.Count() == (size + 1) ? true : false;
-            Comments = Comments.Count() > 5 ? Comments.Take(size) : Comments;
-            CommentsCount = e.Comments.Count;
-            Reactions = e.Reactions.GroupBy(x => x.Type).Select(x => new EventReactionDto()
-            {
-                Count = x.Count(),
-                ReactionType = x.Key.ToString().ToLower()
-            }).OrderByDescending(x => x.Count);
-            ReactionsCount = e.Reactions.Count;
             CreatedBy = e.CreatedBy.UserName;
-            CurrentReaction = userReactions.Where(x => x.EventId == e.Id).Select(x => x.Type.ToString().ToLower()).FirstOrDefault();
             Category = e.Category;
             CityName = e.CityName;
             StreetName = e.StreetName;
             Price = e.Price;
+        }
+        public EventDetailsDto()
+        {
+
         }
     }
 }

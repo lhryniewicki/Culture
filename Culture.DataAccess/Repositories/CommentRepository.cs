@@ -21,9 +21,10 @@ namespace Culture.DataAccess.Repositories
 		public async Task AddCommentAsync(Comment comment)
 		{
 			await _dbContext.Comments.AddAsync(comment);
-		}
 
-		public Task<Comment> GetCommentAsync(int id)
+        }
+
+        public Task<Comment> GetCommentAsync(int id)
 		{
 			return _dbContext.Comments
 				.SingleOrDefaultAsync(x => x.Id == id);
@@ -37,6 +38,7 @@ namespace Culture.DataAccess.Repositories
                 .OrderByDescending(x=>x.CreationDate)
                 .Skip(page * take)
                 .Take(take+1)
+                .AsNoTracking()
                 .ToListAsync();
         }
         public void  DeleteComment(Comment comment)

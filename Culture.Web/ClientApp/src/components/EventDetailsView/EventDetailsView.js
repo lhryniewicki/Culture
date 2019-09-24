@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import CommReactionBar from '../CommReactionBar/CommReactionBar';
-import { getEventDetails }from '../../api/EventApi';
+import { getEventDetails } from '../../api/EventApi';
+import { addToCalendar,removeFromCalendar } from '../../api/AttendanceApi';
 
 
 class EventDetailsView extends React.Component {
@@ -10,7 +11,10 @@ class EventDetailsView extends React.Component {
         super(props);
 
         this.state = {
-            name:"",
+            name: "",
+            isInCalendar:false,
+            isSigned:false,
+            id:0,
             price: 0,
             createdBy: "",
             urlSlug: this.props.match.params.eventSlug,
@@ -34,6 +38,24 @@ class EventDetailsView extends React.Component {
     }
     displayAddress() {
 
+    }
+    DisplayCalendar = () => {
+        if (this.state.isInCalendar) return "Usuń z kalendarza";
+        else {
+            return "Dodaj do kalendarza"
+        }
+    }
+    HandleCalendar = async () => {
+        if (this.state.isInCalendar) {
+            removeFromCalendar(this.state.id);
+            isInCalendar: false;
+        }
+        else {
+            const result = await addToCalendar(this.state.id);
+            this.setState({
+                isInCalendar:true
+            });
+        }
     }
     async componentDidMount() {
         const result = await getEventDetails(this.state.urlSlug);
@@ -131,12 +153,12 @@ class EventDetailsView extends React.Component {
                             <div className="card-body mb-0">
                                 <div className="row mb-3 ">
                                     <div className="mx-auto">
-                                        <a href="#" className="btn btn-danger">Dodaj do kalendarza</a>
+                                        <button onClick={this.HandleCalendar} className="btn btn-danger">{this.DisplayCalendar()}</button>
                                     </div>
                                 </div>
                                 <div className="row">
                                     <div className="mx-auto ">
-                                        <a href="#" className="btn btn-primary">Zapisz się </a>
+                                        <button onClick={this.SignUser} className="btn btn-primary">Weź udział </button>
                                     </div>
                                 </div>
                             </div>

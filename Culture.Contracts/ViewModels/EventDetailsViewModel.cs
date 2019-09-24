@@ -24,6 +24,8 @@ namespace Culture.Contracts.ViewModels
         public string CurrentReaction { get; set; }
         public string Category { get; set; }
         public bool CanLoadMore { get; set; }
+        public bool IsUserSigned { get; set; }
+        public bool IsInCalendar { get; set; }
         public EventDetailsViewModel(EventDetailsDto e)
         {
             Id = e.Id;

@@ -13,6 +13,8 @@ namespace Culture.Contracts
         IUserRepository UserRepository { get;}
         INotificationRepository NotificationRepository { get; }
 		IEventReactionRepository EventReactionRepository { get; }
+        IUserInEventRepository UserInEventRepository { get; }
+        IEventInCalendarRepository EventInCalendarRepository { get; }
 
 
        Task Commit();

@@ -16,20 +16,32 @@ namespace Culture.Services.Services
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task SignUserToEvent(int eventId,Guid userId)
+        public  Task SignUserToEvent(int eventId,AppUser user)
         {
-            var userReq =_unitOfWork.UserRepository.GetUserById(userId.ToString());
             var userEvent = new UserInEvent()
             {
                 EventId = eventId,
-                UserId = userId
+                UserId = user.Id
             };
-            var user = await userReq;
-            user.ParticipatedEvents.Add(userEvent);
+           return _unitOfWork.UserInEventRepository.SignUserToEvent(userEvent);
+        }
+        public Task AddToCalendar(int eventId,AppUser user)
+        {
+            var eventCalendar = new EventInCalendar()
+            {
+                CalendarId = user.CalendarId,
+                EventId = eventId
+            };
+            return _unitOfWork.EventInCalendarRepository.SignToCalendar(eventCalendar);
+        }
+        public async Task RemoveEventFromCalendar(int eventId, Guid userId)
+        {
+             await _unitOfWork.EventInCalendarRepository.RemoveFromCalendar(eventId, userId);
         }
         public Task Commit()
         {
             return _unitOfWork.Commit();
         }
+
     }
 }
