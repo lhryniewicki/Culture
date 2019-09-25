@@ -9,9 +9,10 @@ namespace Culture.Contracts.ViewModels
     {
         public IEnumerable<CommentDto> CommentsList { get; set; }
         public bool CanLoadMore { get; set; }
-        public CommentsListViewModel(IEnumerable<CommentDto> comments)
+        public CommentsListViewModel(MoreCommentsDto commentDtos)
         {
-            CommentsList = comments;
+            CanLoadMore = commentDtos.CanLoadMore;
+            CommentsList = commentDtos.CommentsList;
         }
 
     }

@@ -17,14 +17,10 @@ namespace Culture.Contracts.DTOs
         public string CityName { get; set; }
         public string StreetName { get; set; }
         public int Price { get; set; }
-        public IEnumerable<CommentDto> Comments { get; set; }
-        public IEnumerable<EventReactionDto> Reactions { get; set; }
-        public int CommentsCount { get; set; }
-        public int ReactionsCount { get; set; }
         public string CreatedBy { get; set; }
-        public string CurrentReaction { get; set; }
         public string Category { get; set; }
-        public bool CanLoadMore { get; set; }
+        public bool IsInCalendar { get; set; }
+
 
 
         public EventDetailsDto(Event e)

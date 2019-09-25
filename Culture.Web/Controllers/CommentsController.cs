@@ -29,26 +29,29 @@ namespace Culture.Web.Controllers
             _eventService = eventService;
             _notificationService = notificationService;
         }
-        [HttpPost("create")]
-        public async Task<JsonResult> CreateEventComment([FromBody]CommentViewModel comment)
+        [HttpPost]
+        public async Task<JsonResult> Create([FromBody]CommentViewModel commentViewModel)
         {
 
             try
             {
                 var userReq = _userService.GetUserById("2acb229f-73ab-4202-1102-08d740193056");
-                var eventReq =  _eventService.GetEventAsync(comment.EventId);
+                var eventReq =  _eventService.GetEventAsync(commentViewModel.EventId);
 
-                var _event = await eventReq;
-                var notificationTargets = new List<Guid>() { _event.CreatedById };
-				await _notificationService.CreateNotificationsAsync($"Twoje wydarzenie zostało skomentowane: {_event.Name}", notificationTargets, _event.Id);
+                var eventModel = await eventReq;
+                var notificationTargets = new List<Guid>() { eventModel.CreatedById };
 
                 var user = await userReq;
-                var _comment = await _commentService.CreateCommentAsync(comment.Content, comment.EventId, user.Id,user.UserName);
+
+                var commentDtoReq =  _commentService.CreateCommentAsync(commentViewModel.Content, commentViewModel.EventId, user.Id,user.UserName);
+                var notificationReq =  _notificationService.CreateNotificationsAsync($"Twoje wydarzenie zostało skomentowane: {eventModel.Name}", notificationTargets, eventModel.Id);
+
+                await Task.WhenAll(new Task[] { commentDtoReq, notificationReq });
+                var commentDto = await commentDtoReq;
 
                 await _commentService.Commit();
 
-                return Json(_comment);
-
+                return Json(commentDto);
             }
             catch (Exception e)
             {
@@ -61,9 +64,9 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                var comment = await _commentService.GetEventCommentsAsync(eventId,page,take);
+                var commentBatchDto = await _commentService.GetEventCommentsAsync(eventId,page,take);
 
-                var commentVM = new CommentsListViewModel(comment);
+                var commentVM = new CommentsListViewModel(commentBatchDto);
 
                 return Json(commentVM);
             }

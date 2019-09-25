@@ -29,26 +29,18 @@ namespace Culture.Contracts.DTOs
                 Reactions = new List<EventReactionDto>();
             }
 
-        public EventsPreviewDto(Event e,int size,IEnumerable<EventReaction> userReactions)
+        public EventsPreviewDto(Event e,MoreCommentsDto moreCommentsDto)
         {
             CreatedBy = e.CreatedBy.UserName;
-            Comments = e.Comments.OrderByDescending(x=>x.CreationDate).Take(size + 1).Select(y => new CommentDto(y));
-            CanLoadMore = Comments.Count() == (size+1) ? true : false;
-            Comments = Comments.Count()>5?Comments.Take(size):Comments;
             CreationDate = e.CreationDate;
             Image = e.ImagePath;
-            Reactions = e.Reactions.GroupBy(x=>x.Type).Select(x=>new EventReactionDto() {
-                Count=x.Count(),
-                ReactionType=x.Key.ToString().ToLower()
-            }).OrderByDescending(x=>x.Count);
-            ReactionsCount = e.Reactions.Count;
             Name = e.Name;
-            CommentsCount = e.Comments.Count;
-            ReactionsCount = e.Reactions.Count;
             ShortContent = e.Content.Substring(0, e.Content.Length > 255 ? 255 : e.Content.Length);
             Id = e.Id;
-            CurrentReaction = userReactions.Where(x => x.EventId == e.Id).Select(x => x.Type.ToString().ToLower()).FirstOrDefault();
             UrlSlug = e.UrlSlug;
+            CanLoadMore = moreCommentsDto.CanLoadMore;
+            CommentsCount = moreCommentsDto.TotalCount;
+            Comments = moreCommentsDto.CommentsList;
         }
     }
 }

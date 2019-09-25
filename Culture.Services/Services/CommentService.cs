@@ -65,11 +65,15 @@ namespace Culture.Services.Services
 			
 		}
 
-        public async Task<IEnumerable<CommentDto>> GetEventCommentsAsync(int id, int page, int take)
+        public async Task<MoreCommentsDto> GetEventCommentsAsync(int id, int page, int take)
         {
             var comments = await _unitOfWork.CommentRepository.GetEventCommentsAsync(id, page, take);
 
-            return  comments.Select(x=> new CommentDto(x));
+            var commentsDto =  comments.Select(x=> new CommentDto(x));
+            return new MoreCommentsDto(commentsDto)
+            {
+                TotalCount = comments.Count()
+            };
         }
         public Task Commit()
         {

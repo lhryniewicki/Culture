@@ -9,6 +9,7 @@ namespace Culture.Contracts.DTOs
     {
         public IEnumerable<CommentDto> CommentsList { get; set; }
         public bool CanLoadMore { get; set; }
+        public int TotalCount { get; set; }
         public MoreCommentsDto(IEnumerable<CommentDto> commentDtos)
         {
             CanLoadMore = commentDtos.Count() > 5 ? true : false;

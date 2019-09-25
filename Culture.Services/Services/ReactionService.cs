@@ -21,21 +21,24 @@ namespace Culture.Services.Services
 
 		public async Task<EventReaction> SetReaction(SetReactionViewModel reactionViewModel)
 		{
-			var _event = await _unitOfWork.EventRepository.GetEventWithReactions(reactionViewModel.EventId);
+			var eventReq =  _unitOfWork.EventRepository.GetEventAsync(reactionViewModel.EventId);
+            var userReactedReq =  _unitOfWork.EventReactionRepository.GetUserReactionAsync(reactionViewModel.UserId, reactionViewModel.EventId);
 
-			if(_event==null)
+            await Task.WhenAll(new Task[] { eventReq, userReactedReq });
+
+            var eventModel = await eventReq;
+            var userReacted = await userReactedReq;
+
+            if (eventModel == null)
+            {
+                throw new Exception("Reaction set on non existent event");
+            }
+            if (userReacted != null)
 			{
-				throw new Exception("Reaction set on non existent event");
+				return await UpdateReaction(reactionViewModel, userReacted, eventModel);
 			}
 
-			var userReaction = _event.Reactions.FirstOrDefault(x => x.UserId == reactionViewModel.UserId);
-
-			if (userReaction != null)
-			{
-				return await UpdateReaction(reactionViewModel,userReaction,_event);
-			}
-
-			return await CreateReaction(reactionViewModel,_event);
+			return await CreateReaction(reactionViewModel, eventModel);
 
 			
 		}

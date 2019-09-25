@@ -34,7 +34,7 @@ export const createEvent = async (data) => {
 export const getPreviewEventList = async (page, category) => {
     let categoryApi;
     category === null ? categoryApi = "" : categoryApi = `&category=${category}`;
-    let api = `${API_URL}/get?page=${page}${categoryApi}`;
+    let api = `${API_URL}/get/preview?page=${page}${categoryApi}`;
     let options = {
         method: 'get'
     }

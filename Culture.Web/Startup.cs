@@ -34,8 +34,6 @@ namespace Culture.Web
 		public void ConfigureServices(IServiceCollection services)
 		{
 
-			services.AddScoped<CultureDbContext, CultureDbContext>();
-
 
 			services.AddScoped<IUserService, UserService>();
 			services.AddScoped<IEventService, EventService>();
@@ -46,12 +44,14 @@ namespace Culture.Web
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ICalendarService, CalendarService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IEventReactionService, EventReactionService>();
 
 
 
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserInEventRepository, UserInEventRepository>();
+            services.AddScoped<IEventReactionRepository, EventReactionRepository>();
             services.AddScoped<IEventInCalendarRepository, EventInCalendarRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IEventReactionRepository, EventReactionRepository> ();

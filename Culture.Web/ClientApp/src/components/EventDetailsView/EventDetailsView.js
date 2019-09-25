@@ -34,12 +34,9 @@ class EventDetailsView extends React.Component {
             takesPlaceDate:null
         };
 
-        this.displayAddress = this.displayAddress.bind(this);
     }
-    displayAddress() {
 
-    }
-    DisplayCalendar = () => {
+    DisplayCalendarButton = () => {
         if (this.state.isInCalendar) return "Usuń z kalendarza";
         else {
             return "Dodaj do kalendarza"
@@ -85,7 +82,8 @@ class EventDetailsView extends React.Component {
             date: jsDateFormatted,
             price: result.price,
             takesPlaceDate: jsDatePlaceFormatted,
-            takesPlaceHour: jsDatePlaceTimeFormatted
+            takesPlaceHour: jsDatePlaceTimeFormatted,
+            isInCalendar:result.isInCalendar
 
         });
     }
@@ -153,7 +151,7 @@ class EventDetailsView extends React.Component {
                             <div className="card-body mb-0">
                                 <div className="row mb-3 ">
                                     <div className="mx-auto">
-                                        <button onClick={this.HandleCalendar} className="btn btn-danger">{this.DisplayCalendar()}</button>
+                                        <button onClick={this.HandleCalendar} className="btn btn-danger">{this.DisplayCalendarButton()}</button>
                                     </div>
                                 </div>
                                 <div className="row">

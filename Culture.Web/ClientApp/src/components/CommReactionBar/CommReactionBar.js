@@ -24,9 +24,12 @@ class CommReactionBar extends React.Component {
             showComments: false,
             commentsPage: 1,
             mouseCoords: 0,
+            reactionsCount: 0,
+            comments: [],
+            reactions: [],
+            currentReaction: null,
+            commentsCount:0
         }
-
-
 
         this.showComments = this.showComments.bind(this);
         this.moreComments = this.moreComments.bind(this);
@@ -36,11 +39,20 @@ class CommReactionBar extends React.Component {
         this.handleInputChange = this.handleInputChange.bind(this);
         this.displayComments = this.displayComments.bind(this);
     }
-    componentDidUpdate() {
-        console.log(this.props.reactionsCount)
-        console.log(this.state.reactionsCount)
+    componentDidMount() {
+        this.setState({
+            reactionsCount: this.props.reactionsCount,
+            reactions: this.props.reactions,
+            comments: this.props.comments,
+            commentsCount: this.props.commentsCount,
+            currentReaction: this.props.currentReaction,
+            canLoadMoreComments: this.props.canLoadMore
+        });
 
-        if (this.props.reactionsCount !== this.state.reactionsCount) {
+    }
+    componentDidUpdate(prevProps) {
+
+        if (prevProps.reactionsCount !== this.props.reactionsCount) {
 
             this.setState( {
                 reactionsCount: this.props.reactionsCount,
@@ -70,15 +82,20 @@ class CommReactionBar extends React.Component {
     async onReactionSend(e) {
         const name = e.target.name;
         const result = await sendReaction('2acb229f-73ab-4202-1102-08d740193056', this.props.id, name);
+        console.log(result);
         if (result === undefined) return false;
         if (name === this.state.currentReaction) {
-            this.setState({
+            console.log("null");
+
+             this.setState({
                 currentReaction: null,
                 reactions: result.reactions,
                 reactionsCount: this.state.reactionsCount - 1
             });
+            console.log(this.state.currentReaction);
         }
         else if (this.state.currentReaction === null) {
+
             this.setState({
                 currentReaction: name,
                 reactions: result.reactions,
@@ -86,12 +103,14 @@ class CommReactionBar extends React.Component {
             });
         }
         else {
+
             this.setState({
                 currentReaction: name,
                 reactions: result.reactions
             });
         }
         this.closeModal();
+        console.log(this.state.reactions);
     }
     showComments(event) {
         event.preventDefault();
@@ -157,9 +176,6 @@ class CommReactionBar extends React.Component {
          }))
     }
     displayCurrentReaction = () => {
-        console.log("event bar curr react");
-
-        console.log(this.state);
         if (this.state.currentReaction !== null && this.state.currentReaction !== undefined)
             return <img
                     src={images[this.state.currentReaction]}

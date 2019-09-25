@@ -45,20 +45,16 @@ namespace Culture.DataAccess.Repositories
         public Task<Event> GetEventDetailsBySlugAsync(string slug)
 		{
             return _dbContext.Events
-                .Include(x => x.Participants)
-                .Include(x => x.Reactions)
-                .Include(x => x.Comments)
                 .Include(x => x.CreatedBy)
                 .Include(x=>x.EventsInCalendar)
+                    .ThenInclude(y=>y.Calendar)
+                .AsNoTracking()
                 .SingleOrDefaultAsync(x => x.UrlSlug == slug);
 		}
 
         public async Task<IEnumerable<Event>> GetEventPreviewList(int page=0,int size=5, string category=null)
         {
             return await _dbContext.Events
-                .Include(x=>x.Reactions)
-                .Include(x=>x.Comments)
-                    .ThenInclude(y=>y.Author)
                 .Include(x=>x.CreatedBy)
                 .Where(x => category != null ? x.Category == category : true)
                 .OrderByDescending(x=>x.CreationDate)

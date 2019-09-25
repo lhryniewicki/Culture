@@ -30,7 +30,6 @@ namespace Culture.Web.Controllers
             try
             {
                 var user = await _userService.GetUserByName("maciek");
-                var _event = await _eventService.GetEventAsync(eventId);
 
                 await _calendarService.SignUserToEvent(eventId, user);
                 await _calendarService.Commit();

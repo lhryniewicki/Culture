@@ -23,6 +23,7 @@ namespace Culture.Web.Controllers
 		private readonly INotificationService _notificationService;
 		private readonly IReactionService _reactionService;
         private readonly IFileService _fileService;
+        private readonly IEventReactionService _eventReactionService;
 
         public EventsController(
 			IEventService eventService,
@@ -30,7 +31,8 @@ namespace Culture.Web.Controllers
 			ICommentService commentService,
 			INotificationService notificationService,
 			IReactionService reactionService,
-            IFileService fileService)
+            IFileService fileService,
+            IEventReactionService eventReactionService)
         {
 			_eventService = eventService;
 			_userService = userService;
@@ -38,13 +40,13 @@ namespace Culture.Web.Controllers
 			_notificationService = notificationService;
 			_reactionService = reactionService;
             _fileService = fileService;
+            _eventReactionService = eventReactionService;
         }
-		[HttpPost("create")]
-		public async Task<JsonResult> CreateEvent([FromForm]EventViewModel eventt)
+		[HttpPost]
+		public async Task<JsonResult> Create([FromForm]EventViewModel eventViewModel)
 		{
 			try
 			{
-
 				var user =  await _userService.GetUserByName("maciek");
 
                 if (user == null)
@@ -53,14 +55,13 @@ namespace Culture.Web.Controllers
                     return Json("User not found in database");
                 }
 
-                var imagePath = await _fileService.UploadImage(eventt.Image);
+                var imagePath = await _fileService.UploadImage(eventViewModel.Image);
 
-                var _event = await _eventService.CreateEventAsync(eventt,imagePath, user.Id);
-
+                var eventModel = await _eventService.CreateEventAsync(eventViewModel, imagePath, user.Id);
 
                 await _eventService.Commit();
 
-                return Json(_event);
+                return Json(eventModel);
 
 			}
 			catch (Exception e)
@@ -76,18 +77,16 @@ namespace Culture.Web.Controllers
 			try
 			{
                 var user = await _userService.GetUserByName("maciek");
-                var _event = await _eventService.GetEventDetailsBySlugAsync(slug,user.EventReactions);
+                var eventDto = await _eventService.GetEventDetailsBySlugAsync(slug, user.Id);
 
-                var isEventInCalendar = _userService.isEventInCalendar(user.Id,_event.Id);
-                var isUserSigned = _userService.isUserSigned(user.Id, _event.Id);
+                var commentsDto = await  _commentService.GetEventCommentsAsync(eventDto.Id, 0, 5);
+                var reactions = await _eventReactionService.GetReactions(eventDto.Id, user.Id);
 
-                var eventVM = new EventDetailsViewModel(_event)
-                {
-                    IsUserSigned=,
-                    IsInCalendar=
-                };
+                var isUserAttending = _userService.IsUserSigned(user.Id, eventDto.Id);
 
-				return Json(eventVM);
+                var eventViewModel = new EventDetailsViewModel(eventDto,commentsDto,reactions,isUserAttending);
+
+				return Json(eventViewModel);
 			}
 			catch(Exception e)
 			{
@@ -96,18 +95,21 @@ namespace Culture.Web.Controllers
 			}
 			
 		}
-        [HttpGet("get")]
-        public async Task<JsonResult> GetEventPreviewList(int page=0,int size=5,string category=null)
+        [HttpGet("get/preview")]
+        public async Task<JsonResult> GetEventPreviewList(int page=0, int size=5, string category=null)
         {
             try
             {
                 var user = await _userService.GetUserByName("maciek");
-                var _eventList = await _eventService.GetEventPreviewList(user.EventReactions,page, size,category);
-                var _event = new EventPreviewListViewModel()
+
+                var eventList = await _eventService.GetEventPreviewList(user.Id,page, size,category);
+
+                var eventViewModel = new EventPreviewListViewModel()
                 {
-                    Events = _eventList
+                    Events = eventList
                 };
-                return Json(_event);
+
+                return Json(eventViewModel);
             }
             catch (Exception e)
             {
@@ -116,17 +118,23 @@ namespace Culture.Web.Controllers
             }
 
         }
-        [HttpPut("edit")]
-        public async Task<JsonResult> EditEvent([FromBody]EventViewModel eventViewModel)
+        [HttpPut()]
+        public async Task<JsonResult> Edit([FromBody]EventViewModel eventViewModel)
         {
             try
             {
                 var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
-                var _eventReq = _eventService.EditEvent(eventViewModel, user.Id);
+
+                var eventReq = _eventService.EditEvent(eventViewModel, user.Id);
+
 				var eventParticipantsReq = _userService.GetEventParticipants(eventViewModel.Id);
-                var _event = await _eventReq;
+
+                await Task.WhenAll(new Task[] { eventReq, eventParticipantsReq });
+
+                var _event = await eventReq;
                 var eventParticipants = await eventParticipantsReq;
-				await _notificationService.CreateNotificationsAsync(
+
+                await _notificationService.CreateNotificationsAsync(
 					$"Wydarzenie zostało zmienione: {_event.Name}! Sprawdz jego szczegóły",eventParticipants, eventViewModel.Id);
 
                 await _eventService.Commit();
@@ -182,7 +190,7 @@ namespace Culture.Web.Controllers
 
                 await _reactionService.SetReaction(reactionViewModel);
 
-				var _newEventReactions = await _eventService.GetEventsReactions(reactionViewModel.EventId);
+				var _newEventReactions = await _eventService.GetEventReactionsWAuthor(reactionViewModel.EventId);
 				var targetList = new List<Guid>() { _newEventReactions.Id};
 
 				await _notificationService.CreateNotificationsAsync($"{user.UserName} zareagował na twoje wydarzenie!" +

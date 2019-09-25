@@ -12,8 +12,7 @@ namespace Culture.Contracts.IRepositories
         Task<AppUser> GetUserByName(string name);
         Task<IList<string>> GetUserRoles(AppUser user);
         Task<AppUser> GetUserByNameWithCalendar(string userName);
-        Task<bool> IsUserSigned(Guid userId, int eventId);
-        Task<bool> DidUserAddToCal(Guid userId, int eventId);
+        bool IsUserSigned(Guid userId, int eventId);
 
 
     }

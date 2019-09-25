@@ -45,5 +45,13 @@ namespace Culture.DataAccess.Repositories
         {
              _dbContext.Comments.Remove(comment);
         }
+
+        public Task<int> GetCommentCountAsync(int eventId)
+        {
+            return _dbContext.Comments
+                           .Include(x => x.Author)
+                           .Where(x => x.EventId == eventId)
+                           .CountAsync();
+        }
     }
 }

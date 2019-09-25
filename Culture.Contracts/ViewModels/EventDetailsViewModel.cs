@@ -34,17 +34,36 @@ namespace Culture.Contracts.ViewModels
             Image = e.Image;
             CreationDate = e.CreationDate;
             TakesPlaceDate = e.TakesPlaceDate;
-            CanLoadMore = e.CanLoadMore;
-            Comments = e.Comments;
-            CommentsCount = e.CommentsCount;
-            Reactions = e.Reactions;
-            ReactionsCount = e.ReactionsCount;
             CreatedBy = e.CreatedBy;
-            CurrentReaction = e.CurrentReaction;
             Category = e.Category;
             CityName = e.CityName;
             StreetName = e.StreetName;
             Price = e.Price;
+            IsInCalendar = e.IsInCalendar;
+        }
+
+        public EventDetailsViewModel(EventDetailsDto eventDto, MoreCommentsDto commentsDto, EventReactionsDto reactions, bool isUserAttending)
+        {
+            Id = eventDto.Id;
+            Name = eventDto.Name;
+            Content = eventDto.Content;
+            Image = eventDto.Image;
+            Category = eventDto.Category;
+            CityName = eventDto.CityName;
+            StreetName = eventDto.StreetName;
+            Price = eventDto.Price;
+            IsInCalendar = eventDto.IsInCalendar;
+            IsUserSigned = isUserAttending;
+            CreationDate = eventDto.CreationDate;
+            TakesPlaceDate = eventDto.TakesPlaceDate;
+            CreatedBy = eventDto.CreatedBy;
+            CanLoadMore = commentsDto.CanLoadMore;
+            Comments = commentsDto.CommentsList;
+            CommentsCount = commentsDto.TotalCount;
+            Reactions = reactions.EventReactions;
+            ReactionsCount = reactions.TotalCount;
+            CurrentReaction = reactions.CurrentReaction;
+
         }
     }
 }
