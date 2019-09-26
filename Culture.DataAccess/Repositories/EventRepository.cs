@@ -52,11 +52,12 @@ namespace Culture.DataAccess.Repositories
                 .SingleOrDefaultAsync(x => x.UrlSlug == slug);
 		}
 
-        public async Task<IEnumerable<Event>> GetEventPreviewList(int page=0,int size=5, string category=null)
+        public async Task<IEnumerable<Event>> GetEventPreviewList(int page=0,int size=5, string category=null, string query = null)
         {
             return await _dbContext.Events
                 .Include(x=>x.CreatedBy)
-                .Where(x => category != null ? x.Category == category : true)
+                .Where(x => (category != null ? x.Category == category : true ) 
+                            && (query != null ? x.Content.Contains(query)|| x.Name.Contains(query):true ))
                 .OrderByDescending(x=>x.CreationDate)
                 .Skip(page * size)
                 .Take(size)

@@ -136,12 +136,12 @@ class EventForm extends React.Component {
                                     <div className="custom-control custom-checkbox" onClick={this.onCheckBoxClick} >
                                         <div className="form-check-inline"  >
                                             <label htmlFor="check1">
-                                                    <input type="checkbox" name="eventCategory" className="form-check-input" id="check1" value="Nauka i Edukacja" />Nauka i Edukacja
+                                                    <input type="checkbox" name="eventCategory" className="form-check-input" id="check1" value="Nauka" />Nauka
                                         </label>
                                         </div>
                                         <div className="form-check-inline">
                                             <label htmlFor="check2">
-                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check2" value="Sport i Rekreacja" />Sport i Rekreacja
+                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check2" value="Sport" />Sport
                                         </label>
                                         </div>
                                         <div className="form-check-inline">

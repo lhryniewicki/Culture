@@ -29,8 +29,8 @@ namespace Culture.Web.Controllers
             _eventService = eventService;
             _notificationService = notificationService;
         }
-        [HttpPost]
-        public async Task<JsonResult> Create([FromBody]CommentViewModel commentViewModel)
+        [HttpPost("create")]
+        public async Task<JsonResult> CreateComment([FromBody]CommentViewModel commentViewModel)
         {
 
             try

@@ -9,7 +9,7 @@ namespace Culture.Contracts.IRepositories
 {
 	public interface IEventRepository
 	{
-        Task<IEnumerable<Event>> GetEventPreviewList(int page,int size, string category);
+        Task<IEnumerable<Event>> GetEventPreviewList(int page,int size, string category, string query = null);
 		Task<Event> GetEventDetailsBySlugAsync(string slug);
 		Task CreateEventAsync(Event eventt);
         Task<Event> GetEventAsync(int id);

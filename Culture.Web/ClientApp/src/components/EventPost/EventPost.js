@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import { Link } from 'react-router-dom';
 import '../EventPost/EventPost.css';
 import CommReactionBar from '../CommReactionBar/CommReactionBar';
 const images = {
@@ -13,7 +14,6 @@ const images = {
 class EventPost extends React.Component {
     constructor(props) {
         super(props);
-        console.log("event post ctor");
 
         this.state = {
             source: null,
@@ -34,7 +34,6 @@ class EventPost extends React.Component {
     render() {
         return (
             <div className="card mb-4">
-                {console.log}
                 <img className="card-img-top"
                     width="750px;"
                     height="300px;"
@@ -43,7 +42,7 @@ class EventPost extends React.Component {
                 <div className="card-body">
                     <h2 className="card-title">{this.props.eventName}</h2>
                     <p className="card-text showSpace">{this.props.eventDescription}</p>
-                    <a href={`/wydarzenie/szczegoly/${this.state.urlSlug}`} onClick={() => { return !this.props.isPreview}} className="btn btn-primary">Szczegóły... &rarr;</a>
+                        <Link to={`/wydarzenie/szczegoly/${this.state.urlSlug}`}><span className="btn btn-primary">Szczegóły... &rarr;</span></Link>
                 </div>
                 <CommReactionBar
                     currentReaction={this.props.currentReaction}

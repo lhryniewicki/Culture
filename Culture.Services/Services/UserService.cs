@@ -8,6 +8,7 @@ using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using Culture.Contracts;
+using Culture.Contracts.DTOs;
 
 namespace Culture.Services.Services
 {
@@ -24,7 +25,6 @@ namespace Culture.Services.Services
 		{
             return await _unitOfWork.UserRepository.GetEventParticipants(id);
 		}
-
 
 		public  Task<AppUser> GetUserById(string id)
 		{
@@ -45,10 +45,42 @@ namespace Culture.Services.Services
         {
             return _unitOfWork.UserRepository.GetUserRoles(user);
         }
-        public bool IsUserSigned(Guid userId,int eventId)
+
+        public bool IsUserSigned(Guid userId, int eventId)
         {
             return _unitOfWork.UserRepository.IsUserSigned(userId, eventId);
         }
 
+        public async Task<IEnumerable<DateTime>> GetUserCalendarDays(Guid userId, string category, string query)
+        {
+            var userWithCalendar = await _unitOfWork.UserRepository.GetUserByIdWithCalendar(userId);
+
+            if(category == null && query == null)
+            {
+                return userWithCalendar
+                    .Calendar
+                    .Events
+                    .Select(x => x.Event.TakesPlaceDate)
+                    .ToList();
+            }
+            return null;
+        }
+
+        public async Task<IEnumerable<EventInCalendarDto>> GetUserEventsInDay(Guid userId, DateTime day)
+        {
+            var userWithCalendar = await _unitOfWork.UserRepository.GetUserByIdWithCalendar(userId);
+
+            return userWithCalendar
+                .Calendar
+                .Events
+                .Where(x => x.Event.TakesPlaceDate.ToString("MM/dd/yyyy") == day.ToString("MM/dd/yyyy"))
+                .Select(x => new EventInCalendarDto()
+                {
+                    EventName = x.Event.Name,
+                    EventSlug = x.Event.UrlSlug
+                });
+            
+
+        }
     }
 }

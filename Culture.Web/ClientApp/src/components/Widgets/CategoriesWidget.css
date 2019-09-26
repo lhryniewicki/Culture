@@ -1,0 +1,11 @@
+﻿.myButton {
+    background: none;
+    border: none;
+    padding: 0 ;
+    /*optional*/
+    font-family: arial, sans-serif;
+    font-size:large;
+    /*input has OS specific font-family*/
+    color: #069;
+    cursor: pointer;
+}

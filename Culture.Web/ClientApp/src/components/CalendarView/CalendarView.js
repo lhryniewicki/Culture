@@ -4,6 +4,8 @@ import DayPicker from 'react-day-picker/DayPicker';
 import CategoriesWidget from '../Widgets/CategoriesWidget';
 import SearchWidget from '../Widgets/SearchWidget';
 import { Modal } from 'react-bootstrap';
+import { getUserCalendarDays, getEventsInDays } from '../../api/AttendanceApi';
+import { Link } from 'react-router-dom';
 import 'react-day-picker/lib/style.css';
 
 
@@ -20,37 +22,31 @@ class CalendarView extends React.Component {
         this.onDayClick = this.onDayClick.bind(this);
         this.closeModal = this.closeModal.bind(this);
     }
-    componentDidMount() {
+   async componentDidMount() {
+
+       const days = await getUserCalendarDays();
+       const JsDays = days.map((item, key) => {
+           return new Date(Date.parse(item));
+       })
         this.setState({
-            selectedDays: [
-                new Date(2019, 8, 13),
-                new Date(2019, 8, 15),
-                new Date(2019, 8, 17),
-                new Date(2019, 8, 19),
-                new Date(2019, 8, 25)
-            ]
+            selectedDays: JsDays
         });
     }
     closeModal() {
         this.setState({ showModal: false });
     }
-    onDayClick(day, mod, e) {
+    async onDayClick(day, mod, e) {
+        const events = await getEventsInDays(day);
+        const eventsInDay = events.map((item, key) => {
+            return {
+                eventName: item.eventName,
+                eventUrl: item.eventSlug
+            }
+        })
         let formattedDate = day.getDate() + "-" + (day.getMonth() + 1) + "-" + day.getFullYear();
         this.setState({
             modalDate: formattedDate,
-            modalEvents: [{
-                eventName: "Event1",
-                eventUrl: "http://google.com"
-            },
-                {
-                    eventName: "Event2",
-                    eventUrl: "http://google.com"
-                },
-                {
-                    eventName: "Event3",
-                    eventUrl: "http://google.com"
-                }
-                ]
+            modalEvents: eventsInDay
         });
         this.setState({ showModal: true });
     }
@@ -90,8 +86,8 @@ class CalendarView extends React.Component {
                     <Modal.Body>
                         {this.state.modalEvents.map((element, index) => (
                             <div className=" my-4" key={index}>
-                                <a className="btn btn-sm btn-info mx-2" href={element.eventUrl}>Przejdź</a>
-                                {element.eventName}
+                                <Link className="btn btn-sm btn-info mx-2" to={`/wydarzenie/szczegoly/${element.eventUrl}`}>Przejdź</Link>
+                                <b>{element.eventName}</b>
                               
                                 <br/>
                             </div>

@@ -44,3 +44,41 @@ export const removeFromCalendar = async (eventId) => {
         })
         .catch(e => console.log(e));
 }
+
+export const getUserCalendarDays = async () => {
+
+    const api = `${API_URL}/get`;
+    const options = {
+        method: 'get',
+        headers: {
+            'content-type': 'application/json'
+        }
+    }
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Pobranie dni z kalendarza się nie powiodło"
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+}
+
+export const getEventsInDays = async (date) => {
+    const dateTime = date.toISOString()
+    const api = `${API_URL}/get/${dateTime}`;
+    const options = {
+        method: 'get',
+        headers: {
+            'content-type': 'application/json'
+        }
+    }
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Pobranie wydarzen z dnia się nie powiodło"
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+}

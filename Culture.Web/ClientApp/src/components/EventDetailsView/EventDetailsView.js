@@ -44,8 +44,10 @@ class EventDetailsView extends React.Component {
     }
     HandleCalendar = async () => {
         if (this.state.isInCalendar) {
-            removeFromCalendar(this.state.id);
-            isInCalendar: false;
+            await removeFromCalendar(this.state.id);
+            this.setState({
+                isInCalendar: false
+            })
         }
         else {
             const result = await addToCalendar(this.state.id);

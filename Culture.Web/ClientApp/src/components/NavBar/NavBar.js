@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import { Redirect } from 'react-router';
+import { Link } from 'react-router-dom';
 
 class NavBar extends React.Component{
 
@@ -30,7 +31,7 @@ class NavBar extends React.Component{
         const move = (this.state.menu) ? "pull-left" : "pull-right";
 
         return (
-            <nav className="navbar navbar-expand-md navbar-dark bg-dark fixed-top affix">
+            <nav className="navbar navbar-expand-md navbar-dark bg-info fixed-top affix">
                 <div className="container">
                     <a className="navbar-brand" href="">MyCulture</a>
                     <button className="navbar-toggler" type="button" onClick={this.toggleMenu} >
@@ -39,18 +40,18 @@ class NavBar extends React.Component{
                     <div className={"collapse navbar-collapse " + show}>
                         <ul className={"navbar-nav ml-auto " + move}>
                             <li className="nav-item ">
-                                <a className="nav-link" href="">Strona główna
-                                </a>
+                                <Link className="nav-link" to="">Strona główna
+                                </Link>
                             </li>
                             {
                                 localStorage.getItem('token') === null
                                     ?
                                     <React.Fragment>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="/account/login">Login</a>
+                                            <Link className="nav-link" to="/konto/login">Login</Link>
                                         </li>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="/account/register">Rejestracja</a>
+                                            <Link className="nav-link" to="/konto/rejestracja">Rejestracja</Link>
                                         </li>
 
                                     </React.Fragment>  
@@ -58,13 +59,13 @@ class NavBar extends React.Component{
                                     :
                                     <React.Fragment>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="#">Moje konto</a>
+                                            <Link className="nav-link" to="#">Moje konto</Link>
                                         </li>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="#">Powiadomienia</a>
+                                            <Link className="nav-link" to="#">Powiadomienia</Link>
                                         </li>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="" onClick={this.logOut}>Wyloguj</a>
+                                            <Link className="nav-link" to="" onClick={this.logOut}>Wyloguj</Link>
                                         </li>
                                     </React.Fragment>
                                    

@@ -13,7 +13,7 @@ class EventsView extends React.Component {
 
         this.state = {
             events: [],
-            category:null
+            query:"" 
         };
 
         this.moreEvents = this.moreEvents.bind(this);
@@ -21,12 +21,53 @@ class EventsView extends React.Component {
 
     }
     async componentDidMount() {
-        let eventList = await getPreviewEventList(0, this.state.category);
+        const eventList = await getPreviewEventList(0, null, this.state.query);
         if (eventList !== undefined && eventList.events.length > 0)
             this.setState({ events: eventList.events });
         console.log(eventList);
 
 
+    }
+    handleOnChange = (e) => {
+        this.setState({
+            [e.target.name]:e.target.value
+        });
+
+    }
+    handleSearchBar = async (e) => {
+        e.preventDefault();
+        const eventList = await getPreviewEventList(0, null, this.state.query);
+
+        if (eventList !== undefined && eventList.events.length > 0)
+            this.setState({
+                events: eventList.events,
+                category: null
+            });
+        else {
+            this.setState({
+                events: [],
+                category: null
+            });
+        }
+    }
+    handleSearchCategory = async (e) => {
+        e.preventDefault();
+        console.log(e);
+        console.log(e.target);
+        
+        const eventList = await getPreviewEventList(0, e.target.name==="Wszystkie"?null:e.target.name , "");
+
+        if (eventList !== undefined && eventList.events.length > 0)
+            this.setState({
+                events: eventList.events,
+                category: null
+            });
+        else {
+            this.setState({
+                events: [],
+                category: null
+            });
+        }
     }
     moreEvents(event) {
         event.preventDefault();
@@ -82,8 +123,8 @@ class EventsView extends React.Component {
                         </div>
                         <div className="col-md-3 fixed" >
                             <div className="affix">
-                                <SearchWidget />
-                                <CategoriesWidget />
+                                <SearchWidget query={this.state.query} handleSearch={this.handleSearchBar} handleOnChange={this.handleOnChange} />
+                                <CategoriesWidget category={this.state.category} handleOnChange={this.handleOnChange} handleSearch={this.handleSearchCategory} />
                             </div>
 
                         </div>

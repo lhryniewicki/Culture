@@ -115,9 +115,9 @@ namespace Culture.Services.Services
             return _unitOfWork.Commit();
         }
 
-        public async Task<IEnumerable<EventsPreviewDto>> GetEventPreviewList(Guid userId, int page = 0, int size = 5, string category = null)
+        public async Task<IEnumerable<EventsPreviewDto>> GetEventPreviewList(Guid userId, int page = 0, int size = 5, string category = null, string query = null)
         {
-            var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page, size, category);
+            var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page, size, category, query);
 
             var EventsPreviewDtoList = new List<EventsPreviewDto>();
 

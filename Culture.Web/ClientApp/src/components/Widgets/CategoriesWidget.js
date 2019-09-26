@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-
+import '../../components/Widgets/CategoriesWidget.css';
 
 class CategoriesWidget extends React.Component {
 
@@ -9,38 +9,43 @@ class CategoriesWidget extends React.Component {
                 <h5 className="card-header">Kategorie</h5>
                 <div className="card-body">
                     <div className="row">
-                        <div className="col-lg-5">
-                            <ul className="list-unstyled mb-0">
+                        
+                            <div className="col-lg-5 ">
+                                <ul className="list-unstyled mb-0">
                                 <li>
-                                    <a href="#">MUZYKA</a>
+                                    <button className="myButton" onClick={this.props.handleSearch} name="Muzyka" type="submit">Muzyka</button>
+                                    </li>
+                                    <li>
+                                    <button className="myButton" onClick={this.props.handleSearch} name="Turystyka" type="submit">Turystyka</button>
+                                    </li>
+                                    <li>
+                                    <button className="myButton" onClick={this.props.handleSearch} name="Styl Życia" type="submit">Styl Życia</button>
+                                    </li>
+                                    <li>
+                                    <button className="myButton" onClick={this.props.handleSearch} name="Regionalia" type="submit">Regionalia</button>
                                 </li>
                                 <li>
-                                    <a href="#">TURYSTYKA</a>
+                                    <button className="myButton" onClick={this.props.handleSearch} name="Wszystkie" type="submit">Wszystkie</button>
                                 </li>
-                                <li>
-                                    <a href="#">STYL ŻYCIA</a>
-                                </li>
-                                <li>
-                                    <a href="#">REGIONALIA</a>
-                                </li>
-                            </ul>
+                                </ul>
+                            </div>
+                            <div className="col-lg-7">
+                                <ul className="list-unstyled mb-1">
+                                    <li>
+                                    <button className="myButton" onClick={this.props.handleSearch} name="Nauka i Edukacja" type="submit">Nauka</button>
+                                    </li>
+                                    <li>
+                                    <button className="myButton" onClick={this.props.handleSearch} name="Sport i Rekreacja" type="submit">Sport </button>
+                                    </li>
+                                    <li>
+                                    <button className="myButton" onClick={this.props.handleSearch} name="Dom i Rodzina" type="submit">Dom i Rodzina</button>
+                                    </li>
+                                    <li>
+                                    <button className="myButton" onClick={this.props.handleSearch} name="Kultura i Sztuka" type="submit">Kultura i Sztuka</button>
+                                    </li>
+                                </ul>
                         </div>
-                        <div className="col-lg-7">
-                            <ul className="list-unstyled mb-1">
-                                <li>
-                                    <a href="#">NAUKA I EDUKACJA</a>
-                                </li>
-                                <li>
-                                    <a href="#">SPORT I REKREACJA</a>
-                                </li>
-                                <li>
-                                    <a href="#">DOM I RODZINA</a>
-                                </li>
-                                <li>
-                                    <a href="#">KULTURA I SZTUKA</a>
-                                </li>
-                            </ul>
-                        </div>
+                       
                     </div>
                 </div>
             </div>

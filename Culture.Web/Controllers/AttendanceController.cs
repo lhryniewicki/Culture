@@ -82,13 +82,33 @@ namespace Culture.Web.Controllers
             }
         }
         [HttpGet("get")]
-        public async Task<JsonResult> GetUserCalendar()
+        public async Task<JsonResult> GetUserCalendarDays(string category=null, string query=null)
         {
             try
             {
-                var user = await _userService.GetUserByNameWithCalendar(/*HttpContext.User.Identity.Name*/"lukasz");
- 
-                return Json(user);
+                var user = await _userService.GetUserByName("maciek");
+
+                var userCalendarDays = await _userService.GetUserCalendarDays(user.Id,category,query);
+                    return Json(userCalendarDays);
+                
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+
+        }
+        [HttpGet("get/{date}")]
+        public async Task<JsonResult> GetUserCalendarDays([FromRoute]DateTime date)
+        {
+            try
+            {
+                var user = await _userService.GetUserByName("maciek");
+
+                var userCalendarEventsDay = await _userService.GetUserEventsInDay(user.Id,date);
+                return Json(userCalendarEventsDay);
+
             }
             catch (Exception e)
             {

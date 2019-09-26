@@ -29,7 +29,6 @@ namespace Culture.DataAccess.Repositories
                 .ToListAsync();
         }
 
-
         public Task<AppUser> GetUserById(string id)
         {
             return _userManager.FindByIdAsync(id);
@@ -58,6 +57,15 @@ namespace Culture.DataAccess.Repositories
                 .FirstOrDefault(x => x.Id == userId)
                 .ParticipatedEvents
                 .FirstOrDefault(x => x.EventId == eventId) != null ? true : false;
+        }
+
+        public Task<AppUser> GetUserByIdWithCalendar(Guid userId)
+        {
+            return _userManager.Users
+                .Include(x => x.Calendar)
+                    .ThenInclude(x=>x.Events)
+                        .ThenInclude(x=>x.Event)
+                .FirstOrDefaultAsync(x => x.Id == userId);
         }
     }
 }

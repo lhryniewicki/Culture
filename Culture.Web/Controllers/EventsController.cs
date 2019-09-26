@@ -42,8 +42,8 @@ namespace Culture.Web.Controllers
             _fileService = fileService;
             _eventReactionService = eventReactionService;
         }
-		[HttpPost]
-		public async Task<JsonResult> Create([FromForm]EventViewModel eventViewModel)
+		[HttpPost("create")]
+		public async Task<JsonResult> CreateEvent([FromForm]EventViewModel eventViewModel)
 		{
 			try
 			{
@@ -96,13 +96,13 @@ namespace Culture.Web.Controllers
 			
 		}
         [HttpGet("get/preview")]
-        public async Task<JsonResult> GetEventPreviewList(int page=0, int size=5, string category=null)
+        public async Task<JsonResult> GetEventPreviewList(int page=0, int size=5, string category=null, string query = null)
         {
             try
             {
                 var user = await _userService.GetUserByName("maciek");
 
-                var eventList = await _eventService.GetEventPreviewList(user.Id,page, size,category);
+                var eventList = await _eventService.GetEventPreviewList(user.Id,page, size,category,query);
 
                 var eventViewModel = new EventPreviewListViewModel()
                 {

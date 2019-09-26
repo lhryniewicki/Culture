@@ -12,7 +12,6 @@ export default class App extends Component {
     displayName = App.name
     constructor(props) {
         super(props);
-
         this.state = {
             token: localStorage.getItem('token')
         }
@@ -30,7 +29,7 @@ export default class App extends Component {
     }
   render() {
       return (
-          <div>
+          <div >
               <NavBar removeToken={this.removeToken} />
               <Router>
                   <Switch>

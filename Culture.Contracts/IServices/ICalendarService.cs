@@ -11,6 +11,7 @@ namespace Culture.Contracts.IServices
         Task SignUserToEvent(int eventId, AppUser userId);
         Task AddToCalendar(int eventId, AppUser user);
         Task RemoveEventFromCalendar(int eventId, Guid userId);
+        Task<IEnumerable<DateTime>> GetUserCalendarDays(Guid userId, string category, string query);
         Task Commit();
     }
 }

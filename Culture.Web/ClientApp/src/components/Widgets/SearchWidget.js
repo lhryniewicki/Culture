@@ -4,6 +4,9 @@ import React from 'react';
 
 class SearchWidget extends React.Component {
 
+    constructor(props) {
+        super(props);
+    }
     render() {
         return (
 
@@ -11,12 +14,14 @@ class SearchWidget extends React.Component {
             <div className="card my-4">
                 <h5 className="card-header">Szukaj</h5>
                 <div className="card-body">
-                    <div className="input-group">
-                        <input type="text" className="form-control" placeholder="Szukaj..."/>
+                    <form onSubmit={this.props.handleSearch}>
+                        <div className="input-group">
+                            <input type="text" className="form-control" name="query" value={this.props.query} onChange={this.props.handleOnChange} placeholder="Szukaj..." />
                         <span className="input-group-btn">
-                            <button className="btn btn-secondary" type="button">Wyszukaj!</button>
+                            <button className="btn btn-secondary" type="submit">Wyszukaj!</button>
                         </span>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         );

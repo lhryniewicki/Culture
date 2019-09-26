@@ -31,10 +31,14 @@ export const createEvent = async (data) => {
 }
 
 
-export const getPreviewEventList = async (page, category) => {
+export const getPreviewEventList = async (page, category, query) => {
+    console.log(category);
     let categoryApi;
+    let queryApi;
     category === null ? categoryApi = "" : categoryApi = `&category=${category}`;
-    let api = `${API_URL}/get/preview?page=${page}${categoryApi}`;
+    query === "" ? queryApi = "" : queryApi = `&query=${query}`;
+    console.log(queryApi);
+    let api = `${API_URL}/get/preview?page=${page}${categoryApi}${queryApi}`;
     let options = {
         method: 'get'
     }

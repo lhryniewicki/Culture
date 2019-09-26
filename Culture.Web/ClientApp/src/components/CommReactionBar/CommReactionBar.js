@@ -121,17 +121,17 @@ class CommReactionBar extends React.Component {
 
     }
     displayComments() {
-        let items = [];
-        this.state.comments.map((c, index) => {
+        const items = this.state.comments.map((c, index) => {
             let jsDate = new Date(Date.parse(c.creationDate));
             let jsDateFormatted = `${jsDate.getDay()}-${jsDate.getMonth()}-${jsDate.getFullYear()} ${jsDate.getHours()}:${(jsDate.getMinutes() < 10 ? '0' : '') + jsDate.getMinutes()}`;
-                items.push(
-                    <Comment
-                        key={index}
-                        content={c.content}
-                        author={c.authorName}
-                        creationDate={jsDateFormatted}
-                    />)
+            return (
+                <Comment
+                    key={index}
+                    content={c.content}
+                    author={c.authorName}
+                    creationDate={jsDateFormatted}
+                />
+            );
         })
 
         return items;
@@ -147,11 +147,11 @@ class CommReactionBar extends React.Component {
         });
     }
     displaySortedReactions() {
-        let items = [];
-        if (this.state.reactions !== undefined && this.state.reactions.length > 0) {
-            this.state.reactions.map((element, index) => {
-                console.log(element)
-                items.push(<img draggable={false}
+        if (this.state.reactions == null || this.state.reactions.length < 1) {
+            return [];
+        }
+        return this.state.reactions.map((element, index) => {
+                return (<img draggable={false}
                     name={element.reactionType}
                     src={images[element.reactionType]}
                     width="25px"
@@ -161,13 +161,11 @@ class CommReactionBar extends React.Component {
                     data-placement="top"
                     title={`Ilość reakcji: ` + element.count} />);
             });
-            
-        }
-        return items;
     }
     handleCommentSubmit = async (e) => {
         e.preventDefault();
         const newComment = await sendComment(this.props.id, this.state.commentContent, 'b5ce53d5-978f-42bf-74da-08d73cef40dc');
+        console.log(newComment);
         this.setState(prevState => ({
             showComments:true,
             commentContent:'',
