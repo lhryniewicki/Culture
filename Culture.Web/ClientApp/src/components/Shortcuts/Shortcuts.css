@@ -1,0 +1,16 @@
+﻿.calendarStyle {
+    color: darkred;
+    
+}
+.calendarStyle:hover{
+    background-color:lightgrey
+}
+
+.mapStyle {
+    color: darkgreen;
+}
+
+li:hover {
+    background-color: lightgrey;
+    cursor:pointer;
+}

@@ -46,9 +46,9 @@ namespace Culture.Services.Services
             return _unitOfWork.UserRepository.GetUserRoles(user);
         }
 
-        public bool IsUserSigned(Guid userId, int eventId)
+        public async Task<bool> IsUserSigned(Guid userId, int eventId)
         {
-            return _unitOfWork.UserRepository.IsUserSigned(userId, eventId);
+            return await _unitOfWork.UserInEventRepository.IsUserSigned(userId, eventId) != null ? true:false;
         }
 
         public async Task<IEnumerable<DateTime>> GetUserCalendarDays(Guid userId, string category, string query)

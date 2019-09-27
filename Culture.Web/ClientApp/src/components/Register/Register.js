@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-
+import '../Login/Login.css'
 
 class Register extends React.Component {
 
@@ -8,7 +8,7 @@ class Register extends React.Component {
         return (
             <div className="container">
 
-                <form className="text-center border border-gray p-5 col-md-4 col-md-offset-4 " style={{ marginTop: '17%' }} >
+                <form className="text-center border border-gray p-5 col-md-4 col-md-offset-4 myForm" style={{ marginTop: '17%' }} >
 
                     <p className="h4 mb-4">Zarejestruj</p>
 
@@ -39,7 +39,7 @@ class Register extends React.Component {
 
                     <button className="btn btn-info my-4 btn-block" type="submit">Zarejestruj</button>
 
-                    <hr />
+                    <hr/>
                     <p>Masz konto?{` `}
                         <a href="/login">Zaloguj</a>
                     </p>

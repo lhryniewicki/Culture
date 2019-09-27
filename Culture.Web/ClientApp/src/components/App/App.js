@@ -29,18 +29,22 @@ export default class App extends Component {
     }
   render() {
       return (
-          <div >
-              <NavBar removeToken={this.removeToken} />
+          <div style={{ backgroundColor:"#e9ebee" }} >
               <Router>
+                  <React.Fragment>
+                  <NavBar removeToken={this.removeToken} />
                   <Switch>
                       <Route exact path="/" render={()=><EventsView/>}/>
                       <Route exact path="/konto/rejestracja" render={() => <Register />} />
                       <Route exact path="/konto/login" render={() => <Login setToken={this.setToken} />} />
                       <Route exact path="/wydarzenia/nowe" render={() => <EventForm />} />
                       <Route exact path="/konto/kalendarz" render={() => <CalendarView />} /> 
-                      <Route exact path="/wydarzenie/szczegoly/:eventSlug" render={(props) => <EventDetailsView {...props}/>} />
+                      <Route exact path="/wydarzenie/szczegoly/:eventSlug" render={(props) => <EventDetailsView {...props} />} />
                   </Switch>
+                      </React.Fragment>
+
               </Router>
+              
           </div>
       
     );

@@ -2,14 +2,6 @@
 import { Link } from 'react-router-dom';
 import '../EventPost/EventPost.css';
 import CommReactionBar from '../CommReactionBar/CommReactionBar';
-const images = {
-      like:require('../../assets/reactions/like.svg'),
-      love: require('../../assets/reactions/love.svg'),
-      wow: require('../../assets/reactions/wow.svg'),
-      haha: require('../../assets/reactions/haha.svg'),
-      angry: require('../../assets/reactions/angry.svg'),
-      sad: require('../../assets/reactions/sad.svg')
-};
 
 class EventPost extends React.Component {
     constructor(props) {
@@ -33,7 +25,7 @@ class EventPost extends React.Component {
     }
     render() {
         return (
-            <div className="card mb-4">
+            <div className="card my-4">
                 <img className="card-img-top"
                     width="750px;"
                     height="300px;"
@@ -42,7 +34,7 @@ class EventPost extends React.Component {
                 <div className="card-body">
                     <h2 className="card-title">{this.props.eventName}</h2>
                     <p className="card-text showSpace">{this.props.eventDescription}</p>
-                        <Link to={`/wydarzenie/szczegoly/${this.state.urlSlug}`}><span className="btn btn-primary">Szczegóły... &rarr;</span></Link>
+                    <Link to={this.props.isPreview===false?`/wydarzenie/szczegoly/${this.state.urlSlug}`:null}><span className="btn btn-primary">Szczegóły... &rarr;</span></Link>
                 </div>
                 <CommReactionBar
                     currentReaction={this.props.currentReaction}

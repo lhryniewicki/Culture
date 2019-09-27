@@ -19,10 +19,10 @@ namespace Culture.Services.Services
 		{
            _unitOfWork = unitOfWork;
         }
-
 		public async Task<CommentDto> CreateCommentAsync(string content, int eventId, Guid userId,string username)
 		{
 			var dateTime = DateTime.Now;
+
 			var comment = new Comment()
 			{
 				AuthorId = userId,
@@ -45,6 +45,7 @@ namespace Culture.Services.Services
         public async Task DeleteComment(int commentId, Guid userId, IList<string> userRoles)
         {
             var comment = await _unitOfWork.CommentRepository.GetCommentAsync(commentId);
+
             if(comment.AuthorId==userId || userRoles.Contains("Admin"))
             {
                  _unitOfWork.CommentRepository.DeleteComment(comment);
@@ -57,12 +58,11 @@ namespace Culture.Services.Services
 		{
 			if ("b5ce53d5-978f-42bf-74da-08d73cef40dc" != id.ToString()) return null;
             //pobrac z autoryzacji id
-                var _comment = await _unitOfWork.CommentRepository.GetCommentAsync(comment.CommentId);
+            var _comment = await _unitOfWork.CommentRepository.GetCommentAsync(comment.CommentId);
 
             _comment.Content = comment.Content;
 
             return _comment;
-			
 		}
 
         public async Task<MoreCommentsDto> GetEventCommentsAsync(int id, int page, int take)
@@ -70,11 +70,13 @@ namespace Culture.Services.Services
             var comments = await _unitOfWork.CommentRepository.GetEventCommentsAsync(id, page, take);
 
             var commentsDto =  comments.Select(x=> new CommentDto(x));
+
             return new MoreCommentsDto(commentsDto)
             {
                 TotalCount = comments.Count()
             };
         }
+
         public Task Commit()
         {
             return _unitOfWork.Commit();

@@ -18,21 +18,26 @@ namespace Culture.Services.Services
             _unitOfWork = unitOfWork;
         }
 
-        public  Task SignUserToEvent(int eventId,AppUser user)
+        public  Task SignUserToEvent(int eventId,Guid userId)
         {
             var userEvent = new UserInEvent()
             {
                 EventId = eventId,
-                UserId = user.Id
+                UserId = userId
             };
            return _unitOfWork.UserInEventRepository.SignUserToEvent(userEvent);
         }
 
-        public Task AddToCalendar(int eventId,AppUser user)
+        public Task UnsignUserFromEvent(int eventId, Guid userId)
+        {
+            return _unitOfWork.UserInEventRepository.UnsignUserFromEvent(eventId, userId);
+        }
+
+        public Task AddToCalendar(int eventId,int calendarId)
         {
             var eventCalendar = new EventInCalendar()
             {
-                CalendarId = user.CalendarId,
+                CalendarId = calendarId,
                 EventId = eventId
             };
             return _unitOfWork.EventInCalendarRepository.SignToCalendar(eventCalendar);
@@ -64,5 +69,9 @@ namespace Culture.Services.Services
             return _unitOfWork.Commit();
         }
 
+        public Task<bool> CheckIfExists(int eventId, Guid userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

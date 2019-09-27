@@ -8,10 +8,12 @@ namespace Culture.Contracts.IServices
 {
     public interface ICalendarService
     {
-        Task SignUserToEvent(int eventId, AppUser userId);
-        Task AddToCalendar(int eventId, AppUser user);
+        Task SignUserToEvent(int eventId, Guid userId);
+        Task UnsignUserFromEvent(int eventId, Guid userId);
+        Task AddToCalendar(int eventId, int calendarId);
         Task RemoveEventFromCalendar(int eventId, Guid userId);
         Task<IEnumerable<DateTime>> GetUserCalendarDays(Guid userId, string category, string query);
+        Task<bool> CheckIfExists(int eventId, Guid userId);
         Task Commit();
     }
 }

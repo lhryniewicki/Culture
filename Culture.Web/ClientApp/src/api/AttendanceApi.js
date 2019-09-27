@@ -82,3 +82,45 @@ export const getEventsInDays = async (date) => {
         })
         .catch(e => console.log(e));
 }
+
+export const signUser = async (eventId) => {
+    const api = `${API_URL}/user/sign`;
+    const options = {
+        method: 'post',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify(
+            eventId:eventId
+        )
+    }
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Zapisanie użytkownika się nie powiodło"
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+}
+
+export const unsignUser = async (eventId) => {
+    const api = `${API_URL}/user/sign`;
+    const options = {
+        method: 'delete',
+        headers: {
+            'content-type': 'application/json'
+        },
+         body: JSON.stringify(
+             eventId: eventId
+         )
+    }
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Pobranie wydarzen z dnia się nie powiodło"
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+}

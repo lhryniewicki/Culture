@@ -23,8 +23,10 @@ namespace Culture.DataAccess.Repositories
         {
             var toDelete = await _cultureDbContext.EventsInCalendar
                 .FirstOrDefaultAsync(x => x.EventId == eventId && x.Calendar.BelongsToId == userId);
+
             _cultureDbContext.EventsInCalendar.Remove(toDelete);
         }
+
         public Task SignToCalendar(EventInCalendar eventInCalendar)
         {
             return _cultureDbContext.EventsInCalendar.AddAsync(eventInCalendar);

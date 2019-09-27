@@ -19,16 +19,10 @@ namespace Culture.Web.Controllers
 		{
 			_authService = authService;
 		}
-		// GET: /<controller>/
-		public IActionResult Index()
-		{
-			return View();
-		}
-		[HttpPost("login")]
 
+		[HttpPost("login")]
 		public async Task<JsonResult> Login([FromBody] LoginViewModel loginViewModel)
 		{
-
 			try
 			{
 				var token = await _authService.Login(loginViewModel);
@@ -46,6 +40,7 @@ namespace Culture.Web.Controllers
 				return Json(e.Message);
 			}
 		}
+
 		[HttpPost("register")]
 		public async Task<JsonResult> Register([FromBody] RegisterViewModel registerViewModel)
 		{

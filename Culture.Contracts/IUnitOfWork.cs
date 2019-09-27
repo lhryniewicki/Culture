@@ -16,8 +16,7 @@ namespace Culture.Contracts
         IUserInEventRepository UserInEventRepository { get; }
         IEventInCalendarRepository EventInCalendarRepository { get; }
 
-
-       Task Commit();
+        Task Commit();
 
     }
 }

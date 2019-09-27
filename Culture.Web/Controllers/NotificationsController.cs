@@ -42,7 +42,6 @@ namespace Culture.Web.Controllers
 			{
 				var targetEvent = await _eventService.GetEventAsync(_event.EventId);
 				var notification = await _notificationService.CreateNotificationsAsync($"Masz nadchodzace wydarzenie: {targetEvent.Name}!", _event.TargetUsers, _event.EventId);
-
 			}
 			await _notificationService.Commit();
         }

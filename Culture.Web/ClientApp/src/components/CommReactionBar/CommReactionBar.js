@@ -52,7 +52,7 @@ class CommReactionBar extends React.Component {
     }
     componentDidUpdate(prevProps) {
 
-        if (prevProps.reactionsCount !== this.props.reactionsCount) {
+        if (prevProps.reactionsCount !== this.props.reactionsCount || this.props.commentsCount !== prevProps.commentscou) {
 
             this.setState( {
                 reactionsCount: this.props.reactionsCount,

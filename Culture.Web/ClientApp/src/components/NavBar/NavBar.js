@@ -1,6 +1,7 @@
 ﻿import React from 'react';
-import { Redirect } from 'react-router';
+import { Redirect, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
+import '../NavBar/NavBar.css';
 
 class NavBar extends React.Component{
 
@@ -31,16 +32,16 @@ class NavBar extends React.Component{
         const move = (this.state.menu) ? "pull-left" : "pull-right";
 
         return (
-            <nav className="navbar navbar-expand-md navbar-dark bg-info fixed-top affix">
+            <nav className="navbar navbar-expand-md   fixed-top affix myNavbar">
                 <div className="container">
-                    <a className="navbar-brand" href="">MyCulture</a>
+                    <Link className="navbar-brand myFont" to="/">MyCulture</Link>
                     <button className="navbar-toggler" type="button" onClick={this.toggleMenu} >
                         <span className="navbar-toggler-icon"/>
                     </button>
                     <div className={"collapse navbar-collapse " + show}>
                         <ul className={"navbar-nav ml-auto " + move}>
                             <li className="nav-item ">
-                                <Link className="nav-link" to="">Strona główna
+                                <Link className="nav-link myFont" to="">Strona główna
                                 </Link>
                             </li>
                             {
@@ -48,30 +49,25 @@ class NavBar extends React.Component{
                                     ?
                                     <React.Fragment>
                                         <li className="nav-item">
-                                            <Link className="nav-link" to="/konto/login">Login</Link>
+                                            <Link className="nav-link myFont" to="/konto/login">Login</Link>
                                         </li>
                                         <li className="nav-item">
-                                            <Link className="nav-link" to="/konto/rejestracja">Rejestracja</Link>
+                                            <Link className="nav-link myFont" to="/konto/rejestracja">Rejestracja</Link>
                                         </li>
-
                                     </React.Fragment>  
-                                        
                                     :
                                     <React.Fragment>
                                         <li className="nav-item">
-                                            <Link className="nav-link" to="#">Moje konto</Link>
+                                            <Link className="nav-link myFont" to="#">Moje konto</Link>
                                         </li>
                                         <li className="nav-item">
-                                            <Link className="nav-link" to="#">Powiadomienia</Link>
+                                            <Link className="nav-link myFont" to="#">Powiadomienia</Link>
                                         </li>
                                         <li className="nav-item">
-                                            <Link className="nav-link" to="" onClick={this.logOut}>Wyloguj</Link>
+                                            <Link className="nav-link myFont" to="" onClick={this.logOut}>Wyloguj</Link>
                                         </li>
-                                    </React.Fragment>
-                                   
+                                    </React.Fragment>    
                             }
-   
-                           
                         </ul>
                     </div>
                 </div>
@@ -81,4 +77,4 @@ class NavBar extends React.Component{
         );
     }
 }
-export default NavBar;
+export default withRouter(NavBar);

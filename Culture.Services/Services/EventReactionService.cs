@@ -23,19 +23,21 @@ namespace Culture.Services.Services
         {
             var reactions = await _unitOfWork.EventReactionRepository.GetEventReactions(eventId);
             var currentReaction = await _unitOfWork.EventReactionRepository.GetUserReactionAsync(userId,eventId);
-            var groupedReactions = reactions.GroupBy(x => x.Type)
-            .Select(x => new EventReactionDto()
-            {
-                Count = x.Count(),
-                ReactionType = x.Key.ToString().ToLower()
-            })
-            .OrderByDescending(x => x.Count);
+
+            var groupedReactions = reactions
+                .GroupBy(x => x.Type)
+                .Select(x => new EventReactionDto()
+                {
+                    Count = x.Count(),
+                    ReactionType = x.Key.ToString().ToLower()
+                })
+                .OrderByDescending(x => x.Count);
 
             return new EventReactionsDto()
             {
                 EventReactions = groupedReactions,
                 TotalCount = reactions.Count(),
-                CurrentReaction = currentReaction.Type.ToString().ToLower()
+                CurrentReaction = currentReaction?.Type.ToString().ToLower()
             };
         }
     }

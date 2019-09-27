@@ -14,7 +14,7 @@ namespace Culture.Contracts.IServices
         Task<IList<string>> GetUserRoles(AppUser user);
         Task<AppUser> GetUserByNameWithCalendar(string userName);
 		Task<IEnumerable<Guid>> GetEventParticipants(int id);
-        bool IsUserSigned(Guid userId, int eventId);
+        Task<bool> IsUserSigned(Guid userId, int eventId);
         Task<IEnumerable<DateTime>> GetUserCalendarDays(Guid userId, string category, string query);
         Task<IEnumerable<EventInCalendarDto>> GetUserEventsInDay(Guid userId, DateTime day);
     }

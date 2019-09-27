@@ -77,8 +77,8 @@ class CalendarView extends React.Component {
         const WEEKDAYS_SHORT = ['Ndz', 'Pon', 'Wt', 'Sr', 'Czw', 'Pt', 'Sb'];
         
         return (
-            <div className="container">
-                <span style={{ fontSize: "50px" }}>Terminarz z wydarzeniami</span>
+            <div className="container " style={{ backgroundColor:"white" }}>
+                <h1 className="text-center">Kalendarz</h1>
                 <Modal   show={this.state.showModal} onHide={this.closeModal}>
                     <Modal.Header >
                         <Modal.Title >Wydarzenia dnia: {this.state.modalDate}</Modal.Title>
@@ -103,7 +103,7 @@ class CalendarView extends React.Component {
                 </Modal>
                 <div className="row">
                         <DayPicker
-                            containerProps={{ style: { fontSize: "40px" } }}
+                        containerProps={{ style: { fontSize: "40px", backgroundColor: "#feffe4" } }}
                             months={MONTHS}
                             weekdaysLong={WEEKDAYS_LONG}
                             weekdaysShort={WEEKDAYS_SHORT}

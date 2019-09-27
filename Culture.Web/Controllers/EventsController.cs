@@ -42,6 +42,7 @@ namespace Culture.Web.Controllers
             _fileService = fileService;
             _eventReactionService = eventReactionService;
         }
+
 		[HttpPost("create")]
 		public async Task<JsonResult> CreateEvent([FromForm]EventViewModel eventViewModel)
 		{
@@ -62,7 +63,6 @@ namespace Culture.Web.Controllers
                 await _eventService.Commit();
 
                 return Json(eventModel);
-
 			}
 			catch (Exception e)
 			{
@@ -82,7 +82,7 @@ namespace Culture.Web.Controllers
                 var commentsDto = await  _commentService.GetEventCommentsAsync(eventDto.Id, 0, 5);
                 var reactions = await _eventReactionService.GetReactions(eventDto.Id, user.Id);
 
-                var isUserAttending = _userService.IsUserSigned(user.Id, eventDto.Id);
+                var isUserAttending = await _userService.IsUserSigned(user.Id, eventDto.Id);
 
                 var eventViewModel = new EventDetailsViewModel(eventDto,commentsDto,reactions,isUserAttending);
 
@@ -95,6 +95,7 @@ namespace Culture.Web.Controllers
 			}
 			
 		}
+
         [HttpGet("get/preview")]
         public async Task<JsonResult> GetEventPreviewList(int page=0, int size=5, string category=null, string query = null)
         {
@@ -104,10 +105,7 @@ namespace Culture.Web.Controllers
 
                 var eventList = await _eventService.GetEventPreviewList(user.Id,page, size,category,query);
 
-                var eventViewModel = new EventPreviewListViewModel()
-                {
-                    Events = eventList
-                };
+                var eventViewModel = new EventPreviewListViewModel(eventList);
 
                 return Json(eventViewModel);
             }
@@ -118,7 +116,8 @@ namespace Culture.Web.Controllers
             }
 
         }
-        [HttpPut()]
+
+        [HttpPut("edit")]
         public async Task<JsonResult> Edit([FromBody]EventViewModel eventViewModel)
         {
             try
@@ -148,6 +147,7 @@ namespace Culture.Web.Controllers
                 return Json(e.Message + e.InnerException);
             }
         }
+
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteEvent(int eventId)
         {
@@ -180,8 +180,8 @@ namespace Culture.Web.Controllers
 		{
 			try
 			{
-
 				var user = await _userService.GetUserByName("maciek");
+
 				if (user.Id != reactionViewModel.UserId)
                 {
                     Response.StatusCode = 401;
@@ -191,31 +191,21 @@ namespace Culture.Web.Controllers
                 await _reactionService.SetReaction(reactionViewModel);
 
 				var _newEventReactions = await _eventService.GetEventReactionsWAuthor(reactionViewModel.EventId);
+
 				var targetList = new List<Guid>() { _newEventReactions.Id};
 
 				await _notificationService.CreateNotificationsAsync($"{user.UserName} zareagował na twoje wydarzenie!" +
 					$"{reactionViewModel.ReactionType}", targetList, reactionViewModel.EventId);
 
-
 				await _reactionService.Commit();
 
                 return Json(new SortedReactionsViewModel(_newEventReactions.Reactions));
-
-                
 			}
 			catch(Exception e)
 			{
 				Response.StatusCode = 500;
 				return Json(e.Message + e.InnerException);
 			}
-
-
-
 		}
-
-
-
-
-
 	}
 }

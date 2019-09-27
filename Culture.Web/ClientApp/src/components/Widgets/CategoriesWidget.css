@@ -9,3 +9,6 @@
     color: #069;
     cursor: pointer;
 }
+.myButton:focus {
+    outline:none;
+}

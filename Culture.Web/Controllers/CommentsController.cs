@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
@@ -29,10 +28,10 @@ namespace Culture.Web.Controllers
             _eventService = eventService;
             _notificationService = notificationService;
         }
+
         [HttpPost("create")]
         public async Task<JsonResult> CreateComment([FromBody]CommentViewModel commentViewModel)
         {
-
             try
             {
                 var userReq = _userService.GetUserById("2acb229f-73ab-4202-1102-08d740193056");
@@ -59,6 +58,7 @@ namespace Culture.Web.Controllers
                 return Json(e.Message + e.InnerException);
             }
         }
+
         [HttpGet("get")]
         public async Task<JsonResult> GetEventComments(int eventId,int page=0,int take=5)
         {
@@ -75,8 +75,8 @@ namespace Culture.Web.Controllers
                 Response.StatusCode = 500;
                 return Json(e.Message + e.InnerException);
             }
-
         }
+
         [HttpPut("edit")]
         public async Task<JsonResult> EditEventComment([FromBody]EditCommentViewModel comment)
         {
@@ -95,6 +95,7 @@ namespace Culture.Web.Controllers
                 return Json(e.Message + e.InnerException);
             }
         }
+
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteEventComment(int commentId)
         {
@@ -102,10 +103,12 @@ namespace Culture.Web.Controllers
             {
                 var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
                 var userRoles = await _userService.GetUserRoles(user);
-                await _commentService.DeleteComment(commentId, user.Id, userRoles);
-                await _commentService.Commit();
-                return Ok();
 
+                await _commentService.DeleteComment(commentId, user.Id, userRoles);
+
+                await _commentService.Commit();
+
+                return Ok();
             }
             catch (Exception e)
             {

@@ -71,7 +71,6 @@ namespace Culture.Services.Services
 			}
 
 			return GetToken(appUser);
-
 		}
 
 		private void  ValidateLoginViewModel(LoginViewModel loginViewModel)
@@ -123,12 +122,10 @@ namespace Culture.Services.Services
 			{
 				throw new RegistrationErrorException("LastName cannot be null or empty!");
 			}
-
 		}
 
 		private string GetToken(AppUser user)
 		{
-			
 			var claims = new[]
 			{
 				new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),

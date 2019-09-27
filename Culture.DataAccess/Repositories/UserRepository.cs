@@ -51,13 +51,6 @@ namespace Culture.DataAccess.Repositories
             return _userManager.GetRolesAsync(user);
         }
 
-        public bool IsUserSigned(Guid userId, int eventId)
-        {
-            return _userManager.Users
-                .FirstOrDefault(x => x.Id == userId)
-                .ParticipatedEvents
-                .FirstOrDefault(x => x.EventId == eventId) != null ? true : false;
-        }
 
         public Task<AppUser> GetUserByIdWithCalendar(Guid userId)
         {
@@ -65,6 +58,7 @@ namespace Culture.DataAccess.Repositories
                 .Include(x => x.Calendar)
                     .ThenInclude(x=>x.Events)
                         .ThenInclude(x=>x.Event)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == userId);
         }
     }

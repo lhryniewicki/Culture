@@ -60,7 +60,7 @@ namespace Culture.DataAccess.Repositories
                             && (query != null ? x.Content.Contains(query)|| x.Name.Contains(query):true ))
                 .OrderByDescending(x=>x.CreationDate)
                 .Skip(page * size)
-                .Take(size)
+                .Take(size+1)
                 .AsNoTracking()
                 .ToListAsync();
         }

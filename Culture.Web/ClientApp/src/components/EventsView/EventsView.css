@@ -1,4 +1,13 @@
 ﻿.fixed {
 max-width:200px
-
+}
+.myCard {
+    background-color:white;
+}
+.myHr {
+    height: 8px;
+    // background-color: red;
+    background-image: linear-gradient(90deg, darkblue, white);
+    border: 0;
+    height: 2px;
 }

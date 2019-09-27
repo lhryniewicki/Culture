@@ -9,5 +9,7 @@ namespace Culture.Contracts.IRepositories
     public interface IUserInEventRepository
     {
         Task SignUserToEvent(UserInEvent userInEvent);
+        Task<UserInEvent> IsUserSigned(Guid userId, int eventId);
+        Task UnsignUserFromEvent(int eventId, Guid userId);
     }
 }

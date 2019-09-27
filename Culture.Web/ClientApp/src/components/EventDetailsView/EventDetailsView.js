@@ -1,7 +1,8 @@
 ﻿import React from 'react';
 import CommReactionBar from '../CommReactionBar/CommReactionBar';
 import { getEventDetails } from '../../api/EventApi';
-import { addToCalendar,removeFromCalendar } from '../../api/AttendanceApi';
+import { addToCalendar, removeFromCalendar, signUser, unsignUser } from '../../api/AttendanceApi';
+import '../EventDetailsView/EventDetailsView.css';
 
 
 class EventDetailsView extends React.Component {
@@ -12,26 +13,26 @@ class EventDetailsView extends React.Component {
 
         this.state = {
             name: "",
-            isInCalendar:false,
-            isSigned:false,
-            id:0,
+            isInCalendar: false,
+            isSigned: false,
+            id: 0,
             price: 0,
             createdBy: "",
             urlSlug: this.props.match.params.eventSlug,
             category: "",
-            reactions:[],
-            comments:[],
+            reactions: [],
+            comments: [],
             date: null,
-            imagePath:null,
-            isPreview:false,
-            commentsCount:0,
+            imagePath: null,
+            isPreview: false,
+            commentsCount: 0,
             reactionsCount: 0,
             canLoadMore: false,
             currentReaction: null,
             cityName: "",
             streetName: "",
             takesPlaceHour: "00:00",
-            takesPlaceDate:null
+            takesPlaceDate: null
         };
 
     }
@@ -42,6 +43,30 @@ class EventDetailsView extends React.Component {
             return "Dodaj do kalendarza"
         }
     }
+
+    DisplayAttendButton = () => {
+        if (this.state.isSigned) return "Wypisz się";
+        else {
+            return "Biorę udział"
+        }
+    }
+
+    SignUser = async () => {
+
+        if (this.state.isSigned) {
+            await unsignUser(this.state.id);
+            this.setState({
+                isSigned: false
+            })
+        }
+        else {
+            await signUser(this.state.id);
+            this.setState({
+                isSigned: true
+            });
+        }
+    }
+
     HandleCalendar = async () => {
         if (this.state.isInCalendar) {
             await removeFromCalendar(this.state.id);
@@ -50,9 +75,9 @@ class EventDetailsView extends React.Component {
             })
         }
         else {
-            const result = await addToCalendar(this.state.id);
+            await addToCalendar(this.state.id);
             this.setState({
-                isInCalendar:true
+                isInCalendar: true
             });
         }
     }
@@ -65,7 +90,7 @@ class EventDetailsView extends React.Component {
         const jsDatePlace = new Date(Date.parse(result.creationDate));
         const jsDatePlaceFormatted = jsDatePlace.getUTCDate() + "-" + (jsDatePlace.getMonth() + 1) + "-" + jsDatePlace.getFullYear();
         const jsDatePlaceTimeFormatted = jsDatePlace.getHours() + ":" + jsDatePlace.getMinutes();
-        
+
         this.setState({
             canLoadMore: result.canLoadMore,
             category: result.category,
@@ -85,21 +110,43 @@ class EventDetailsView extends React.Component {
             price: result.price,
             takesPlaceDate: jsDatePlaceFormatted,
             takesPlaceHour: jsDatePlaceTimeFormatted,
-            isInCalendar:result.isInCalendar
+            isInCalendar: result.isInCalendar,
+            isSigned: result.isUserSigned
 
         });
     }
     render() {
         return (
 
-            <div className="container">
-
-                <h1 className="text-center">Szczegóły wydarzenia</h1>
-
+            <div className="container pt-5">
+               
+                
                 <div className="row " >
                     <div className="col-md-8 h-100 " >
-                        <img className="img-fluid pull-right" width="730" height="615" src={this.state.imagePath} />
-                        
+                        <div className="card">
+                            <div className="card-header ">
+                                <img className="img-fluid pull-right mt-4" width="730" height="615" src={this.state.imagePath} />
+                        <div className=" mt-4">
+                            <div className="card">
+                                <div className="card-body">
+                                    {this.state.content}
+                                </div>
+                                <CommReactionBar
+                                    currentReaction={this.state.currentReaction}
+                                    id={this.state.id}
+                                    createdBy={this.state.createdBy}
+                                    reactions={this.state.reactions}
+                                    reactionsCount={this.state.reactionsCount}
+                                    date={this.state.date}
+                                    comments={this.state.comments}
+                                    commentsCount={this.state.commentsCount}
+                                    currentReaction={this.state.currentReaction}
+                                    canLoadMore={this.state.canLoadMore}
+                                    isPreview={this.state.isPreview} />
+                            </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="col-md-4">
@@ -121,7 +168,7 @@ class EventDetailsView extends React.Component {
                                         Data odbycia
                                      </div>
                                     <div className="card-body">
-                                       Dnia <b> {this.state.takesPlaceDate}</b> godz. {this.state.takesPlaceHour}
+                                        Dnia <b> {this.state.takesPlaceDate}</b> godz. {this.state.takesPlaceHour}
                                     </div>
                                 </div>
                                 <div className="card mb-3">
@@ -148,7 +195,7 @@ class EventDetailsView extends React.Component {
                                         <b> {this.state.price}</b>
                                     </div>
                                 </div>
-                               
+
                             </div>
                             <div className="card-body mb-0">
                                 <div className="row mb-3 ">
@@ -158,38 +205,12 @@ class EventDetailsView extends React.Component {
                                 </div>
                                 <div className="row">
                                     <div className="mx-auto ">
-                                        <button onClick={this.SignUser} className="btn btn-primary">Weź udział </button>
+                                        <button onClick={this.SignUser} className="btn btn-primary">{this.DisplayAttendButton()} </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                    </div>
-                    
-                </div>
-
-                <div className="row ">
-                    <div className="col-md-8 mt-4">
-                        <div className="card">
-                            <div className="card-body">
-                                {this.state.content}
-                            </div>
-                            <CommReactionBar
-                                currentReaction={this.state.currentReaction}
-                                id={this.state.id}
-                                createdBy={this.state.createdBy}
-                                reactions={this.state.reactions}
-                                reactionsCount={this.state.reactionsCount}
-                                date={this.state.date}
-                                comments={this.state.comments}
-                                commentsCount={this.state.commentsCount}
-                                currentReaction={this.state.currentReaction}
-                                canLoadMore={this.state.canLoadMore}
-                                isPreview={this.state.isPreview} />
-                        </div>
-                    </div>
-                    <div className="col-md-4 mt-4">
-                        <div className="card ">
+                        <div className="card mt-4">
                             <div className="card-header text-center">
                                 <div className="text-center mb-3">
                                     <b>Podobne wydarzenia</b>
@@ -197,7 +218,7 @@ class EventDetailsView extends React.Component {
                                 <div className="card mb-3">
                                     <img src="http://placehold.it/200x100" className="card-img-top" />
                                     <div className="card-header ">
-                                       <b> Progress Days - warsztaty z certyfikatem</b>
+                                        <b> Progress Days - warsztaty z certyfikatem</b>
                                     </div>
                                 </div>
                                 <div className="card mb-3">
@@ -215,6 +236,13 @@ class EventDetailsView extends React.Component {
                             </div>
 
                         </div>
+                    </div>
+
+                </div>
+
+                <div className="row ">
+                    <div className="col-md-4 mt-4">
+                       
                     </div>
                 </div>
             </div>

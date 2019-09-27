@@ -115,11 +115,14 @@ namespace Culture.Services.Services
             return _unitOfWork.Commit();
         }
 
-        public async Task<IEnumerable<EventsPreviewDto>> GetEventPreviewList(Guid userId, int page = 0, int size = 5, string category = null, string query = null)
+        public async Task<EventsPreviewWithLoadDto> GetEventPreviewList(Guid userId, int page = 0, int size = 5, string category = null, string query = null)
         {
             var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page, size, category, query);
 
-            var EventsPreviewDtoList = new List<EventsPreviewDto>();
+            var canLoadMore = eventList.Count() > 5 ? true : false;
+            eventList = canLoadMore == true ? eventList.Take(size) : eventList;
+
+            var EventsPreviewDtoList = new EventsPreviewWithLoadDto();
 
             foreach (var eventEntity in eventList)
             {
@@ -144,7 +147,7 @@ namespace Culture.Services.Services
                     TotalCount = commentsCount
                 };
 
-                EventsPreviewDtoList.Add(new EventsPreviewDto(eventEntity, moreCommentsDto)
+                EventsPreviewDtoList.Events.Add(new EventsPreviewDto(eventEntity, moreCommentsDto)
                 {
                     CurrentReaction = userReaction?.Type.ToString().ToLower(),
                     CommentsCount = commentsCount,

@@ -1,7 +1,5 @@
 ﻿import React from 'react';
 import { Modal } from 'react-bootstrap';
-import image from '../../assets/reactions/wow.svg';
-
 class Reactions extends React.Component {
 
     constructor(props) {
