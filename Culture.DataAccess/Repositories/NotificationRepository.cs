@@ -29,17 +29,20 @@ namespace Culture.DataAccess.Repositories
             return _dbContext.Notifications.
                 SingleOrDefaultAsync(x => x.Id == id);
         }
-        public Task<Notification> GetNotificationsForUserAsync(int id,int skip=0, int take=5)
+        public async Task<IEnumerable<Notification>> GetNotificationsForUserAsync(Guid userId,int skip=0, int take=5)
         {
-            return _dbContext.Notifications.
-                Skip(skip*take).
-                Take(take).
-                SingleOrDefaultAsync(x => x.Id == id && x.IsRead==false);
+            return await _dbContext.Notifications.
+                Where(x => x.UserId == userId)
+                .OrderBy(x=>x.IsRead)
+                .ThenByDescending(x=>x.SentData)
+                .Skip(skip*take)
+                .Take(take)
+                .ToListAsync();
         }
         public Task<int> GetNumberOfUnreadNotifications(Guid userId)
         {
             return _dbContext.Notifications
-                .Where(x=>x.IsRead==true && x.UserId==userId )
+                .Where(x=>x.IsRead==false && x.UserId==userId )
                 .CountAsync();
         }
     }

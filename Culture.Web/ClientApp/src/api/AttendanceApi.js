@@ -1,4 +1,4 @@
-﻿const API_URL = 'http://localhost:52144/api/attendance';
+﻿const API_URL = 'http://localhost:50882/api/attendance';
 
 
 export const addToCalendar  = async (eventId) => {

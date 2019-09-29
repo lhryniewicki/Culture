@@ -1,2 +1,3 @@
-﻿body {
+﻿.commentBox:last-child {
+    border-radius: 20px;
 }

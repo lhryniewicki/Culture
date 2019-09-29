@@ -51,7 +51,6 @@ namespace Culture.DataAccess.Repositories
             return _userManager.GetRolesAsync(user);
         }
 
-
         public Task<AppUser> GetUserByIdWithCalendar(Guid userId)
         {
             return _userManager.Users

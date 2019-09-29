@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Culture.Contracts.Dtos.NotificationWebJob;
 using Culture.Contracts.IServices;
+using Culture.Contracts.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,28 +28,45 @@ namespace Culture.Web.Controllers
 			_eventService = eventService;
 		}
 
-        [HttpGet]
+        [HttpGet("number")]
         public async Task<JsonResult> GetNumberOfNotifications()
         {
-            var user = await _userService.GetUserByName(HttpContext.User.Identity.Name);
+            var user = await _userService.GetUserByName("maciek");
+
             var numberOfNotifications = await _notificationService.GetNumberOfUnreadNotifications(user.Id);
 
             return Json(numberOfNotifications);
         }
-        [HttpPost]
+
+        [HttpGet("get")]
+        public async Task<JsonResult> GetNotifications(int page)
+        {
+            var user = await _userService.GetUserByName("maciek");
+
+            var notifications = await _notificationService.GetNotifications(user.Id,page);
+
+            await _notificationService.Commit();
+
+            return Json(new NotificationListViewModel(notifications));
+        }
+
+        [HttpPost("create")]
         public async Task CreateNotificationsWebJob([FromBody]NotificationWebJob notificationWebJob)
         {
 			foreach(var _event in notificationWebJob.Notifications)
 			{
 				var targetEvent = await _eventService.GetEventAsync(_event.EventId);
-				var notification = await _notificationService.CreateNotificationsAsync($"Masz nadchodzace wydarzenie: {targetEvent.Name}!", _event.TargetUsers, _event.EventId);
+
+				var notification = await _notificationService.CreateNotificationsAsync($"Masz nadchodzace wydarzenie: {targetEvent.Name}!", _event.TargetUsers, _event.EventId,null);
 			}
 			await _notificationService.Commit();
         }
-        [HttpPut]
+
+        [HttpPut("read")]
         public async Task MarkAsRead([FromBody]int notificationId)
         {
             await _notificationService.MarkAsRead(notificationId);
+
             await _notificationService.Commit();
         }
     }

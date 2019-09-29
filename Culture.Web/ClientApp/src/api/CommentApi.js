@@ -1,4 +1,4 @@
-﻿const API_URL = 'http://localhost:52144/api/comments';
+﻿const API_URL = 'http://localhost:50882/api/comments';
 
 export const sendComment = (eventId, content) => {
     let api = `${API_URL}/create`;

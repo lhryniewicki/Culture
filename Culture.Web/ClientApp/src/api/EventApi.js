@@ -1,4 +1,4 @@
-﻿const API_URL = 'http://localhost:52144/api/events';
+﻿const API_URL = 'http://localhost:50882/api/events';
 
 
 export const createEvent = async (data) => {
@@ -35,7 +35,7 @@ export const getPreviewEventList = async (page, category, query) => {
     console.log(category);
     let categoryApi;
     let queryApi;
-    category === null ? categoryApi = "" : categoryApi = `&category=${category}`;
+    category === null || category==="Wszystkie" ? categoryApi = "" : categoryApi = `&category=${category}`;
     query === "" ? queryApi = "" : queryApi = `&query=${query}`;
     console.log(queryApi);
     let api = `${API_URL}/get/preview?page=${page}${categoryApi}${queryApi}`;

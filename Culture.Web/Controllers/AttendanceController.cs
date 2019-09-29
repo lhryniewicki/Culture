@@ -72,6 +72,7 @@ namespace Culture.Web.Controllers
                 var user = await _userService.GetUserByName("maciek");
 
                 await _calendarService.AddToCalendar(eventId, user.CalendarId);
+
                 await _calendarService.Commit();
 
                 return Ok();

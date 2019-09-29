@@ -19,7 +19,7 @@ class EventPost extends React.Component {
                 : this.setState({ source:URL.createObjectURL(this.props.picture)});
         }
         else {
-            this.setState({ source: this.props.picture })
+            this.setState({ source: this.props.picture });
         }
         
     }
@@ -34,7 +34,12 @@ class EventPost extends React.Component {
                 <div className="card-body">
                     <h2 className="card-title">{this.props.eventName}</h2>
                     <p className="card-text showSpace">{this.props.eventDescription}</p>
-                    <Link to={this.props.isPreview===false?`/wydarzenie/szczegoly/${this.state.urlSlug}`:null}><span className="btn btn-primary">Szczegóły... &rarr;</span></Link>
+                    {this.props.isPreview === false ?
+                        <Link to={`/wydarzenie/szczegoly/${this.state.urlSlug}`}><span className="btn btn-primary">Szczegóły... &rarr;</span></Link>
+                        :
+                        <span className="btn btn-primary">Szczegóły... &rarr;</span>
+                    }
+              
                 </div>
                 <CommReactionBar
                     currentReaction={this.props.currentReaction}
@@ -42,7 +47,7 @@ class EventPost extends React.Component {
                     createdBy={this.props.createdBy}
                     reactions={this.props.reactions}
                     reactionsCount={this.props.reactionsCount}
-                    date={this.props.date}
+                    date={this.props.isPreview === false ? this.props.date : new Date().toLocaleDateString("en-Us")}
                     comments={this.props.comments}
                     commentsCount={this.props.commentsCount}
                     canLoadMore={this.props.canLoadMore}

@@ -10,7 +10,7 @@ namespace Culture.Contracts.IRepositories
     {
         Task<int> GetNumberOfUnreadNotifications(Guid userId);
         Task CreateNotification(Notification notification);
-        Task<Notification> GetNotificationsForUserAsync(int id, int skip = 0, int take = 5);
+        Task<IEnumerable<Notification>> GetNotificationsForUserAsync(Guid userId, int skip = 0, int take = 5);
         Task<Notification> GetNotificationAsync(int id);
 
     }

@@ -134,7 +134,7 @@ namespace Culture.Web.Controllers
                 var eventParticipants = await eventParticipantsReq;
 
                 await _notificationService.CreateNotificationsAsync(
-					$"Wydarzenie zostało zmienione: {_event.Name}! Sprawdz jego szczegóły",eventParticipants, eventViewModel.Id);
+					$"Wydarzenie zostało zmienione: {_event.Name}! Sprawdz jego szczegóły",eventParticipants, eventViewModel.Id,_event.UrlSlug);
 
                 await _eventService.Commit();
 
@@ -161,7 +161,7 @@ namespace Culture.Web.Controllers
                 await _eventService.DeleteEvent(eventId, user.Id, userRoles);
 
 				await _notificationService.CreateNotificationsAsync(
-					$"Wydarzenie zostało usunięte: {_event.Name}!", eventParticipants, _event.Id);
+					$"Wydarzenie zostało usunięte: {_event.Name}!", eventParticipants, _event.Id,_event.UrlSlug);
 
 				await _eventService.Commit();
 
@@ -188,14 +188,16 @@ namespace Culture.Web.Controllers
                     return  Json("You can't set somebody's reaction");
                 }
 
-                await _reactionService.SetReaction(reactionViewModel);
+                var hasPreviouslyReacted = await _reactionService.SetReaction(reactionViewModel);
 
 				var _newEventReactions = await _eventService.GetEventReactionsWAuthor(reactionViewModel.EventId);
 
 				var targetList = new List<Guid>() { _newEventReactions.Id};
 
-				await _notificationService.CreateNotificationsAsync($"{user.UserName} zareagował na twoje wydarzenie!" +
-					$"{reactionViewModel.ReactionType}", targetList, reactionViewModel.EventId);
+
+                if(!hasPreviouslyReacted)
+				await _notificationService.CreateNotificationsAsync($"{user.UserName} zareagował na twoje wydarzenie! {_newEventReactions.EventName}" +
+					$"{reactionViewModel.ReactionType}", targetList, reactionViewModel.EventId, _newEventReactions.EventSlug);
 
 				await _reactionService.Commit();
 

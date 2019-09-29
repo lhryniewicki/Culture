@@ -8,5 +8,9 @@ namespace Culture.Contracts.DTOs
     {
         public Guid Id { get; set; }
         public IEnumerable<EventReactionDto> Reactions { get; set; }
+        public string EventName { get; set; }
+        public string EventSlug { get; set; }
+
+
     }
 }

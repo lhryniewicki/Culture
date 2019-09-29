@@ -6,7 +6,8 @@ import Register from '../Register/Register';
 import Login from '../Login/Login';
 import EventForm from '../EventForm/EventForm';
 import CalendarView from '../CalendarView/CalendarView';
-import EventDetailsView from '../EventDetailsView/EventDetailsView'
+import EventDetailsView from '../EventDetailsView/EventDetailsView';
+import MyAccountView from '../MyAccountView/MyAccountView';
 
 export default class App extends Component {
     displayName = App.name
@@ -40,6 +41,8 @@ export default class App extends Component {
                       <Route exact path="/wydarzenia/nowe" render={() => <EventForm />} />
                       <Route exact path="/konto/kalendarz" render={() => <CalendarView />} /> 
                       <Route exact path="/wydarzenie/szczegoly/:eventSlug" render={(props) => <EventDetailsView {...props} />} />
+                      <Route exact path="/konto" render={() => <MyAccountView  />} />
+
                   </Switch>
                       </React.Fragment>
 

@@ -71,9 +71,10 @@ namespace Culture.Services.Services
 
             var commentsDto =  comments.Select(x=> new CommentDto(x));
 
+            var commentsCount = await _unitOfWork.CommentRepository.GetCommentCountAsync(id);
             return new MoreCommentsDto(commentsDto)
             {
-                TotalCount = comments.Count()
+                TotalCount = commentsCount
             };
         }
 

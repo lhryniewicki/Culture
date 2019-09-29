@@ -28,8 +28,8 @@ class CommReactionBar extends React.Component {
             comments: [],
             reactions: [],
             currentReaction: null,
-            commentsCount:0
-        }
+            commentsCount: 0
+        };
 
         this.showComments = this.showComments.bind(this);
         this.moreComments = this.moreComments.bind(this);
@@ -52,7 +52,7 @@ class CommReactionBar extends React.Component {
     }
     componentDidUpdate(prevProps) {
 
-        if (prevProps.reactionsCount !== this.props.reactionsCount || this.props.commentsCount !== prevProps.commentscou) {
+        if (prevProps.reactionsCount !== this.props.reactionsCount || this.props.commentsCount !== prevProps.commentsCount) {
 
             this.setState( {
                 reactionsCount: this.props.reactionsCount,
@@ -81,7 +81,7 @@ class CommReactionBar extends React.Component {
     }
     async onReactionSend(e) {
         const name = e.target.name;
-        const result = await sendReaction('2acb229f-73ab-4202-1102-08d740193056', this.props.id, name);
+        const result = await sendReaction('b5676a5b-0c37-46f5-3147-08d73e6da2eb', this.props.id, name);
         console.log(result);
         if (result === undefined) return false;
         if (name === this.state.currentReaction) {
@@ -132,7 +132,7 @@ class CommReactionBar extends React.Component {
                     creationDate={jsDateFormatted}
                 />
             );
-        })
+        });
 
         return items;
     }
@@ -147,7 +147,7 @@ class CommReactionBar extends React.Component {
         });
     }
     displaySortedReactions() {
-        if (this.state.reactions == null || this.state.reactions.length < 1) {
+        if (this.state.reactions === null || this.state.reactions.length < 1) {
             return [];
         }
         return this.state.reactions.map((element, index) => {
@@ -167,22 +167,22 @@ class CommReactionBar extends React.Component {
         const newComment = await sendComment(this.props.id, this.state.commentContent, 'b5ce53d5-978f-42bf-74da-08d73cef40dc');
         console.log(newComment);
         this.setState(prevState => ({
-            showComments:true,
-            commentContent:'',
-            commentsCount: this.state.commentsCount+1,
-            comments: [newComment, ...prevState.comments ]
-         }))
+            showComments: true,
+            commentContent: '',
+            commentsCount: this.state.commentsCount + 1,
+            comments: [newComment, ...prevState.comments]
+        }));
     }
     displayCurrentReaction = () => {
         if (this.state.currentReaction !== null && this.state.currentReaction !== undefined)
             return <img
-                    src={images[this.state.currentReaction]}
-                    data-placement="top"
-                    title={`Twoja reakcja`}
-                    data-toggle="popover"
-                    width="25px"
-                    height="25px"
-                    />
+                src={images[this.state.currentReaction]}
+                data-placement="top"
+                title={`Twoja reakcja`}
+                data-toggle="popover"
+                width="25px"
+                height="25px"
+            />;
     }
     render() {
         return (
@@ -232,11 +232,11 @@ class CommReactionBar extends React.Component {
                     null
                 }
 
-                <div className="card-footer text-muted">
+                <div className="card-footer text-muted ">
                     <form onSubmit={this.handleCommentSubmit}>
                         <div className="form-group">
                             <input
-                                className="form-control input-sm comment"
+                                className="form-control input-sm commentBox"
                                 placeholder="Wpisz komentarz..."
                                 onChange={this.handleInputChange}
                                 type="text"

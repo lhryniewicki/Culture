@@ -239,12 +239,6 @@ class EventDetailsView extends React.Component {
                     </div>
 
                 </div>
-
-                <div className="row ">
-                    <div className="col-md-4 mt-4">
-                       
-                    </div>
-                </div>
             </div>
         );
     }

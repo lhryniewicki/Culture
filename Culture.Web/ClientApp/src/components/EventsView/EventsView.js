@@ -70,7 +70,8 @@ class EventsView extends React.Component {
     handleSearchCategory = async (e) => {
         e.preventDefault();
         const name = typeof e.target.name === "undefined" ? e.target.getAttribute("name") : e.target.name;
-
+        console.log(e.target.name)
+        console.log(name);
         const eventList = await getPreviewEventList(0, e.target.name==="Wszystkie"?null:name , "");
 
         if (eventList !== undefined && eventList.events.length > 0)
@@ -148,7 +149,7 @@ class EventsView extends React.Component {
                            
                             <ul className="pagination justify-content-center mb-4">
                                 <li className="page-item">
-                                    {this.state.canLoadMore == true
+                                    {this.state.canLoadMore === true
                                         ?
                                         <button className="page-link " onClick={this.moreEvents} href="#">&darr; Więcej</button>
                                         :
@@ -156,11 +157,16 @@ class EventsView extends React.Component {
                                 </li>
                             </ul>
                         </div>
-                        <div className="col-md-3 fixed" >
+                        <div className="col-md-3 fixed mt-5" >
                             <div className="affix">
-                                <SearchWidget query={this.state.query} handleSearch={this.handleSearchBar} handleOnChange={this.handleOnChange} />
-                                <CategoriesWidget category={this.state.category} handleOnChange={this.handleOnChange} handleSearch={this.handleSearchCategory} />
-                                <Shortcuts handleClick={this.handleClick} />
+                                <div className="card">
+                                    <div className="card-header">
+                                        <SearchWidget query={this.state.query} handleSearch={this.handleSearchBar} handleOnChange={this.handleOnChange} />
+                                        <CategoriesWidget category={this.state.category} handleOnChange={this.handleOnChange} handleSearch={this.handleSearchCategory} />
+                                        <Shortcuts handleClick={this.handleClick} />
+                                    </div>
+                                </div>
+                             
                             </div>
 
                         </div>

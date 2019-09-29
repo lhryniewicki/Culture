@@ -17,5 +17,6 @@ namespace Culture.Contracts.IServices
         Task<bool> IsUserSigned(Guid userId, int eventId);
         Task<IEnumerable<DateTime>> GetUserCalendarDays(Guid userId, string category, string query);
         Task<IEnumerable<EventInCalendarDto>> GetUserEventsInDay(Guid userId, DateTime day);
+        Task<UserDetailsDto> GetUserDetailsByName(string  name);
     }
 }

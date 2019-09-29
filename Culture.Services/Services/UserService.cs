@@ -82,5 +82,12 @@ namespace Culture.Services.Services
             
 
         }
+
+        public async Task<UserDetailsDto> GetUserDetailsByName(string name)
+        {
+            var user = await _unitOfWork.UserRepository.GetUserByName(name);
+
+            return new UserDetailsDto(user);
+        }
     }
 }

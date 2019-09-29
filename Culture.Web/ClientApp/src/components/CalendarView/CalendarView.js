@@ -79,6 +79,7 @@ class CalendarView extends React.Component {
         return (
             <div className="container " style={{ backgroundColor:"white" }}>
                 <h1 className="text-center">Kalendarz</h1>
+                <hr/>
                 <Modal   show={this.state.showModal} onHide={this.closeModal}>
                     <Modal.Header >
                         <Modal.Title >Wydarzenia dnia: {this.state.modalDate}</Modal.Title>
@@ -103,7 +104,7 @@ class CalendarView extends React.Component {
                 </Modal>
                 <div className="row">
                         <DayPicker
-                        containerProps={{ style: { fontSize: "40px", backgroundColor: "#feffe4" } }}
+                            containerProps={{ style: { fontSize: "34px", backgroundColor: "#feffe4", borderRadius:"30px" } }}
                             months={MONTHS}
                             weekdaysLong={WEEKDAYS_LONG}
                             weekdaysShort={WEEKDAYS_SHORT}
@@ -111,7 +112,7 @@ class CalendarView extends React.Component {
                             format='MM/dd/yyyy'
                             locale="pl"
                             firstDayOfWeek={1}
-                            className="col-md-8"
+                            className="col-md-7 mx-5"
                             selectedDays={this.state.selectedDays}
                             />
                     <div className="col-md-4" >

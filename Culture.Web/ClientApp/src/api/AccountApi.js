@@ -1,34 +1,34 @@
-﻿const API_URL = 'http://localhost:52144/api/account';
+﻿const API_URL = 'http://localhost:50882/api/account';
 
 export const signIn = async (userName, password) => {
     const api = `${API_URL}/login`;
     const options = {
         method: 'post',
-        headers:{
+        headers: {
             'content-type': 'application/json'
         },
         body: JSON.stringify({
             userName: userName,
             password: password
         })
-    }
+    };
     return await fetch(api, options)
-        .then(resp =>{ 
-            if(resp.status!==200)
-            throw "Logowanie się nie powiodło"
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Logowanie się nie powiodło";
             return resp.json();
         })
         .then(token => {
-            return token
+            return token;
         })
         .catch(e => console.log(e));
-}
+};
 
-const register = async (data) => {
+export const register = async (data) => {
     const api = `${API_URL}/register`;
     const options = {
         method: 'post',
-        headers:{
+        headers: {
             'content-type': 'application/json'
         },
         body: JSON.stringify({
@@ -38,7 +38,7 @@ const register = async (data) => {
             password: data.password,
             email: data.email
         })
-    }
+    };
 
     await fetch(api, options)
         .then(resp => resp.json())
@@ -46,5 +46,22 @@ const register = async (data) => {
             localStorage.setItem('token', resp);
         })
         .catch(e => console.log(e));
-}
+};
 
+export const getUserData = async () => {
+    const api = `${API_URL}/user`;
+    const options = {
+        method: 'get',
+        headers: {
+            'content-type': 'application/json'
+        }
+    };
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Pobranie danych uzytkownika się nie powiodło";
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+}

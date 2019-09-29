@@ -9,7 +9,7 @@ namespace Culture.Contracts.IServices
 {
 	public interface IReactionService
 	{
-		Task<EventReaction> SetReaction(SetReactionViewModel reactionViewModel);
+		Task<bool> SetReaction(SetReactionViewModel reactionViewModel);
 		Task Commit();
 	}
 }

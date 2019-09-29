@@ -19,15 +19,12 @@ namespace Culture.Services.Services
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task<EventReaction> SetReaction(SetReactionViewModel reactionViewModel)
+		public async Task<bool> SetReaction(SetReactionViewModel reactionViewModel)
 		{
-			var eventReq =  _unitOfWork.EventRepository.GetEventAsync(reactionViewModel.EventId);
-            var userReactedReq =  _unitOfWork.EventReactionRepository.GetUserReactionAsync(reactionViewModel.UserId, reactionViewModel.EventId);
+			var eventModel = await _unitOfWork.EventRepository.GetEventWithReactions(reactionViewModel.EventId);
+            var userReacted =  await _unitOfWork.EventReactionRepository.GetUserReactionAsync(reactionViewModel.UserId, reactionViewModel.EventId);
 
-            await Task.WhenAll(new Task[] { eventReq, userReactedReq });
 
-            var eventModel = await eventReq;
-            var userReacted = await userReactedReq;
 
             if (eventModel == null)
             {
@@ -35,15 +32,16 @@ namespace Culture.Services.Services
             }
             if (userReacted != null)
 			{
-				return await UpdateReaction(reactionViewModel, userReacted, eventModel);
+				 await UpdateReaction(reactionViewModel, userReacted, eventModel);
+                return true;
 			}
 
-			return await CreateReaction(reactionViewModel, eventModel);
+             await CreateReaction(reactionViewModel, eventModel);
+            return false;
 
-			
-		}
+        }
 
-		private async Task<EventReaction> CreateReaction(SetReactionViewModel reactionViewModel,Event _event)
+        private async Task<EventReaction> CreateReaction(SetReactionViewModel reactionViewModel,Event _event)
 		{
 			var reaction = new EventReaction()
 			{
@@ -53,7 +51,8 @@ namespace Culture.Services.Services
 			};
 
 			_event.Reactions.Add(reaction);
-			return reaction;
+
+            return reaction;
 		}
 
 		private async Task<EventReaction> UpdateReaction(SetReactionViewModel reactionViewModel, EventReaction userReaction, Event _event)

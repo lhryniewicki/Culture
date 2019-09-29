@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-
+import '../CommReactionBar/CommReactionBar.css';
 
 class Comment extends React.Component {
 
@@ -12,12 +12,12 @@ class Comment extends React.Component {
             <div className="card-footer ">
 
                 <div style={{ paddingBottom: "5px" }}>
-                    <a href="#"> {this.props.author} </a>
+                    <a href="#"> <b>{this.props.author}</b> </a>
                     <div className="pull-right text-muted">
                         {this.props.creationDate}
                     </div>
                 </div>
-                <div className="card-footer ">
+                <div className="card-footer commentBox ">
                     {this.props.content}
                 </div>
             </div>

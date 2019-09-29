@@ -5,10 +5,66 @@
 .myFont {
     color: white
 }
+.myFont:focus {
+    color: white
+}
 .myFont:hover {
         color:white;
         background-color: #3b3b85;
     }
 nav.navbar.navbar-default {
     border-bottom: none;
+}
+.myNotification {
+    color: #1D3C78;
+    margin-top: 10px;
+    font-size: 30px;
+    padding-bottom:8px;
+    padding-right:5px;
+    background-color:darkkhaki;
+    border-radius:20px;
+}
+.myNotification[notifications]:after {
+        content: attr(notifications);
+        position: absolute;
+        background-color:red;
+        height: 2rem;
+        top: 1rem;
+        right: 1.5rem;
+        width: 2rem;
+        text-align: center;
+        line-height: 2rem;
+        ;
+        font-size: 1rem;
+        border-radius: 50%;
+        color: white;
+        border: 1px solid black;
+    }
+.bgInherit {
+    background-color: inherit;
+    border: none;
+}
+.bgInherit:hover {
+        background-color: #3b3b85;
+        color: #152c59;
+        border: none;
+}
+.bgInherit:focus {
+        color: white;
+    }
+.myToggler{
+    color: white;
+    font-size:30px;
+}
+.dropdown-menu {
+    width: 300px;
+    height: 400px;
+}
+.dropdown-menu >li > a{
+    white-space:normal;
+}
+.scrollable-menu {
+    height: auto;
+    max-height: 250px;
+    overflow-x: hidden;
 }

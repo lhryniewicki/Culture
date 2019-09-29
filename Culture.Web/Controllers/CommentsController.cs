@@ -34,19 +34,14 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                var userReq = _userService.GetUserById("2acb229f-73ab-4202-1102-08d740193056");
-                var eventReq =  _eventService.GetEventAsync(commentViewModel.EventId);
+                var user = await _userService.GetUserByName("maciek");
+                var eventModel =  await _eventService.GetEventAsync(commentViewModel.EventId);
 
-                var eventModel = await eventReq;
                 var notificationTargets = new List<Guid>() { eventModel.CreatedById };
 
-                var user = await userReq;
 
-                var commentDtoReq =  _commentService.CreateCommentAsync(commentViewModel.Content, commentViewModel.EventId, user.Id,user.UserName);
-                var notificationReq =  _notificationService.CreateNotificationsAsync($"Twoje wydarzenie zostało skomentowane: {eventModel.Name}", notificationTargets, eventModel.Id);
-
-                await Task.WhenAll(new Task[] { commentDtoReq, notificationReq });
-                var commentDto = await commentDtoReq;
+                var commentDto = await  _commentService.CreateCommentAsync(commentViewModel.Content, commentViewModel.EventId, user.Id,user.UserName);
+                var notification = await  _notificationService.CreateNotificationsAsync($"Twoje wydarzenie zostało skomentowane: {eventModel.Name}", notificationTargets, eventModel.Id, eventModel.UrlSlug);
 
                 await _commentService.Commit();
 

@@ -14,11 +14,15 @@ namespace Culture.Web.Controllers
 	public class AccountController : Controller
 	{
 		private readonly IAuthService _authService;
+        private readonly IUserService _userService;
 
-		public AccountController(IAuthService authService)
+        public AccountController(
+            IAuthService authService,
+            IUserService userService)
 		{
 			_authService = authService;
-		}
+            _userService = userService;
+        }
 
 		[HttpPost("login")]
 		public async Task<JsonResult> Login([FromBody] LoginViewModel loginViewModel)
@@ -62,5 +66,13 @@ namespace Culture.Web.Controllers
 				return Json(e.Message);
 			}
 		}
+
+        [HttpGet("user")]
+        public async Task<JsonResult> GetUserData()
+        {
+            var userData = await _userService.GetUserDetailsByName("maciek");
+
+            return Json(userData);
+        }
 	}
 }

@@ -5,7 +5,7 @@ class Shortcuts extends React.Component {
 
     render() {
         return (
-            <div className="card">
+            <div className="card mb-3">
                 <h5 className="card-header text-center">Skróty</h5>
                 <ul className="list-group list-group-flush">
                     <div  onClick={this.props.handleClick}>

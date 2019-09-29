@@ -11,6 +11,7 @@ namespace Culture.Models
 	{
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
+        public string AvatarPath { get; set; }
 		public ICollection<UserInEvent> ParticipatedEvents{ get; set; }
 		public ICollection<Event> HostedEvents { get; set; }
 		public ICollection<EventReaction> EventReactions { get; set; }

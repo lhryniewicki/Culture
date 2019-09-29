@@ -91,7 +91,9 @@ namespace Culture.Services.Services
             return new EventReactionsWAuthorDto()
             {
                 Id = _event.CreatedById,
-                Reactions = eventReactions
+                Reactions = eventReactions,
+                EventName = _event.Name,
+                EventSlug = _event.UrlSlug
             };
 
         }
