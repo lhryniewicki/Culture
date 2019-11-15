@@ -18,9 +18,11 @@ namespace Culture.Contracts.DTOs
         public string StreetName { get; set; }
         public int Price { get; set; }
         public string CreatedBy { get; set; }
+        public string AuthorAvatarPath { get; set; }
         public string Category { get; set; }
         public bool IsInCalendar { get; set; }
-
+        public int ParticipantsNumber { get; set; }
+        public Guid AuthorId { get; set; }
 
 
         public EventDetailsDto(Event e)
@@ -32,10 +34,13 @@ namespace Culture.Contracts.DTOs
             CreationDate = e.CreationDate;
             TakesPlaceDate = e.TakesPlaceDate;
             CreatedBy = e.CreatedBy.UserName;
+            AuthorAvatarPath = e.CreatedBy.AvatarPath;
             Category = e.Category;
             CityName = e.CityName;
             StreetName = e.StreetName;
             Price = e.Price;
+            ParticipantsNumber = e.Participants.Count;
+            AuthorId = e.CreatedById;
         }
         public EventDetailsDto()
         {

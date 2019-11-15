@@ -18,6 +18,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
+using Culture.Services.SignalR;
+using System.Threading.Tasks;
 
 namespace Culture.Web
 {
@@ -33,9 +35,20 @@ namespace Culture.Web
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder => {
+                builder
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+                .WithOrigins("http://localhost:50882");
+            }));
+            services.AddSignalR(options =>
+            {
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+                options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+            });
 
-
-			services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserService, UserService>();
 			services.AddScoped<IEventService, EventService>();
 			services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IReactionService, ReactionService>();
@@ -45,6 +58,7 @@ namespace Culture.Web
             services.AddScoped<ICalendarService, CalendarService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEventReactionService, EventReactionService>();
+            services.AddScoped<IGeolocationService, GeolocationService>();
 
 
 
@@ -61,8 +75,9 @@ namespace Culture.Web
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-			// In production, the React files will be served from this directory
-			services.AddSpaStaticFiles(configuration =>
+            
+            // In production, the React files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
 			{
 				configuration.RootPath = "ClientApp/build";
 			});
@@ -75,7 +90,8 @@ namespace Culture.Web
 			services.AddIdentity<AppUser, IdentityRole<Guid>>()
 				.AddEntityFrameworkStores<CultureDbContext>();
 
-			services.Configure<IdentityOptions>(options =>
+
+            services.Configure<IdentityOptions>(options =>
 			{
 				// Default Password settings.
 				options.Password.RequireDigit = true;
@@ -94,7 +110,10 @@ namespace Culture.Web
 
 			ConfigureAuthentication(services);
 
-		}
+          
+
+
+        }
 
 		private void ConfigureAuthentication(IServiceCollection services)
 		{
@@ -119,13 +138,42 @@ namespace Culture.Web
 						ValidateIssuer = false,
 						ValidateIssuerSigningKey = true
 					};
-				});
+
+                    config.Events = new JwtBearerEvents
+                    {
+                        
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            // If the request is for our hub...
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                (path.StartsWithSegments("/notification")))
+                            {
+                                // Read the token out of the query string
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
-			if (env.IsDevelopment())
+            app.UseAuthentication();
+
+            app.UseCors("CorsPolicy");
+
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<NotificationHub>("/notification");
+            });
+
+
+            if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}
@@ -135,7 +183,7 @@ namespace Culture.Web
 				app.UseHsts();
 			}
 
-			app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 			app.UseStaticFiles();
 
 			app.UseMvc(routes =>
@@ -155,7 +203,8 @@ namespace Culture.Web
 				}
 			});
 
-			app.UseAuthentication();
+
+           
 
 		}
 	}

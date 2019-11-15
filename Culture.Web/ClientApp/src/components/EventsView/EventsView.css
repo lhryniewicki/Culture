@@ -11,3 +11,6 @@ max-width:200px
     border: 0;
     height: 2px;
 }
+.avatarPreview{
+    border-radius:20px;
+}

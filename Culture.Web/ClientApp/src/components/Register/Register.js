@@ -45,7 +45,7 @@ class Register extends React.Component {
 
                         <hr />
                         <p>Masz konto?{` `}
-                            <a href="/login">Zaloguj</a>
+                            <a href="/konto/login">Zaloguj</a>
                         </p>
 
 

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Culture.Contracts;
 using Culture.Contracts.DTOs;
+using Culture.Contracts.ViewModels;
 
 namespace Culture.Services.Services
 {
@@ -63,7 +64,16 @@ namespace Culture.Services.Services
                     .Select(x => x.Event.TakesPlaceDate)
                     .ToList();
             }
-            return null;
+
+            return userWithCalendar
+                     .Calendar
+                     .Events.Where(x=> (query != null ? (x.Event.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) != -1 
+                     || x.Event.CityName.IndexOf(query, StringComparison.OrdinalIgnoreCase) != -1) : true)
+                     &&
+                     (category != null ? x.Event.Category == category: true))
+                     .Select(x => x.Event.TakesPlaceDate)
+                     .ToList();
+
         }
 
         public async Task<IEnumerable<EventInCalendarDto>> GetUserEventsInDay(Guid userId, DateTime day)
@@ -79,8 +89,6 @@ namespace Culture.Services.Services
                     EventName = x.Event.Name,
                     EventSlug = x.Event.UrlSlug
                 });
-            
-
         }
 
         public async Task<UserDetailsDto> GetUserDetailsByName(string name)
@@ -89,5 +97,25 @@ namespace Culture.Services.Services
 
             return new UserDetailsDto(user);
         }
+
+        public async Task<string> UpdateUserData(string userId, UpdateUserViewModel userData, string avatarPath)
+        {
+            var user = await _unitOfWork.UserRepository.GetUserById(userId);
+
+            var oldAvatarPath = user.AvatarPath;
+
+            user.AvatarPath = avatarPath ?? oldAvatarPath;
+            user.FirstName = userData.FirstName;
+            user.LastName = userData.LastName;
+            user.Email = userData.Email;
+
+            return oldAvatarPath;
+        }
+
+        public Task Commit()
+        {
+           return _unitOfWork.Commit();
+        }
+
     }
 }

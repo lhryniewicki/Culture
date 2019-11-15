@@ -10,10 +10,12 @@ namespace Culture.Contracts.ViewModels
     {
         public IEnumerable<EventsPreviewDto> Events { get; set; }
         public bool CanLoadMore { get; set; }
+        public string AvatarPath { get; set; }
         public EventPreviewListViewModel(EventsPreviewWithLoadDto eventList)
         {
             Events = eventList.Events;
             CanLoadMore = eventList.CanLoadMore;
+            AvatarPath = eventList.AvatarPath;
         }
     }
 }

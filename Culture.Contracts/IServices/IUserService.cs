@@ -1,4 +1,5 @@
 ﻿using Culture.Contracts.DTOs;
+using Culture.Contracts.ViewModels;
 using Culture.Models;
 using System;
 using System.Collections.Generic;
@@ -18,5 +19,8 @@ namespace Culture.Contracts.IServices
         Task<IEnumerable<DateTime>> GetUserCalendarDays(Guid userId, string category, string query);
         Task<IEnumerable<EventInCalendarDto>> GetUserEventsInDay(Guid userId, DateTime day);
         Task<UserDetailsDto> GetUserDetailsByName(string  name);
+        Task<string> UpdateUserData(string userId, UpdateUserViewModel userData, string avatarPath);
+        Task Commit();
+
     }
 }

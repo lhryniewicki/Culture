@@ -19,35 +19,39 @@ namespace Culture.Services.Services
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task<bool> SetReaction(SetReactionViewModel reactionViewModel)
+		public async Task<bool> SetReaction(SetReactionViewModel reactionViewModel, Guid userId)
 		{
-			var eventModel = await _unitOfWork.EventRepository.GetEventWithReactions(reactionViewModel.EventId);
-            var userReacted =  await _unitOfWork.EventReactionRepository.GetUserReactionAsync(reactionViewModel.UserId, reactionViewModel.EventId);
 
-
+            var eventModel = await _unitOfWork.EventRepository.GetEventWithReactions(reactionViewModel.EventId);
+            var userReacted =  await _unitOfWork.EventReactionRepository.GetUserReactionAsync(userId, reactionViewModel.EventId);
 
             if (eventModel == null)
             {
                 throw new Exception("Reaction set on non existent event");
             }
+
+
             if (userReacted != null)
-			{
-				 await UpdateReaction(reactionViewModel, userReacted, eventModel);
+            {
+                var isOwner = await _unitOfWork.UserRepository.IsUserReactionOwner(userId, reactionViewModel.EventId);
+
+                if(isOwner) await UpdateReaction(reactionViewModel, userReacted, eventModel);
+
                 return true;
 			}
 
-             await CreateReaction(reactionViewModel, eventModel);
+             await CreateReaction(reactionViewModel, eventModel,userId);
             return false;
 
         }
 
-        private async Task<EventReaction> CreateReaction(SetReactionViewModel reactionViewModel,Event _event)
+        private async Task<EventReaction> CreateReaction(SetReactionViewModel reactionViewModel,Event _event,Guid userId)
 		{
 			var reaction = new EventReaction()
 			{
 				EventId = reactionViewModel.EventId,
 				Type = reactionViewModel.ReactionType,
-				UserId = reactionViewModel.UserId
+				UserId = userId
 			};
 
 			_event.Reactions.Add(reaction);
@@ -57,6 +61,7 @@ namespace Culture.Services.Services
 
 		private async Task<EventReaction> UpdateReaction(SetReactionViewModel reactionViewModel, EventReaction userReaction, Event _event)
 		{
+
 			if(userReaction.Type == reactionViewModel.ReactionType)
 			{
 				_unitOfWork.EventReactionRepository.RemoveReaction(userReaction);

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Culture.Models
 {
-	public class UserInEvent
+    public class UserInEvent
 	{
 		public Guid UserId { get; set; }
 		public AppUser User { get; set; }

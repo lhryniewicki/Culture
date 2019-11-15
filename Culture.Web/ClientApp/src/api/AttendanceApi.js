@@ -1,5 +1,6 @@
-﻿const API_URL = 'http://localhost:50882/api/attendance';
+﻿import { getToken } from '../utils/JwtUtils';
 
+const API_URL = 'http://localhost:50882/api/attendance';
 
 export const addToCalendar  = async (eventId) => {
    
@@ -7,7 +8,8 @@ export const addToCalendar  = async (eventId) => {
     let options = {
         method: 'post',
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify(
             eventId: eventId
@@ -29,7 +31,9 @@ export const removeFromCalendar = async (eventId) => {
     const options = {
         method: 'delete',
         headers: {
-            'content-type':'application/json'
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
+
         },
         body: JSON.stringify(
             eventId: eventId
@@ -45,15 +49,22 @@ export const removeFromCalendar = async (eventId) => {
         .catch(e => console.log(e));
 }
 
-export const getUserCalendarDays = async () => {
+export const getUserCalendarDays = async (category, query) => {
 
-    const api = `${API_URL}/get`;
+    let categoryApi;
+    let queryApi;
+    category === null || category === "Wszystkie" ? categoryApi = "" : categoryApi = `category=${category}`;
+    query === "" ? queryApi = "" : queryApi = `query=${query}`;
+
+    const api = `${API_URL}/get?${categoryApi}${queryApi}`;
+
     const options = {
         method: 'get',
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
         }
-    }
+    };
 
     return await fetch(api, options)
         .then(resp => {
@@ -70,7 +81,8 @@ export const getEventsInDays = async (date) => {
     const options = {
         method: 'get',
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
         }
     }
 
@@ -88,7 +100,9 @@ export const signUser = async (eventId) => {
     const options = {
         method: 'post',
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
+
         },
         body: JSON.stringify(
             eventId:eventId
@@ -109,7 +123,8 @@ export const unsignUser = async (eventId) => {
     const options = {
         method: 'delete',
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
         },
          body: JSON.stringify(
              eventId: eventId
@@ -119,7 +134,7 @@ export const unsignUser = async (eventId) => {
     return await fetch(api, options)
         .then(resp => {
             if (resp.status !== 200)
-                throw "Pobranie wydarzen z dnia się nie powiodło"
+                throw "Wypisanie użytkownika się nie powiodło";
             return resp.json();
         })
         .catch(e => console.log(e));

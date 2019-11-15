@@ -17,14 +17,17 @@ class CalendarView extends React.Component {
             selectedDays: [],
             showModal: false,
             modalDate: "",
-            modalEvents:[]
+            modalEvents: [],
+            query: "",
+            category:"Wszystkie"
         };
         this.onDayClick = this.onDayClick.bind(this);
         this.closeModal = this.closeModal.bind(this);
     }
+
    async componentDidMount() {
 
-       const days = await getUserCalendarDays();
+       const days = await getUserCalendarDays(null,""   );
        const JsDays = days.map((item, key) => {
            return new Date(Date.parse(item));
        })
@@ -35,6 +38,7 @@ class CalendarView extends React.Component {
     closeModal() {
         this.setState({ showModal: false });
     }
+
     async onDayClick(day, mod, e) {
         const events = await getEventsInDays(day);
         const eventsInDay = events.map((item, key) => {
@@ -50,6 +54,49 @@ class CalendarView extends React.Component {
         });
         this.setState({ showModal: true });
     }
+
+    handleOnChange = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        });
+
+    }
+
+    handleSearchCategory = async (e) => {
+        e.preventDefault();
+        const name = typeof e.target.name === "undefined" ? e.target.getAttribute("name") : e.target.name;
+
+        const days = await getUserCalendarDays( e.target.name === "Wszystkie" ? null : name, "");
+        console.log(days);
+        const JsDays = days.map((item, key) => {
+            return new Date(Date.parse(item));
+        })
+        this.setState({
+            selectedDays: JsDays
+        });
+        
+    }
+
+    handleSearchBar = async (e) => {
+        e.preventDefault();
+        const days = await getUserCalendarDays(null, this.state.query);
+        const JsDays = days.map((item, key) => {
+            return new Date(Date.parse(item));
+        });
+
+        if (days !== undefined && days.length > 0)
+            this.setState({
+                selectedDays: JsDays,
+                category: "Wszystkie"
+            });
+        else {
+            this.setState({
+                selectedDays: [],
+                category: "Wszystkie"
+            });
+        }
+    }
+
     render() {
         const MONTHS = [
             'Styczeń',
@@ -117,8 +164,14 @@ class CalendarView extends React.Component {
                             />
                     <div className="col-md-4" >
                         <div className="affix">
-                            <SearchWidget />
-                            <CategoriesWidget />
+                            <SearchWidget
+                                query={this.state.query}
+                                handleSearch={this.handleSearchBar}
+                                handleOnChange={this.handleOnChange} />
+                            <CategoriesWidget
+                                category={this.state.category}
+                                handleOnChange={this.handleOnChange}
+                                handleSearch={this.handleSearchCategory} />
                         </div>
 
                     </div>

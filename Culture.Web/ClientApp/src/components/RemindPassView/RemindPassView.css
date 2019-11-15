@@ -1,0 +1,16 @@
+﻿.myRegForm {
+    background-color: white;
+    border-radius: 35px;
+}
+
+html .regBackground {
+    background-image: linear-gradient(180deg,white, #e9ebee);
+}
+
+hr {
+    background-image: linear-gradient(90deg,#404081, #3b5998); /* Standard syntax (must be last) */
+}
+
+.myLi:hover {
+    cursor: default;
+}

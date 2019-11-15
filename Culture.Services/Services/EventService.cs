@@ -3,11 +3,9 @@ using Culture.Contracts.DTOs;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
 using Culture.Models;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 
@@ -24,12 +22,16 @@ namespace Culture.Services.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Event> CreateEventAsync(EventViewModel eventViewModel, string imagePath, Guid userId)
+        public async Task<Event> CreateEventAsync(EventViewModel eventViewModel, string imagePath, Guid userId, GeometryDto geometryDto)
         {
             var eventDate = convertDate(eventViewModel.EventDate, eventViewModel.EventTime);
-            var urlSlug = $"{eventViewModel.Name.ToLower().Replace(' ', '-')}-{Guid.NewGuid().ToString()}";
+
+            var urlSlug = $"{eventViewModel.Name.ToLower().Replace(' ', '-').Replace('/', '-').Replace(':','-').Replace(',','-').Replace('.','-')}-{Guid.NewGuid().ToString()}";
+
             var eventt = new Event()
             {
+                Latitude = geometryDto?.Latitute,
+                Longitude = geometryDto?.Longtitute,
                 UrlSlug = urlSlug,
                 Category = eventViewModel.Category,
                 CityName = eventViewModel.CityName,
@@ -42,27 +44,36 @@ namespace Culture.Services.Services
                 CreationDate = DateTime.Now,
                 TakesPlaceDate = eventDate,
             };
+
             await _unitOfWork.EventRepository.CreateEventAsync(eventt);
 
             return eventt;
-
         }
 
-        public async Task<Event> EditEvent(EventViewModel eventViewModel, Guid id)
+        public async Task<EditEventDto> EditEvent(EventViewModel eventViewModel, Guid id)
         {
-
-            if (eventViewModel.AuthorId != id) return null;
-
             var _event = await GetEventAsync(eventViewModel.Id);
+
+            var eventDate = convertDate(eventViewModel.EventDate, eventViewModel.EventTime);
+
+            if (_event.CreatedById != id) return null;
+
+            var needsGeolocation = !(_event.StreetName == eventViewModel.StreetName && _event.CityName == eventViewModel.CityName);
 
             _event.Name = eventViewModel.Name;
             _event.Price = eventViewModel.Price;
             _event.StreetName = eventViewModel.StreetName;
+            _event.CityName = eventViewModel.CityName;
             _event.Content = eventViewModel.Content;
             _event.Category = eventViewModel.Category;
-            _event.CityName = eventViewModel.CityName;
+            _event.TakesPlaceDate = eventDate;
 
-            return _event;
+
+            return new EditEventDto()
+            {
+                EditedEvent = _event,
+                NeedsGeolocation=needsGeolocation
+            };
 
 
         }
@@ -120,11 +131,16 @@ namespace Culture.Services.Services
         public async Task<EventsPreviewWithLoadDto> GetEventPreviewList(Guid userId, int page = 0, int size = 5, string category = null, string query = null)
         {
             var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page, size, category, query);
+            var userAvatarPath = await _unitOfWork.UserRepository.GetUserById(userId.ToString()).ContinueWith(x => x.Result?.AvatarPath);
 
             var canLoadMore = eventList.Count() > 5 ? true : false;
             eventList = canLoadMore == true ? eventList.Take(size) : eventList;
 
-            var EventsPreviewDtoList = new EventsPreviewWithLoadDto();
+            var EventsPreviewDtoList = new EventsPreviewWithLoadDto()
+            {
+                CanLoadMore = canLoadMore,
+                AvatarPath = userAvatarPath
+            };
 
             foreach (var eventEntity in eventList)
             {
@@ -164,7 +180,28 @@ namespace Culture.Services.Services
         {
             var intDate = Array.ConvertAll(date, Int32.Parse);
             var timeArray = Array.ConvertAll(time.Split(':'), Int32.Parse);
+
             return new DateTime(intDate[0], intDate[1], intDate[2], timeArray[0], timeArray[1], 0);
+        }
+
+        public async Task<IEnumerable<RecommendedEventDto>> GetRecommendedEvents(int eventId)
+        {
+            var eventData = await _unitOfWork.EventRepository.GetEventAsync(eventId);
+
+            var recommendedEvents = await _unitOfWork.EventRepository.GetRecommendedEvents(eventData);
+
+            return recommendedEvents.Select(x => new RecommendedEventDto(x));
+        }
+
+        public async Task<IEnumerable<ParticipantDto>> GetEventParticipants(int eventId,string query)
+        {
+            var participants = await _unitOfWork.EventRepository.GetParticipants(eventId, query);
+
+            return participants.Select(x => new ParticipantDto()
+            {
+                UserId = x.Id,
+                Username = x.UserName
+            }).ToList();
         }
     }
 }

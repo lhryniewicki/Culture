@@ -11,10 +11,10 @@ namespace Culture.DataAccess.Context
 	public class CultureDbContext:IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
 	{
 		public DbSet<Calendar> Calendars { get; set; }
-		public DbSet<Comment> Comments { get; set; }
 		public DbSet<Emoticon> Emoticons { get; set; }
 		public DbSet<Event> Events { get; set; }
-		public DbSet<EventReaction> EventReactions { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<EventReaction> EventReactions { get; set; }
 		public DbSet<Notification> Notifications { get; set; }
 		public DbSet<UserInEvent> UsersInEvent { get; set; }
 		public DbSet<EventInCalendar> EventsInCalendar { get; set; }
@@ -34,10 +34,10 @@ namespace Culture.DataAccess.Context
 			ConfigureUserInEvent(builder);
 			ConfigureEventReaction(builder);
 
+
 			base.OnModelCreating(builder);
 
 		}
-
 
 		private void ConfigureAppUser(ModelBuilder builder)
 		{
@@ -97,8 +97,6 @@ namespace Culture.DataAccess.Context
 			eventBuilder
 				.HasMany(x => x.Notifications)
 				.WithOne(x => x.Event);
-
-
 		}
 		private void ConfigureUserNotification(ModelBuilder builder)
 		{

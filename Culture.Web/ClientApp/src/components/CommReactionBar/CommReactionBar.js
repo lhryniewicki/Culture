@@ -1,9 +1,13 @@
-﻿
+﻿import { Modal } from 'react-bootstrap';
 import React from 'react';
 import Comment from '../Comment/Comment';
 import Reactions from '../Reactions/Reactions';
 import { sendComment, getMoreComments } from '../../api/CommentApi';
 import { sendReaction } from '../../api/EventApi';
+import { userIsAuthenticated } from '../../utils/JwtUtils';
+import { Link } from 'react-router-dom';
+import defaultImage from '../../assets/default_avatar.jpg';
+import { deleteComment } from '../../api/CommentApi';
 
 
 const images = {
@@ -28,7 +32,9 @@ class CommReactionBar extends React.Component {
             comments: [],
             reactions: [],
             currentReaction: null,
-            commentsCount: 0
+            commentsCount: 0,
+            image: null,
+            imageClicked: false
         };
 
         this.showComments = this.showComments.bind(this);
@@ -54,7 +60,7 @@ class CommReactionBar extends React.Component {
 
         if (prevProps.reactionsCount !== this.props.reactionsCount || this.props.commentsCount !== prevProps.commentsCount) {
 
-            this.setState( {
+            this.setState({
                 reactionsCount: this.props.reactionsCount,
                 reactions: this.props.reactions,
                 comments: this.props.comments,
@@ -64,6 +70,17 @@ class CommReactionBar extends React.Component {
             });
         }
     }
+
+
+    handleCommentChange = (evt, text) => {
+
+        const item = document.getElementById('comm');
+
+        this.setState({ [evt.target.name]: evt.target.value });
+        item.style.height = (25 + text.scrollHeight) + "px";
+
+    }
+
     handleInputChange(e) {
         this.setState({ [e.target.name]: e.target.value });
     }
@@ -81,13 +98,13 @@ class CommReactionBar extends React.Component {
     }
     async onReactionSend(e) {
         const name = e.target.name;
-        const result = await sendReaction('b5676a5b-0c37-46f5-3147-08d73e6da2eb', this.props.id, name);
-        console.log(result);
+        const result = await sendReaction(this.props.id, name);
+
         if (result === undefined) return false;
         if (name === this.state.currentReaction) {
             console.log("null");
 
-             this.setState({
+            this.setState({
                 currentReaction: null,
                 reactions: result.reactions,
                 reactionsCount: this.state.reactionsCount - 1
@@ -120,7 +137,21 @@ class CommReactionBar extends React.Component {
         });
 
     }
+
+    deleteComment = (e, commentId) => {
+        e.preventDefault();
+
+        deleteComment(commentId);
+
+        this.setState({
+            commentsCount: this.state.commentsCount -1,
+            comments: this.state.comments.filter(x => {return x.id !== commentId })
+        });
+
+    }
+
     displayComments() {
+        console.log(this.state.comments)
         const items = this.state.comments.map((c, index) => {
             let jsDate = new Date(Date.parse(c.creationDate));
             let jsDateFormatted = `${jsDate.getDay()}-${jsDate.getMonth()}-${jsDate.getFullYear()} ${jsDate.getHours()}:${(jsDate.getMinutes() < 10 ? '0' : '') + jsDate.getMinutes()}`;
@@ -130,16 +161,21 @@ class CommReactionBar extends React.Component {
                     content={c.content}
                     author={c.authorName}
                     creationDate={jsDateFormatted}
+                    image={c.imagePath}
+                    authorId={c.authorId}
+                    avatarPath={c.avatarPath}
+                    commentId={c.id}
+                    deleteComment={this.deleteComment}
                 />
             );
         });
 
         return items;
     }
-   async moreComments(event) {
+    async moreComments(event) {
         event.preventDefault();
-       const newComments = await getMoreComments(this.props.id, this.state.commentsPage);
-       const items = this.state.comments.concat(newComments.commentsList);
+        const newComments = await getMoreComments(this.props.id, this.state.commentsPage);
+        const items = this.state.comments.concat(newComments.commentsList);
         this.setState({
             commentsPage: this.state.commentsPage + 1,
             comments: items,
@@ -147,32 +183,70 @@ class CommReactionBar extends React.Component {
         });
     }
     displaySortedReactions() {
-        if (this.state.reactions === null || this.state.reactions.length < 1) {
+        if (this.state.reactions === null || this.state.reactions === undefined || this.state.reactions.length < 1) {
             return [];
         }
         return this.state.reactions.map((element, index) => {
-                return (<img draggable={false}
-                    name={element.reactionType}
-                    src={images[element.reactionType]}
-                    width="25px"
-                    height="25px"
-                    data-toggle="popover"
-                    key={index}
-                    data-placement="top"
-                    title={`Ilość reakcji: ` + element.count} />);
-            });
+            return (<img draggable={false}
+                name={element.reactionType}
+                src={images[element.reactionType]}
+                width="25px"
+                height="25px"
+                data-toggle="popover"
+                key={index}
+                data-placement="top"
+                title={`Ilość reakcji: ` + element.count} />);
+        });
     }
+
+    handleFilePick = (event) => {
+        if (event.target.files[0] !== undefined) {
+            this.setState({
+                image: event.target.files[0]
+            });
+        }
+    }
+
+    displayImageZoom = () => {
+        return <Modal style={{ left: "-10%" }} show={this.state.imageClicked} onHide={this.closeImageModal} >
+            <img
+                width="700px"
+                height="700px"
+                src={URL.createObjectURL(this.state.image)} />
+        </Modal>
+    }
+
+    handleImageClick = () => {
+        this.setState({ imageClicked: true });
+
+    }
+
     handleCommentSubmit = async (e) => {
         e.preventDefault();
-        const newComment = await sendComment(this.props.id, this.state.commentContent, 'b5ce53d5-978f-42bf-74da-08d73cef40dc');
-        console.log(newComment);
+
+        if (this.props.isPreview === true) return false;
+
+        const newComment = await sendComment(this.props.id, this.state.commentContent, this.state.image);
         this.setState(prevState => ({
             showComments: true,
+            imageClicked: false,
+            image: null,
             commentContent: '',
             commentsCount: this.state.commentsCount + 1,
             comments: [newComment, ...prevState.comments]
         }));
     }
+
+    closeImageModal = () => {
+        this.setState({ imageClicked: false });
+    }
+
+    displayImageCancelButton = () => {
+        this.setState({ image: null });
+        this.fileInput.value = '';
+
+    }
+
     displayCurrentReaction = () => {
         if (this.state.currentReaction !== null && this.state.currentReaction !== undefined)
             return <img
@@ -189,17 +263,19 @@ class CommReactionBar extends React.Component {
             <div>
                 <div className="card-footer text-muted">
                     Umieszczono dnia {this.props.date} przez
-            <a href="#"> {this.props.createdBy} </a>
+            <Link to={`/konto/${this.props.createdById}`}> {this.props.createdBy} </Link>
                     {
                         this.displaySortedReactions()
                     }
 
-
                     {this.state.reactionsCount}
                     <div className="pull-right">
                         <div className="float-left">
-                            <a href="" onClick={this.onReactionClick} className="comment" style={{ marginRight: "50px" }}> Reaguj {this.displayCurrentReaction()}</a>
-
+                            {userIsAuthenticated() ?
+                                <a href="" onClick={this.onReactionClick} className="comment" style={{ marginRight: "50px" }}> Reaguj {this.displayCurrentReaction()}</a>
+                                :
+                                null
+                            }
                             <a href="" onClick={this.showComments} className="comment">  Komentarze: {this.state.commentsCount}</a>
                         </div>
                     </div>
@@ -214,7 +290,6 @@ class CommReactionBar extends React.Component {
                 {this.state.showComments === true
                     ?
                     <div>
-
                         {
                             this.displayComments()
                         }
@@ -231,21 +306,59 @@ class CommReactionBar extends React.Component {
                     :
                     null
                 }
+                {userIsAuthenticated() ?
+                    <div>
+                        <div className="card-footer text-muted ">
+                            <form onSubmit={this.handleCommentSubmit}>
+                                
+                                <div className="input-container">
+                                    <img
+                                        src={this.props.avatarPath !== null ? this.props.avatarPath : defaultImage}
+                                        width="50px"
+                                        height="50px"
+                                        className="avatarPreview"
+                                    />
+                                    <textarea className="form-control  commentBox"
+                                        placeholder="Wpisz komentarz..."
+                                        onChange={(e) => this.handleCommentChange(e, this)}
+                                        type="text"
+                                        value={this.state.content}
+                                        name="content"
+                                        id="comm"
+                                        style={{ overflow:"hidden" }}
+                                        autoComplete="off"
+                                        width="400px" />
+                                    <input
+                                        style={{ display: "none" }}
+                                        accept=".jpg, .jpeg, .png"
+                                        type="file"
+                                        onChange={this.handleFilePick}
+                                        ref={fileInput => this.fileInput = fileInput}
+                                    />
+                                    <i className="far fa-images icon"
+                                        onClick={() => this.fileInput.click()}
+                                    />
+                                </div>
+                            </form>
+                            {this.state.image === null ?
+                                null :
+                                <div>
+                                    <img
+                                        onClick={this.handleImageClick}
+                                        width="300px"
+                                        height="300px"
+                                        src={URL.createObjectURL(this.state.image)} />
+                                    {this.state.image !== null ? <button onClick={this.displayImageCancelButton} className="btn btn-danger align-top">X</button> : null}
 
-                <div className="card-footer text-muted ">
-                    <form onSubmit={this.handleCommentSubmit}>
-                        <div className="form-group">
-                            <input
-                                className="form-control input-sm commentBox"
-                                placeholder="Wpisz komentarz..."
-                                onChange={this.handleInputChange}
-                                type="text"
-                                value={this.state.commentContent}
-                                name="commentContent" />
+                                </div>
+                            }
                         </div>
-                    </form>
-                </div>
-
+                    
+                        {this.state.imageClicked === true ? this.displayImageZoom() : null}
+                    </div>
+                :
+                null
+                }
             </div>
 
         );

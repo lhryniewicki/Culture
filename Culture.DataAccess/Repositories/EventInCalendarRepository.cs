@@ -21,9 +21,12 @@ namespace Culture.DataAccess.Repositories
 
         public async Task RemoveFromCalendar(int eventId, Guid userId)
         {
-            var toDelete = await _cultureDbContext.EventsInCalendar
+                var toDelete = await _cultureDbContext.EventsInCalendar
+                .Include(x=>x.Calendar)
                 .FirstOrDefaultAsync(x => x.EventId == eventId && x.Calendar.BelongsToId == userId);
 
+            var y = await _cultureDbContext.EventsInCalendar
+                .Include(x => x.Calendar).FirstOrDefaultAsync();
             _cultureDbContext.EventsInCalendar.Remove(toDelete);
         }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,11 @@ namespace Culture.Models
 		public string StreetName { get; set; }
 		public string CityName { get; set; }
         public string UrlSlug { get; set; }
+        [Column(TypeName = "decimal(18,15)")]
+        public decimal? Longitude { get; set; }
+        [Column(TypeName = "decimal(18,15)")]
+        public decimal? Latitude { get; set; }
+
         public DateTime CreationDate { get; set; }
 		public DateTime TakesPlaceDate { get; set; }
 		public ICollection<UserInEvent> Participants { get; set; }

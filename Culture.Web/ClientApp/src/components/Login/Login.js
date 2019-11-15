@@ -1,7 +1,9 @@
 ﻿import React from 'react';
 import {signIn} from '../../api/AccountApi';
-import { Redirect } from 'react-router-dom'
-import '../Login/Login.css'
+import { Redirect, Link } from 'react-router-dom';
+import { createConnection } from '../../utils/signalRUtils';
+import '../Login/Login.css';
+import loginImage from '../../assets/login/loginbackground.png';
 
 
 class Login extends React.Component {
@@ -10,28 +12,34 @@ class Login extends React.Component {
 
         this.state = {
             userName: '',
-            password:'',
-            redirect:false
-        }
+            password: '',
+            redirect: false
+        };
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSumbit = this.handleSumbit.bind(this);
 
     }
+
     handleInputChange(e) {
         this.setState({
             [e.target.name]: e.target.value
         });
     }
+
    async handleSumbit(e) {
         e.preventDefault();
-       let token = await signIn(
+       const token = await signIn(
             this.state.userName,
             this.state.password
-        );
-    this.props.setToken(token);
+       );
+
+       this.props.setToken(token);
+       createConnection();
+
     this.setState({redirect:true});
         
     }
+
 renderRedirect = () => {
     if (this.state.redirect) {
       return <Redirect to='/' />
@@ -39,8 +47,11 @@ renderRedirect = () => {
 }
     render() {
         return (
-            <div className="container">
+            <div className="container picContainer ">
                 {this.renderRedirect()}
+                <div className="visible-lg">
+                <img src={loginImage} className="image-fluid" />
+                 </div>
                     <form className="text-center border border-black col-md-4 col-md-offset-4 myForm" onSubmit={this.handleSumbit}>
 
                         <p className="h4 mb-4">Logowanie</p>
@@ -53,11 +64,11 @@ renderRedirect = () => {
                         <div className="d-flex justify-content-around">
 
                             <p>Zapomniałeś hasła?{` `}
-                                <a href="">Przypomnij</a>
+                                <Link to="/konto/przypomnij">Przypomnij</Link>
                             </p>
 
                             <p>Nie masz konta?{` `}
-                                <a href="">Załóż</a>
+                            <Link to="/konto/rejestracja">Załóż</Link>
                             </p>
                         </div>
 

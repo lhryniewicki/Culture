@@ -19,8 +19,10 @@ namespace Culture.Services.Services
 		{
            _unitOfWork = unitOfWork;
         }
-		public async Task<CommentDto> CreateCommentAsync(string content, int eventId, Guid userId,string username)
+		public async Task<CommentDto> CreateCommentAsync(string content, int eventId, Guid userId,string username,string imagePath)
 		{
+            var user = await _unitOfWork.UserRepository.GetUserById(userId.ToString());
+
 			var dateTime = DateTime.Now;
 
 			var comment = new Comment()
@@ -28,17 +30,19 @@ namespace Culture.Services.Services
 				AuthorId = userId,
 				Content = content,
 				CreationDate = dateTime,
-				EventId = eventId
-
+				EventId = eventId,
+                ImagePath = imagePath
 			};
             
 			await _unitOfWork.CommentRepository.AddCommentAsync(comment);
 
-			return new CommentDto()
+            return new CommentDto()
             {
-                 CreationDate=comment.CreationDate,
-                 Content=comment.Content,
-                 AuthorName=username
+                CreationDate = comment.CreationDate,
+                Content = comment.Content,
+                AuthorName = username,
+                ImagePath = imagePath,
+                AvatarPath = user.AvatarPath
             };
 		}
 
@@ -54,11 +58,11 @@ namespace Culture.Services.Services
             return;
         }
 
-        public async Task<Comment> EditCommentAsync(EditCommentViewModel comment, Guid id)
+        public async Task<Comment> EditCommentAsync(EditCommentViewModel comment, Guid id, IList<string> userRoles)
 		{
-			if ("b5ce53d5-978f-42bf-74da-08d73cef40dc" != id.ToString()) return null;
-            //pobrac z autoryzacji id
             var _comment = await _unitOfWork.CommentRepository.GetCommentAsync(comment.CommentId);
+
+            if (id != _comment.AuthorId  && !userRoles.Contains("Admin")) return null;
 
             _comment.Content = comment.Content;
 

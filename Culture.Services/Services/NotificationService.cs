@@ -2,6 +2,9 @@
 using Culture.Contracts.DTOs;
 using Culture.Contracts.IServices;
 using Culture.Models;
+using Culture.Services.SignalR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +16,14 @@ namespace Culture.Services.Services
     public class NotificationService : INotificationService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public NotificationService(IUnitOfWork unitOfWork)
+        public NotificationService(
+            IUnitOfWork unitOfWork,
+                 IHubContext<NotificationHub> hubContext)
         {
             _unitOfWork = unitOfWork;
+            _hubContext = hubContext;
         }
         public Task<int> GetNumberOfUnreadNotifications(Guid userId)
         {
@@ -48,20 +55,26 @@ namespace Culture.Services.Services
                 SentData = DateTime.Now,
                 RedirectUrl = eventSlug
             };
+
             foreach (var userId in targetUsers)
             {
+                string connectionId = null;
+
+                var found =  NotificationHub.userIdConnectionId.TryGetValue(userId.ToString(),out connectionId);
+
+                if (found) await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveNotification");
+
                 notification.UserId = userId;
+
                 await _unitOfWork.NotificationRepository.CreateNotification(notification);
             }
             return notification;
-
         }
         public async Task<Notification> MarkAsRead(int id)
         {
             var notification = await _unitOfWork.NotificationRepository.GetNotificationAsync(id);
 
             notification.IsRead = true;
-
 
             return null;
         }

@@ -10,7 +10,7 @@ namespace Culture.Models
 	{
 		public int Id { get; set; }
 		public string Content { get; set; }
-		public byte[] Image { get; set; }
+		public string ImagePath { get; set; }
 		public DateTime CreationDate { get; set; }
 
 		public int EventId{ get; set; }

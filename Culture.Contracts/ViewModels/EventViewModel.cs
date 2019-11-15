@@ -11,14 +11,11 @@ namespace Culture.Contracts.ViewModels
 	{
         public int Id { get; set; }
         [Required]
-        public Guid AuthorId { get; set; }
-        [Required]
         public int Price { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
         public string Content { get; set; }
-        [Required]
         public IFormFile Image { get; set; }
         [Required]
         public string Category { get; set; } //zrobic enum        

@@ -69,9 +69,11 @@ namespace Culture.Services.Services
             return _unitOfWork.Commit();
         }
 
-        public Task<bool> CheckIfExists(int eventId, Guid userId)
+        public async Task<bool> CheckIfExists(int eventId, Guid userId)
         {
-            throw new NotImplementedException();
+            var userCalendar = await _unitOfWork.UserRepository.GetUserByIdWithCalendar(userId);
+
+            return userCalendar.Calendar.Events.Any(x=>x.EventId == eventId);
         }
     }
 }

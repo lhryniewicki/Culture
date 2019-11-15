@@ -46,6 +46,7 @@ namespace Culture.DataAccess.Repositories
 		{
             return _dbContext.Events
                 .Include(x => x.CreatedBy)
+                .Include(x=>x.Participants)
                 .Include(x=>x.EventsInCalendar)
                     .ThenInclude(y=>y.Calendar)
                 .AsNoTracking()
@@ -57,12 +58,40 @@ namespace Culture.DataAccess.Repositories
             return await _dbContext.Events
                 .Include(x=>x.CreatedBy)
                 .Where(x => (category != null ? x.Category == category : true ) 
-                            && (query != null ? x.Content.Contains(query)|| x.Name.Contains(query):true ))
+                            && (query != null ? x.Content.IndexOf(query,StringComparison.OrdinalIgnoreCase) !=-1 
+                            || x.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) != -1 : true ))
                 .OrderByDescending(x=>x.CreationDate)
                 .Skip(page * size)
                 .Take(size+1)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Event>> GetRecommendedEvents(Event queryEvent, int skip=0 , int take=3)
+        {
+            var nameWords = queryEvent.Name.Split();
+
+            return await _dbContext.Events
+                .Where(x => nameWords.Contains(x.Name) && x.Id != queryEvent.Id)
+                .Union(
+                 _dbContext.Events.Where(x => x.Category == queryEvent.Category && x.Id != queryEvent.Id) )
+                .Union(
+                  _dbContext.Events.Where(x => x.CityName == queryEvent.CityName && x.Id != queryEvent.Id))
+                .Union(_dbContext.Events.Where(x => x.Price < queryEvent.Price + 10 && x.Price > queryEvent.Price - 10 && x.Id != queryEvent.Id))
+                .Skip(skip*take)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<AppUser>> GetParticipants(int eventId, string query = null)
+        {
+            return await _dbContext.Users
+                 .Where(x => x.ParticipatedEvents
+                     .Any(y => y.EventId == eventId) && (query != null ? (
+                     x.FirstName.Contains(query) ||
+                     x.LastName.Contains(query) ||
+                     x.UserName.Contains(query)) : true))
+                 .ToListAsync();
         }
     }
 }

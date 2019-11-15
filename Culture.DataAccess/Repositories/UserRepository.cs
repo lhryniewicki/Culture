@@ -29,31 +29,37 @@ namespace Culture.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public Task<AppUser> GetUserById(string id)
+        public async Task<bool> IsUserReactionOwner(Guid userId, int eventId)
         {
-            return _userManager.FindByIdAsync(id);
+            return  await _userManager.Users
+                .FirstOrDefaultAsync(x => x.EventReactions.Any(y => y.EventId == eventId && y.UserId == userId)) !=null ? true : false;
         }
 
-        public Task<AppUser> GetUserByName(string name)
+        public async Task<AppUser> GetUserById(string id)
         {
-            return _userManager.FindByNameAsync(name);
+            return await _userManager.FindByIdAsync(id);
         }
 
-        public Task<AppUser> GetUserByNameWithCalendar(string userName)
+        public async Task<AppUser> GetUserByName(string name)
         {
-            return _userManager.Users
+            return await _userManager.FindByNameAsync(name);
+        }
+
+        public async Task<AppUser> GetUserByNameWithCalendar(string userName)
+        {
+            return await _userManager.Users
                  .Include(x => x.Calendar)
                  .FirstOrDefaultAsync(x => x.UserName == userName);
         }
 
-        public Task<IList<string>> GetUserRoles(AppUser user)
+        public async Task<IList<string>> GetUserRoles(AppUser user)
         {
-            return _userManager.GetRolesAsync(user);
+            return await _userManager.GetRolesAsync(user);
         }
 
-        public Task<AppUser> GetUserByIdWithCalendar(Guid userId)
+        public async Task<AppUser> GetUserByIdWithCalendar(Guid userId)
         {
-            return _userManager.Users
+            return await _userManager.Users
                 .Include(x => x.Calendar)
                     .ThenInclude(x=>x.Events)
                         .ThenInclude(x=>x.Event)

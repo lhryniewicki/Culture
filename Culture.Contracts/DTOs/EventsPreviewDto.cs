@@ -19,6 +19,7 @@ namespace Culture.Contracts.DTOs
             public int CommentsCount { get; set; }
             public int ReactionsCount { get; set; }
             public string CreatedBy { get; set; }
+            public Guid CreatedById { get; set; }
             public string CurrentReaction { get; set; }
             public bool CanLoadMore { get; set; }
             public string UrlSlug { get; set; }
@@ -41,6 +42,7 @@ namespace Culture.Contracts.DTOs
             CanLoadMore = moreCommentsDto.CanLoadMore;
             CommentsCount = moreCommentsDto.TotalCount;
             Comments = moreCommentsDto.CommentsList;
+            CreatedById = e.CreatedById;
         }
     }
 }

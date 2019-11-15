@@ -7,7 +7,6 @@ namespace Culture.Contracts.ViewModels
 {
 	public class SetReactionViewModel
 	{
-		public Guid UserId { get; set; }
 		public int EventId { get; set; }
 		public ReactionType	ReactionType { get; set; }
 

@@ -16,23 +16,29 @@ class EventPost extends React.Component {
     componentDidMount() {
         if (this.props.isPreview) {
             this.props.picture.name === 'Wybierz plik' ? this.setState({ source: "https://via.placeholder.com/750x300" })
-                : this.setState({ source:URL.createObjectURL(this.props.picture)});
+                : this.setState({ source: this.props.picture });
         }
         else {
             this.setState({ source: this.props.picture });
         }
         
     }
+
+    componentDidUpdate() {
+        if (this.state.source !== this.props.picture)
+            this.setState({ source: this.props.picture });
+    }
+
     render() {
         return (
-            <div className="card my-4">
+            <div className="card mb-4">
                 <img className="card-img-top"
                     width="750px;"
                     height="300px;"
                     src={this.state.source}
                     alt="Brak zdjęcia!" />
-                <div className="card-body">
-                    <h2 className="card-title">{this.props.eventName}</h2>
+                <div className="card-body myCardBody">
+                    <h2 className="card-title mt-0">{this.props.eventName}</h2>
                     <p className="card-text showSpace">{this.props.eventDescription}</p>
                     {this.props.isPreview === false ?
                         <Link to={`/wydarzenie/szczegoly/${this.state.urlSlug}`}><span className="btn btn-primary">Szczegóły... &rarr;</span></Link>
@@ -42,6 +48,8 @@ class EventPost extends React.Component {
               
                 </div>
                 <CommReactionBar
+                    avatarPath={this.props.avatarPath}
+                    imageClick={this.props.imageClick}
                     currentReaction={this.props.currentReaction}
                     id={this.props.id}
                     createdBy={this.props.createdBy}
@@ -52,6 +60,7 @@ class EventPost extends React.Component {
                     commentsCount={this.props.commentsCount}
                     canLoadMore={this.props.canLoadMore}
                     isPreview={this.props.isPreview}
+                    createdById={this.props.createdById}
                 />
             </div>
 

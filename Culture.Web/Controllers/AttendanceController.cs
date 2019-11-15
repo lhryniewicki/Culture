@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Culture.Contracts.IServices;
+using Culture.Utilities.Enums;
+using Culture.Utilities.ExtensionMethods;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Culture.Web.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AttendanceController : Controller
@@ -25,11 +29,14 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                var user = await _userService.GetUserByName("maciek");
+                var userId = User.GetClaim(JwtTypes.jti);
+
+                var user = await _userService.GetUserById(userId);
 
                 await _calendarService.SignUserToEvent(eventId, user.Id);
-                var isEventInCalendar = _calendarService.CheckIfExists(eventId, user.Id);
+                var isEventInCalendar = await _calendarService.CheckIfExists(eventId, user.Id);
 
+                if(!isEventInCalendar)
                 await _calendarService.AddToCalendar(eventId, user.CalendarId);
 
                 await _calendarService.Commit();
@@ -48,10 +55,13 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                var user = await _userService.GetUserByName("maciek");
+                var userId = User.GetClaim(JwtTypes.jti);
 
-                await _calendarService.UnsignUserFromEvent(eventId, user.Id);
-                await _calendarService.RemoveEventFromCalendar(eventId, user.Id);
+                await _calendarService.UnsignUserFromEvent(eventId, Guid.Parse(userId));
+                var isEventInCalendar = await _calendarService.CheckIfExists(eventId, Guid.Parse(userId));
+
+                if (isEventInCalendar)
+                    await _calendarService.RemoveEventFromCalendar(eventId, Guid.Parse(userId));
 
                 await _calendarService.Commit();
 
@@ -69,7 +79,9 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                var user = await _userService.GetUserByName("maciek");
+                var userId = User.GetClaim(JwtTypes.jti);
+
+                var user = await _userService.GetUserById(userId);
 
                 await _calendarService.AddToCalendar(eventId, user.CalendarId);
 
@@ -89,9 +101,9 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                var user = await _userService.GetUserByName("maciek");
+                var userId = User.GetClaim(JwtTypes.jti);
 
-                await _calendarService.RemoveEventFromCalendar(eventId,user.Id);
+                await _calendarService.RemoveEventFromCalendar(eventId,Guid.Parse(userId));
 
                 await _calendarService.Commit();
 
@@ -109,9 +121,9 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                var user = await _userService.GetUserByName("maciek");
+                var userId = User.GetClaim(JwtTypes.jti);
 
-                var userCalendarDays = await _userService.GetUserCalendarDays(user.Id,category,query);
+                var userCalendarDays = await _userService.GetUserCalendarDays(Guid.Parse(userId),category,query);
 
                 return Json(userCalendarDays);
             }
@@ -128,9 +140,9 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                var user = await _userService.GetUserByName("maciek");
+                var userId = User.GetClaim(JwtTypes.jti);
 
-                var userCalendarEventsDay = await _userService.GetUserEventsInDay(user.Id,date);
+                var userCalendarEventsDay = await _userService.GetUserEventsInDay(Guid.Parse(userId),date);
 
                 return Json(userCalendarEventsDay);
             }

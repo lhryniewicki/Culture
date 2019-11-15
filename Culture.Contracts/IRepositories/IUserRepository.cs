@@ -13,8 +13,6 @@ namespace Culture.Contracts.IRepositories
         Task<IList<string>> GetUserRoles(AppUser user);
         Task<AppUser> GetUserByNameWithCalendar(string userName);
         Task<AppUser> GetUserByIdWithCalendar(Guid  userId);
-
-
-
+        Task<bool> IsUserReactionOwner(Guid userId, int eventId);
     }
 }

@@ -58,6 +58,10 @@ namespace Culture.DataAccess.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed");
 
+                    b.Property<string>("SecretAnswer");
+
+                    b.Property<string>("SecretQuestion");
+
                     b.Property<string>("SecurityStamp");
 
                     b.Property<bool>("TwoFactorEnabled");
@@ -108,7 +112,7 @@ namespace Culture.DataAccess.Migrations
 
                     b.Property<int>("EventId");
 
-                    b.Property<byte[]>("Image");
+                    b.Property<string>("ImagePath");
 
                     b.HasKey("Id");
 
@@ -151,6 +155,12 @@ namespace Culture.DataAccess.Migrations
                     b.Property<DateTime>("CreationDate");
 
                     b.Property<string>("ImagePath");
+
+                    b.Property<decimal?>("Latitude")
+                        .HasColumnType("decimal(18,15)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasColumnType("decimal(18,15)");
 
                     b.Property<string>("Name");
 

@@ -8,7 +8,7 @@ namespace Culture.Contracts.DTOs
     {
         public ICollection<EventsPreviewDto> Events { get; set; }
         public bool CanLoadMore { get; set; }
-
+        public string AvatarPath{ get; set; }
         public EventsPreviewWithLoadDto()
         {
             Events = new List<EventsPreviewDto>();

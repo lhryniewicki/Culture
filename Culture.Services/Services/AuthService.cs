@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Mail;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Culture.Contracts.Exceptions;
-using Culture.Contracts.IRepositories;
+﻿using Culture.Contracts.Exceptions;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
 using Culture.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Culture.Services.Services
 {
-	public class AuthService:IAuthService
+    public class AuthService:IAuthService
 	{
 		private readonly SignInManager<AppUser> _signInManager;
 		private readonly UserManager<AppUser> _userManager;
@@ -44,7 +42,7 @@ namespace Culture.Services.Services
 			}
 
 			var user = await _userManager.FindByNameAsync(loginViewModel.UserName);
-			return GetToken(user);
+			return await GetToken(user);
 		}
 
 		public async Task<string> Register(RegisterViewModel registerViewModel)
@@ -56,7 +54,10 @@ namespace Culture.Services.Services
 				Email = registerViewModel.Email,
 				FirstName = registerViewModel.FirstName,
 				UserName= registerViewModel.UserName,
-				LastName = registerViewModel.LastName,                
+				LastName = registerViewModel.LastName,        
+                SecretQuestion = registerViewModel.SecretQuestion,
+                SecretAnswer = registerViewModel.SecretAnswer
+
 			};
 
 			var result = await _userManager.CreateAsync(appUser, registerViewModel.Password);
@@ -70,10 +71,34 @@ namespace Culture.Services.Services
 				throw new RegistrationErrorException($"Error while logging");
 			}
 
-			return GetToken(appUser);
+			return await GetToken(appUser);
 		}
 
-		private void  ValidateLoginViewModel(LoginViewModel loginViewModel)
+
+        public async Task<string> GetUserQuestion(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+
+            return user.SecretQuestion;
+        }
+
+        public async Task<bool> CheckAnswer(string answer, string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+
+            return user.SecretAnswer == answer;
+        }
+
+        public async Task UpdatePassword(string username, string password)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+
+            await _userManager.RemovePasswordAsync(user);
+
+            await _userManager.AddPasswordAsync(user, password);
+        }
+
+        private void  ValidateLoginViewModel(LoginViewModel loginViewModel)
 		{
 
 			if (string.IsNullOrEmpty(loginViewModel.Password))
@@ -124,13 +149,16 @@ namespace Culture.Services.Services
 			}
 		}
 
-		private string GetToken(AppUser user)
+		private async Task<string> GetToken(AppUser user)
 		{
-			var claims = new[]
-			{
-				new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
-				new Claim(JwtRegisteredClaimNames.Jti, user.Id.ToString()),
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, user.Id.ToString()),
+                new Claim("Role",userRoles.Contains("Admin") ? "Admin" : "User")
 			};
+
 			var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Values:IssuerToken")));
 			var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 			var utcNow = DateTime.UtcNow;

@@ -9,6 +9,7 @@ namespace Culture.Contracts.ViewModels
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string AuthorAvatar { get; set; }
         public string Content { get; set; }
         public string Image { get; set; }
         public DateTime CreationDate { get; set; }
@@ -18,6 +19,7 @@ namespace Culture.Contracts.ViewModels
         public int Price { get; set; }
         public IEnumerable<CommentDto> Comments { get; set; }
         public IEnumerable<EventReactionDto> Reactions { get; set; }
+        public IEnumerable<RecommendedEventDto> RecommendedEvents{ get; set; }
         public int CommentsCount { get; set; }
         public int ReactionsCount { get; set; }
         public string CreatedBy { get; set; }
@@ -25,7 +27,9 @@ namespace Culture.Contracts.ViewModels
         public string Category { get; set; }
         public bool CanLoadMore { get; set; }
         public bool IsUserSigned { get; set; }
+        public Guid AuthorId { get; set; }
         public bool IsInCalendar { get; set; }
+        public int ParticipantsNumber { get; set; }
         public EventDetailsViewModel(EventDetailsDto e)
         {
             Id = e.Id;
@@ -42,11 +46,12 @@ namespace Culture.Contracts.ViewModels
             IsInCalendar = e.IsInCalendar;
         }
 
-        public EventDetailsViewModel(EventDetailsDto eventDto, MoreCommentsDto commentsDto, EventReactionsDto reactions, bool isUserAttending)
+        public EventDetailsViewModel(EventDetailsDto eventDto, MoreCommentsDto commentsDto, EventReactionsDto reactions, bool isUserAttending, IEnumerable<RecommendedEventDto> recommendedEvents)
         {
             Id = eventDto.Id;
             Name = eventDto.Name;
             Content = eventDto.Content;
+            AuthorAvatar = eventDto.AuthorAvatarPath;
             Image = eventDto.Image;
             Category = eventDto.Category;
             CityName = eventDto.CityName;
@@ -63,7 +68,9 @@ namespace Culture.Contracts.ViewModels
             Reactions = reactions.EventReactions;
             ReactionsCount = reactions.TotalCount;
             CurrentReaction = reactions.CurrentReaction;
-
+            RecommendedEvents = recommendedEvents;
+            ParticipantsNumber = eventDto.ParticipantsNumber;
+            AuthorId = eventDto.AuthorId;
         }
     }
 }

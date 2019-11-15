@@ -1,3 +1,22 @@
 ﻿.myCard {
     background-color: white;
 }
+.cursor {
+    cursor: pointer;
+}
+.showSpace {
+    white-space: pre-wrap;
+}
+    .clickable :hover {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+button  a {
+    color:white
+}
+
+button a:hover,button  a:focus {
+     color: white; 
+     text-decoration: none;
+}

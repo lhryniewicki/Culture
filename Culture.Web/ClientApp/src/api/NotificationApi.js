@@ -1,4 +1,6 @@
-﻿const API_URL = 'http://localhost:50882/api/notifications';
+﻿import { getToken } from '../utils/JwtUtils';
+
+const API_URL = 'http://localhost:50882/api/notifications';
 
 export const getNotificationsNumber = async () => {
 
@@ -6,7 +8,8 @@ export const getNotificationsNumber = async () => {
     let options = {
         method: 'get',
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
         }
     };
 
@@ -25,7 +28,9 @@ export const getNotifications = async (page) => {
     let options = {
         method: 'get',
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
+
         }
     };
 

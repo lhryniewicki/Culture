@@ -5,11 +5,15 @@ using System.Threading.Tasks;
 using Culture.Contracts.Dtos.NotificationWebJob;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
+using Culture.Utilities.Enums;
+using Culture.Utilities.ExtensionMethods;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Culture.Web.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NotificationsController : Controller
@@ -31,9 +35,9 @@ namespace Culture.Web.Controllers
         [HttpGet("number")]
         public async Task<JsonResult> GetNumberOfNotifications()
         {
-            var user = await _userService.GetUserByName("maciek");
+            var userId = User.GetClaim(JwtTypes.jti);
 
-            var numberOfNotifications = await _notificationService.GetNumberOfUnreadNotifications(user.Id);
+            var numberOfNotifications = await _notificationService.GetNumberOfUnreadNotifications(Guid.Parse(userId));
 
             return Json(numberOfNotifications);
         }
@@ -41,9 +45,9 @@ namespace Culture.Web.Controllers
         [HttpGet("get")]
         public async Task<JsonResult> GetNotifications(int page)
         {
-            var user = await _userService.GetUserByName("maciek");
+            var userId = User.GetClaim(JwtTypes.jti);
 
-            var notifications = await _notificationService.GetNotifications(user.Id,page);
+            var notifications = await _notificationService.GetNotifications(Guid.Parse(userId),page);
 
             await _notificationService.Commit();
 

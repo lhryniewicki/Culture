@@ -3,19 +3,32 @@ import { Redirect, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import '../NavBar/NavBar.css';
 import Notification from '../Notification/Notification';
-import { getNotificationsNumber,getNotifications } from '../../api/NotificationApi';
-class NavBar extends React.Component{
+import { getNotificationsNumber, getNotifications } from '../../api/NotificationApi';
+import { userIsAuthenticated, getUserId, getToken, removeUserToken } from '../../utils/JwtUtils';
+import { getConnection, createConnection } from '../../utils/signalRUtils';
+class NavBar extends React.Component {
 
-    
+
     constructor(props) {
         super(props);
+           
+        
+        if (window.performance) {
+            if (userIsAuthenticated()) {
 
+                if (performance.navigation.type === 1) {
+
+                    createConnection();
+                }
+           
+            }
+        }
         this.state = {
             menu: false,
             redirect: false,
             notifications: [],
             notificationPage: 0,
-            notificationsNumber: null,
+            notificationsNumber: 0,
             isProcessingPage: null
         };
 
@@ -25,12 +38,46 @@ class NavBar extends React.Component{
     }
 
 
+   
+
     async componentDidMount() {
-        const notificationsNumber = await getNotificationsNumber();
-        this.setState({
-            notificationsNumber: notificationsNumber
-        });
+        if (userIsAuthenticated()) {
+            const notificationsNumber = await getNotificationsNumber();
+            this.setState({
+                notificationsNumber: notificationsNumber
+            });
+            
+        }
     }
+   
+    async  componentDidUpdate() {
+        if (userIsAuthenticated()) {
+
+            
+            const notificationsNumber = await getNotificationsNumber();
+
+            if (this.state.notificationsNumber !== notificationsNumber)
+            this.setState({
+                notificationsNumber: notificationsNumber
+            });
+            let connection = getConnection();
+
+            if ("undefined" === typeof connection) {
+                createConnection();
+                connection = getConnection();
+            }
+            console.log(connection)
+            connection.on("ReceiveNotification", async () => {
+                await this.setState({ notificationsNumber: this.state.notificationsNumber +1 });
+            });
+
+        }
+    }
+
+    unload = () => {
+        removeUserToken();
+    };
+
     toggleMenu() {
         this.setState({ menu: !this.state.menu });
     }
@@ -57,27 +104,27 @@ class NavBar extends React.Component{
         if ((element.offsetHeight + element.scrollTop >= element.scrollHeight)) {
 
             await this.setState({ isProcessingPage: this.state.notificationPage });
-            const notifications = await getNotifications(this.state.notificationPage);
-            const newNotificationState = this.state.notifications.concat(notifications.notifications);
-
-          await  this.setState({
-                notifications: newNotificationState,
-              notificationPage: this.state.notificationPage + 1
-            });
+            this.loadNotifications();
         }
     }
         
     
     loadNotifications = async () => {
         const notifications = await getNotifications(this.state.notificationPage);
-                this.setState({
-                    notifications: notifications.notifications,
+        const notificationsNumber = await getNotificationsNumber();
+        const newNotificationState = this.state.notifications.concat(notifications.notifications);
+
+        this.setState({
+                    notificationsNumber: notificationsNumber,
+                    notifications: newNotificationState,
                     notificationPage: this.state.notificationPage + 1
                 });}
         
     render() {
         const show = (this.state.menu) ? "show" : "";
         const move = (this.state.menu) ? "pull-left" : "pull-right";
+
+       
 
         return (
             <nav className="navbar navbar-expand-md   fixed-top affix myNavbar"> 
@@ -107,7 +154,7 @@ class NavBar extends React.Component{
                                     :
                                     <React.Fragment>
                                         <li className="nav-item">
-                                            <Link className="nav-link myFont" to="#">Moje konto</Link>
+                                            <Link className="nav-link myFont" to={`/konto/${getUserId()}`}>Moje konto</Link>
                                         </li>
                                         <div className="dropdown" onScroll={this.onScroll}> 
                                             <button className="dropdown-toggle bgInherit " type="button" data-toggle="dropdown">

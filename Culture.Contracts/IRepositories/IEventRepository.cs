@@ -11,9 +11,11 @@ namespace Culture.Contracts.IRepositories
 	{
         Task<IEnumerable<Event>> GetEventPreviewList(int page,int size, string category, string query = null);
 		Task<Event> GetEventDetailsBySlugAsync(string slug);
-		Task CreateEventAsync(Event eventt);
+        Task<IEnumerable<Event>> GetRecommendedEvents(Event queryEvent, int skip = 0, int take = 3);
+        Task CreateEventAsync(Event eventt);
         Task<Event> GetEventAsync(int id);
 		Task<Event> GetEventWithReactions(int id);
-		void DeleteEvent(Event _event);
+        Task<IEnumerable<AppUser>> GetParticipants(int eventId, string query);
+        void DeleteEvent(Event _event);
     }
 }

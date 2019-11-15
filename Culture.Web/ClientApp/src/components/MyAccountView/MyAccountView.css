@@ -1,0 +1,20 @@
+﻿.myAvatar{
+    border-radius:40px;
+}
+.shortcuts{
+    width:300px;
+
+}
+.dataInfo {
+    font-size: 20px;
+}
+.list-group-flush .list-group-item {
+    border-right-width:1px;
+    border-right:thin;
+}
+label {
+    text-align: right;
+    clear: both;
+    float: left;
+    margin-right: 15px;
+}
