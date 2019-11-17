@@ -46,23 +46,24 @@ namespace Culture.Services.Services
             };
 		}
 
-        public async Task DeleteComment(int commentId, Guid userId, IList<string> userRoles)
+        public async Task<Comment> DeleteComment(int commentId, Guid userId, string userRole)
         {
             var comment = await _unitOfWork.CommentRepository.GetCommentAsync(commentId);
 
-            if(comment.AuthorId==userId || userRoles.Contains("Admin"))
+            if(comment.AuthorId == userId || userRole == "Admin")
             {
-                 _unitOfWork.CommentRepository.DeleteComment(comment);
+                  _unitOfWork.CommentRepository.DeleteComment(comment);
+                return comment;
             }
           
-            return;
+            return null;
         }
 
-        public async Task<Comment> EditCommentAsync(EditCommentViewModel comment, Guid id, IList<string> userRoles)
+        public async Task<Comment> EditCommentAsync(EditCommentViewModel comment, Guid id, string userRole)
 		{
             var _comment = await _unitOfWork.CommentRepository.GetCommentAsync(comment.CommentId);
 
-            if (id != _comment.AuthorId  && !userRoles.Contains("Admin")) return null;
+            if (id != _comment.AuthorId  && userRole != "Admin") return null;
 
             _comment.Content = comment.Content;
 
@@ -76,7 +77,7 @@ namespace Culture.Services.Services
             var commentsDto =  comments.Select(x=> new CommentDto(x));
 
             var commentsCount = await _unitOfWork.CommentRepository.GetCommentCountAsync(id);
-            return new MoreCommentsDto(commentsDto)
+            return new MoreCommentsDto(commentsDto,take)
             {
                 TotalCount = commentsCount
             };

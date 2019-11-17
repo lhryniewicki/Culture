@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.Web", "Culture.Web\Culture.Web.csproj", "{8AB55451-1504-4A33-8F5D-27C43D784C61}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.Services", "Culture.Services\Culture.Services.csproj", "{3D62EC46-79C9-4C0A-A3A0-8585850F8424}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.Implementation", "Culture.Services\Culture.Implementation.csproj", "{3D62EC46-79C9-4C0A-A3A0-8585850F8424}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Culture.Contracts", "Culture.Contracts\Culture.Contracts.csproj", "{D070DA4E-1C42-45FF-B1D4-009F480BB82F}"
 EndProject

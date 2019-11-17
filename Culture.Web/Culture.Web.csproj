@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Culture.Contracts\Culture.Contracts.csproj" />
-    <ProjectReference Include="..\Culture.Services\Culture.Services.csproj" />
+    <ProjectReference Include="..\Culture.Services\Culture.Implementation.csproj" />
   </ItemGroup>
 
   <ItemGroup>

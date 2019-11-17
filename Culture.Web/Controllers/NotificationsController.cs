@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Culture.Contracts.Dtos.NotificationWebJob;
+﻿using Culture.Contracts.Dtos.NotificationWebJob;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
 using Culture.Utilities.Enums;
 using Culture.Utilities.ExtensionMethods;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace Culture.Web.Controllers
 {

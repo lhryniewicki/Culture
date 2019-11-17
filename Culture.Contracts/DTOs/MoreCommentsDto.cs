@@ -10,10 +10,10 @@ namespace Culture.Contracts.DTOs
         public IEnumerable<CommentDto> CommentsList { get; set; }
         public bool CanLoadMore { get; set; }
         public int TotalCount { get; set; }
-        public MoreCommentsDto(IEnumerable<CommentDto> commentDtos)
+        public MoreCommentsDto(IEnumerable<CommentDto> commentDtos, int sizeComments)
         {
-            CanLoadMore = commentDtos.Count() > 5 ? true : false;
-            CommentsList = commentDtos.Count() > 5 ? commentDtos.Take(5) : commentDtos;
+            CanLoadMore = commentDtos.Count() > sizeComments ? true : false;
+            CommentsList = commentDtos.Count() > sizeComments ? commentDtos.Take(sizeComments) : commentDtos;
         }
         public MoreCommentsDto()
         {

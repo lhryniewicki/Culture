@@ -4,14 +4,16 @@ using Culture.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Culture.DataAccess.Migrations
 {
     [DbContext(typeof(CultureDbContext))]
-    partial class CultureDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191115211504_UserConfiguration")]
+    partial class UserConfiguration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -423,7 +425,7 @@ namespace Culture.DataAccess.Migrations
                     b.HasOne("Culture.Models.Event", "Event")
                         .WithMany("EventsInCalendar")
                         .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Culture.Models.EventReaction", b =>

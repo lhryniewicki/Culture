@@ -39,7 +39,9 @@ export const register = async (data) => {
             lastName: data.lastName,
             userName: data.userName,
             password: data.password,
-            email: data.email
+            email: data.email,
+            secretQuestion: data.question,
+            secretAnswer: data.answer
         })
     };
 
@@ -80,10 +82,39 @@ export const updateUserData = async (data) => {
     formData.append('image', data.file);
 
     const options = {
-        method: 'post',
+        method: 'put',
         body: formData,
         headers: {
             'Authorization': `Bearer ${getToken()}`
+        }
+    };
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Pobranie danych uzytkownika się nie powiodło";
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+}
+
+export const updateUserConfig = async (data) => {
+    const api = `${API_URL}/user/config`;
+    console.log(data);
+    const options = {
+        method: 'put',
+        body: JSON.stringify({
+        commentsDisplayAmount: data.commentsDisplayAmount,
+        eventsDisplayAmount: data.eventsDisplayAmount,
+        logOutAfter: data.logOutAfter,
+        anonymous: data.anonymous,
+        sendEmailNotification: data.sendEmailNotification,
+        calendarPastEvents: data.calendarPastEvents,
+        }),
+        headers: {
+            'Authorization': `Bearer ${getToken()}`,
+            'content-type': 'application/json'
+
         }
     };
 

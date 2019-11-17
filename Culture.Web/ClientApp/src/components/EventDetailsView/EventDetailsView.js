@@ -2,7 +2,7 @@
 import CommReactionBar from '../CommReactionBar/CommReactionBar';
 import { getEventDetails, getParticipants, editEvent } from '../../api/EventApi';
 import { addToCalendar, removeFromCalendar, signUser, unsignUser } from '../../api/AttendanceApi';
-import { userIsAuthenticated, getUserId } from '../../utils/JwtUtils';
+import { userIsAuthenticated, getUserId, isAdmin } from '../../utils/JwtUtils';
 import '../EventDetailsView/EventDetailsView.css';
 import RecommendedEvent from '../RecommendedEvent/RecommendedEvent';
 import { Redirect, Link} from 'react-router-dom';
@@ -67,7 +67,8 @@ class EventDetailsView extends React.Component {
             editDate: false,
             editName: false,
             editAddress: false,
-            editCategory:false
+            editCategory: false,
+            done:false
         };
 
     }
@@ -230,7 +231,7 @@ class EventDetailsView extends React.Component {
         const jsDate = new Date(Date.parse(result.creationDate));
         const jsDateFormatted = jsDate.getUTCDate() + "-" + (jsDate.getMonth() + 1) + "-" + jsDate.getFullYear();
 
-        const jsDatePlace = new Date(Date.parse(result.creationDate));
+        const jsDatePlace = new Date(Date.parse(result.takesPlaceDate));
         const jsDatePlaceFormatted = jsDatePlace.getUTCDate() + "-" + (jsDatePlace.getMonth() + 1) + "-" + jsDatePlace.getFullYear();
         const jsDatePlaceTimeFormatted = jsDatePlace.getHours() + ":" + (jsDatePlace.getMinutes() < 10 ? '0' : '') + jsDatePlace.getMinutes();
 
@@ -261,7 +262,7 @@ class EventDetailsView extends React.Component {
             authorId: result.authorId
         });
 
-        this.setState({
+      await  this.setState({
             pdf: <EventPDF
                 content={this.state.content.escapeDiacritics()}
                 name={this.state.name.escapeDiacritics()}
@@ -273,7 +274,9 @@ class EventDetailsView extends React.Component {
                 takesPlaceDate={this.state.takesPlaceDate}
                 takesPlaceHour={this.state.takesPlaceHour}
             />})
-            
+
+
+        this.setState({done:true})
     }
 
     handleInputChange = (evt) => {
@@ -304,288 +307,294 @@ class EventDetailsView extends React.Component {
         return (
 
             <div className="container pt-5">
-               
-                    {this.state.showModal ?
-                    <Modal show={this.state.showModal}  onHide={this.onModalClose} >
-                        <Modal.Header>
-                            <SearchWidget
-                                handleSearch={this.handleSearch}
-                                handleOnChange={this.handleOnChange}
-                                query={this.state.participantsQuery} />
-                        </Modal.Header>
-                        <Modal.Body className="text-center">
-                            {this.renderParticipants()}
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <button className="btn btn-secondary" onClick={this.onModalClose}>
-                                Zamknij
+                {this.state.done ? 
+                    <div>
+
+                        {this.state.showModal ?
+                            <Modal show={this.state.showModal} onHide={this.onModalClose} >
+                                <Modal.Header>
+                                    <SearchWidget
+                                        handleSearch={this.handleSearch}
+                                        handleOnChange={this.handleOnChange}
+                                        query={this.state.participantsQuery} />
+                                </Modal.Header>
+                                <Modal.Body className="text-center">
+                                    {this.renderParticipants()}
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <button className="btn btn-secondary" onClick={this.onModalClose}>
+                                        Zamknij
                              </button>
-                        </Modal.Footer>
+                                </Modal.Footer>
 
-                    </Modal> :
-                    null
-                }
-                {this.state.showMapModal ?
-                    <Modal style= {{ left: "-20%" }} show={this.state.showMapModal} onHide={this.onModalMapClose} >
-                            <MyMap
-                                eventId={this.state.id}
-                            />
-                    </Modal> :
-                    null
-                }
-             
-                <div className="row " >
-                    <div className="col-md-8 h-100 " >
-                        <div className="card">
-                            <div className="card-header ">
-                                <img className="img-fluid pull-right mt-4" width="730" height="615" src={this.state.imagePath} />
-                                <div className=" mt-4">
-                                    <div className="card">
-                                        <div className="card-body showSpace">
-                                            {getUserId() === this.state.authorId ?
-                                                <i name="editName" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
-                                                :
-                                                null
-                                            }
-                                            {this.state.content}
+                            </Modal> :
+                            null
+                        }
+                        {this.state.showMapModal ?
+                            <Modal style={{ left: "-20%" }} show={this.state.showMapModal} onHide={this.onModalMapClose} >
+                                <MyMap
+                                    eventId={this.state.id}
+                                />
+                            </Modal> :
+                            null
+                        }
+
+                        <div className="row " >
+                            <div className="col-md-8 h-100 " >
+                                <div className="card">
+                                    <div className="card-header ">
+                                        <img className="img-fluid pull-right mt-4" width="730" height="615" src={this.state.imagePath} />
+                                        <div className=" mt-4">
+                                            <div className="card">
+                                                <div className="card-body showSpace">
+                                                    {getUserId() === this.state.authorId || isAdmin() ?
+                                                        <i name="editName" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
+                                                        :
+                                                        null
+                                                    }
+                                                    {this.state.content}
+                                                </div>
+                                                <CommReactionBar
+                                                    currentReaction={this.state.currentReaction}
+                                                    id={this.state.id}
+                                                    createdBy={this.state.createdBy}
+                                                    reactions={this.state.reactions}
+                                                    reactionsCount={this.state.reactionsCount}
+                                                    date={this.state.date}
+                                                    comments={this.state.comments}
+                                                    commentsCount={this.state.commentsCount}
+                                                    currentReaction={this.state.currentReaction}
+                                                    canLoadMore={this.state.canLoadMore}
+                                                    isPreview={this.state.isPreview}
+                                                    avatarPath={this.state.avatarPath}
+                                                />
+
+                                            </div>
                                         </div>
-                                        <CommReactionBar
-                                            currentReaction={this.state.currentReaction}
-                                            id={this.state.id}
-                                            createdBy={this.state.createdBy}
-                                            reactions={this.state.reactions}
-                                            reactionsCount={this.state.reactionsCount}
-                                            date={this.state.date}
-                                            comments={this.state.comments}
-                                            commentsCount={this.state.commentsCount}
-                                            currentReaction={this.state.currentReaction}
-                                            canLoadMore={this.state.canLoadMore}
-                                            isPreview={this.state.isPreview}
-                                            avatarPath={this.state.avatarPath}
-                                        />
-                                            
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div className="col-md-4">
-                        <div className="card ">
-                            <div className="card-header text-center">
-                                <div className="text-center mb-3">
-                                    <b>Informacje ogólne</b>
-                                </div>
-                                <div className="card mb-3">
-                                    <div className="card-header ">
-                                        Nazwa 
-                    {getUserId() === this.state.authorId ?
-                                            <i name="editName" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) =>this.editEventFlag(e)} />
-                                            :
-                                           null
-                                        }
-                                     </div>
-                                    <div className="card-body">
-                                        {this.state.editName === false ?
-                                            <b>{this.state.name}</b>
-                                            :
-                                            <form onSubmit={this.editEvent}>
-                                                <input
-                                                    className="form-control  commentBox"
-                                                    placeholder="Wprowadź dane..."
-                                                    onChange={this.handleInputChange}
-                                                    type="text"
-                                                    value={this.state.name}
-                                                    name="name"
-                                                    autoComplete="off"
-                                                    height="70px"
-                                                    width="400px"
-
-                                                />
-                                            </form>
-                                        }
-                                       
-                                    </div>
-                                </div>
-                                <div className="card mb-3">
-                                    <div className="card-header ">
-                                        Data odbycia
-                                         {getUserId() === this.state.authorId ?
-                                            <i name="editDate" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
-                                            :
-                                            null
-                                        }
-                                     </div>
-                                    <div className="card-body">
-                                        {this.state.editDate === false ?
-                                            <div>
-                                                Dnia <b> {this.state.takesPlaceDate}</b>, godz. {this.state.takesPlaceHour}
+                            <div className="col-md-4">
+                                <div className="card ">
+                                    <div className="card-header text-center">
+                                        <div className="text-center mb-3">
+                                            <b>Informacje ogólne</b>
+                                        </div>
+                                        <div className="card mb-3">
+                                            <div className="card-header ">
+                                                Nazwa
+                    {getUserId() === this.state.authorId || isAdmin() ?
+                                                    <i name="editName" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
+                                                    :
+                                                    null
+                                                }
                                             </div>
-                                            :
-                                            <form onSubmit={this.editEvent}>
-                                                <input
-                                                    className="form-control  commentBox"
-                                                    placeholder="Wprowadź dane..."
-                                                    onChange={this.handleInputChange}
-                                                    type="text"
-                                                    value={this.state.takesPlaceDate + "," + this.state.takesPlaceHour}
-                                                    name="date"
-                                                    autoComplete="off"
-                                                    height="70px"
-                                                    width="400px"
+                                            <div className="card-body">
+                                                {this.state.editName === false ?
+                                                    <b>{this.state.name}</b>
+                                                    :
+                                                    <form onSubmit={this.editEvent}>
+                                                        <input
+                                                            className="form-control  commentBox"
+                                                            placeholder="Wprowadź dane..."
+                                                            onChange={this.handleInputChange}
+                                                            type="text"
+                                                            value={this.state.name}
+                                                            name="name"
+                                                            autoComplete="off"
+                                                            height="70px"
+                                                            width="400px"
 
-                                                />
-                                            </form>
-                                        }
-                                    </div>
-                                </div>
+                                                        />
+                                                    </form>
+                                                }
 
-                                <div className="card mb-3">
-                                    <div className="card-header ">
-                                        Adres
-                                         {getUserId() === this.state.authorId ?
-                                            <i name="editAddress" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
-                                            :
-                                            null
-                                        }
-                                </div>
-                                    <div className="card-body" >
-                                        {this.state.editAddress === false ?
-                                            <div className="clickable" onClick={this.addressClick} >
-                                                <b> {this.state.streetName},  {this.state.cityName}</b>
                                             </div>
-                                            :
-                                            <form onSubmit={this.editEvent}>
-                                                <input
-                                                    className="form-control  commentBox"
-                                                    placeholder="Wprowadź dane..."
-                                                    onChange={this.handleInputChange}
-                                                    type="text"
-                                                    value={this.state.streetName + "," + this.state.cityName}
-                                                    name="address"
-                                                    autoComplete="off"
-                                                    height="70px"
-                                                    width="400px"
-
-                                                />
-                                            </form>
-                                        }
-                                    </div>
-                                </div>
-                                <div className="card mb-3">
-                                    <div className="card-header ">
-                                        Kategoria
-                                         {getUserId() === this.state.authorId ?
-                                            <i name="editCategory" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
-                                            :
-                                            null
-                                        }
-                                </div>
-                                    <div className="card-body">
-                                        {this.state.editCategory === false ?
-                                            <div>
-                                                <b> {this.state.category}</b>
+                                        </div>
+                                        <div className="card mb-3">
+                                            <div className="card-header ">
+                                                Data odbycia
+                                         {getUserId() === this.state.authorId || isAdmin() ?
+                                                    <i name="editDate" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
+                                                    :
+                                                    null
+                                                }
                                             </div>
-                                            :
-                                            <form onSubmit={this.editEvent}>
-                                                <input
-                                                    className="form-control  commentBox"
-                                                    placeholder="Wprowadź dane..."
-                                                    onChange={this.handleInputChange}
-                                                    type="text"
-                                                    value={this.state.category}
-                                                    name="category"
-                                                    autoComplete="off"
-                                                    height="70px"
-                                                    width="400px"
+                                            <div className="card-body">
+                                                {this.state.editDate === false ?
+                                                    <div>
+                                                        Dnia <b> {this.state.takesPlaceDate}</b>, godz. {this.state.takesPlaceHour}
+                                                    </div>
+                                                    :
+                                                    <form onSubmit={this.editEvent}>
+                                                        <input
+                                                            className="form-control  commentBox"
+                                                            placeholder="Wprowadź dane..."
+                                                            onChange={this.handleInputChange}
+                                                            type="text"
+                                                            value={this.state.takesPlaceDate + "," + this.state.takesPlaceHour}
+                                                            name="date"
+                                                            autoComplete="off"
+                                                            height="70px"
+                                                            width="400px"
 
-                                                />
-                                            </form>
-                                        }
-                                    </div>
-                                </div>
-                                <div className="card mb-3">
-                                    <div className="card-header ">
-                                        Cena
-                                         {getUserId() === this.state.authorId ?
-                                            <i name="editPrice" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
-                                            :
-                                            null
-                                        }
-                                </div>
-                                    <div className="card-body">
-                                        {this.state.editPrice === false ?
-                                            <div>
-                                                <b> {this.state.price === 0 ? 'Darmo' : this.state.price} zł</b>
+                                                        />
+                                                    </form>
+                                                }
                                             </div>
-                                            :
-                                            <form onSubmit={this.editEvent}>
-                                                <input
-                                                    className="form-control  commentBox"
-                                                    placeholder="Wprowadź dane..."
-                                                    onChange={this.handleInputChange}
-                                                    type="number"
-                                                    value={this.state.price}
-                                                    name="price"
-                                                    autoComplete="off"
-                                                    height="70px"
-                                                    width="400px"
+                                        </div>
 
-                                                />
-                                            </form>
-                                        }
+                                        <div className="card mb-3">
+                                            <div className="card-header ">
+                                                Adres
+                                         {getUserId() === this.state.authorId || isAdmin() ?
+                                                    <i name="editAddress" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
+                                                    :
+                                                    null
+                                                }
+                                            </div>
+                                            <div className="card-body" >
+                                                {this.state.editAddress === false ?
+                                                    <div className="clickable" onClick={this.addressClick} >
+                                                        <b> {this.state.streetName},  {this.state.cityName}</b>
+                                                    </div>
+                                                    :
+                                                    <form onSubmit={this.editEvent}>
+                                                        <input
+                                                            className="form-control  commentBox"
+                                                            placeholder="Wprowadź dane..."
+                                                            onChange={this.handleInputChange}
+                                                            type="text"
+                                                            value={this.state.streetName + "," + this.state.cityName}
+                                                            name="address"
+                                                            autoComplete="off"
+                                                            height="70px"
+                                                            width="400px"
+
+                                                        />
+                                                    </form>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div className="card mb-3">
+                                            <div className="card-header ">
+                                                Kategoria
+                                         {getUserId() === this.state.authorId || isAdmin() ?
+                                                    <i name="editCategory" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
+                                                    :
+                                                    null
+                                                }
+                                            </div>
+                                            <div className="card-body">
+                                                {this.state.editCategory === false ?
+                                                    <div>
+                                                        <b> {this.state.category}</b>
+                                                    </div>
+                                                    :
+                                                    <form onSubmit={this.editEvent}>
+                                                        <input
+                                                            className="form-control  commentBox"
+                                                            placeholder="Wprowadź dane..."
+                                                            onChange={this.handleInputChange}
+                                                            type="text"
+                                                            value={this.state.category}
+                                                            name="category"
+                                                            autoComplete="off"
+                                                            height="70px"
+                                                            width="400px"
+
+                                                        />
+                                                    </form>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div className="card mb-3">
+                                            <div className="card-header ">
+                                                Cena
+                                         {getUserId() === this.state.authorId || isAdmin() ?
+                                                    <i name="editPrice" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
+                                                    :
+                                                    null
+                                                }
+                                            </div>
+                                            <div className="card-body">
+                                                {this.state.editPrice === false ?
+                                                    <div>
+                                                        <b> {this.state.price === 0 ? 'Darmo' : this.state.price} zł</b>
+                                                    </div>
+                                                    :
+                                                    <form onSubmit={this.editEvent}>
+                                                        <input
+                                                            className="form-control  commentBox"
+                                                            placeholder="Wprowadź dane..."
+                                                            onChange={this.handleInputChange}
+                                                            type="number"
+                                                            value={this.state.price}
+                                                            name="price"
+                                                            autoComplete="off"
+                                                            height="70px"
+                                                            width="400px"
+
+                                                        />
+                                                    </form>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div className="card-header clickable ">
+                                            <div onClick={this.participantsClick}>
+                                                {`Liczba uczestniczących:${this.state.participantsNumber}`}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="card-header clickable ">
-                                    <div  onClick={this.participantsClick}> 
-                                        {`Liczba uczestniczących:${this.state.participantsNumber}`}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="card-body mb-0">
-                                <div className="row mb-3 ">
-                                    <div className="mx-auto">
-                                        <input directory="" webkitdirectory="" ref="fileUploader" style={{ display: "none" }} type="file" />
-                                        <button className="btn btn-warning">
-                                            <PDFDownloadLink className="pdfDownload" document={this.state.pdf} fileName={`${this.state.name}.pdf`}>
-                                                Pobierz plakat
+                                    <div className="card-body mb-0">
+                                        <div className="row mb-3 ">
+                                            <div className="mx-auto">
+                                                <input directory="" webkitdirectory="" ref="fileUploader" style={{ display: "none" }} type="file" />
+                                                <button className="btn btn-warning">
+                                                    <PDFDownloadLink className="pdfDownload" document={this.state.pdf} fileName={`${this.state.name}.pdf`}>
+                                                        Pobierz plakat
                                         </PDFDownloadLink>
-                                        </button>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {userIsAuthenticated() ?
+                                            <div>
+                                                <div className="row mb-3 ">
+                                                    <div className="mx-auto">
+                                                        <button onClick={this.HandleCalendar} className="btn btn-danger">{this.DisplayCalendarButton()}</button>
+                                                    </div>
+                                                </div>
+                                                <div className="row">
+                                                    <div className="mx-auto ">
+                                                        <button onClick={this.SignUser} className="btn btn-primary">{this.DisplayAttendButton()} </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            :
+                                            null
+                                        }
                                     </div>
                                 </div>
-                            {userIsAuthenticated() ?
-                               <div>
-                                    <div className="row mb-3 ">
-                                        <div className="mx-auto">
-                                            <button onClick={this.HandleCalendar} className="btn btn-danger">{this.DisplayCalendarButton()}</button>
+                                {this.state.recommendedEvents.length > 0 ?
+                                    <div className="card mt-4">
+                                        <div className="card-header text-center">
+                                            <div className="text-center mb-3">
+                                                <b>Podobne wydarzenia</b>
+                                            </div>
+                                            {this.displayRecommendedEvents()}
                                         </div>
                                     </div>
-                                    <div className="row">
-                                        <div className="mx-auto ">
-                                            <button onClick={this.SignUser} className="btn btn-primary">{this.DisplayAttendButton()} </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                :
-                                null
+                                    :
+                                    null
                                 }
                             </div>
                         </div>
-                        {this.state.recommendedEvents.length > 0 ?
-                            <div className="card mt-4">
-                                <div className="card-header text-center">
-                                    <div className="text-center mb-3">
-                                        <b>Podobne wydarzenia</b>
-                                    </div>
-                                    {this.displayRecommendedEvents()}
-                                </div>
-                            </div>
-                            :
-                            null
-                        }
-                    </div>
-                </div>
 
+                    </div> :
+                    null
+
+}
             </div>
         );
     }

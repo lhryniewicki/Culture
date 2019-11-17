@@ -1,20 +1,17 @@
-﻿using Culture.Contracts.IServices;
+﻿using Culture.Contracts;
+using Culture.Contracts.DTOs;
+using Culture.Contracts.IServices;
+using Culture.Contracts.ViewModels;
 using Culture.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
-using Culture.Contracts;
-using Culture.Contracts.DTOs;
-using Culture.Contracts.ViewModels;
 
 namespace Culture.Services.Services
 {
-	public class UserService:IUserService
-	{
+    public class UserService: IUserService
+    {
         private readonly IUnitOfWork _unitOfWork;
 
 		public UserService(IUnitOfWork unitOfWork)
@@ -22,7 +19,7 @@ namespace Culture.Services.Services
             _unitOfWork = unitOfWork;
         }
 
-		public async Task<IEnumerable<Guid>> GetEventParticipants(int id)
+		public async Task<IEnumerable<AppUser>> GetEventParticipants(int id)
 		{
             return await _unitOfWork.UserRepository.GetEventParticipants(id);
 		}
@@ -55,12 +52,15 @@ namespace Culture.Services.Services
         public async Task<IEnumerable<DateTime>> GetUserCalendarDays(Guid userId, string category, string query)
         {
             var userWithCalendar = await _unitOfWork.UserRepository.GetUserByIdWithCalendar(userId);
+            var userConfig = await this.GetUserConfiguration(userWithCalendar.Id);
 
-            if(category == null && query == null)
+
+            if (category == null && query == null)
             {
                 return userWithCalendar
                     .Calendar
                     .Events
+                    .Where(x => userConfig.CalendarPastEvents == false ? x.Event.TakesPlaceDate > DateTime.Now : true)
                     .Select(x => x.Event.TakesPlaceDate)
                     .ToList();
             }
@@ -94,8 +94,14 @@ namespace Culture.Services.Services
         public async Task<UserDetailsDto> GetUserDetailsByName(string name)
         {
             var user = await _unitOfWork.UserRepository.GetUserByName(name);
+            var userConfig = await this.GetUserConfiguration(user.Id);
 
-            return new UserDetailsDto(user);
+            var model = new UserDetailsDto(user)
+            {
+                UserConfiguration = new UserConfigurationDto(userConfig)
+            };
+
+            return model;
         }
 
         public async Task<string> UpdateUserData(string userId, UpdateUserViewModel userData, string avatarPath)
@@ -117,5 +123,22 @@ namespace Culture.Services.Services
            return _unitOfWork.Commit();
         }
 
+        public Task<UserConfiguration> GetUserConfiguration(Guid userId)
+        {
+            return _unitOfWork.UserRepository.GetUserConfiguration(userId);
+        }
+
+        public async Task<UserConfiguration> UpdateUserConfig(UpdateUserConfigViewModel userConfig, Guid userId)
+        {
+            var userConfiguration = await _unitOfWork.UserRepository.GetUserConfiguration(userId);
+
+            userConfiguration.LogOutAfter = userConfig.LogOutAfter;
+            userConfiguration.CommentsDisplayAmount = userConfig.CommentsDisplayAmount;
+            userConfiguration.EventsDisplayAmount = userConfig.EventsDisplayAmount;
+            userConfiguration.CalendarPastEvents = userConfig.CalendarPastEvents;
+            userConfiguration.SendEmailNotification = userConfig.SendEmailNotification;
+            userConfiguration.Anonymous = userConfig.Anonymous;
+            return userConfiguration;
+        }
     }
 }

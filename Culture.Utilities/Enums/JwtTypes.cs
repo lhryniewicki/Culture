@@ -3,6 +3,6 @@
     public enum JwtTypes
     {
         jti = 1,
-        role =2
+        Role =2
     }
 }

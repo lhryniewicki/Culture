@@ -10,7 +10,10 @@
     color: darkgreen;
 }
 
+.cogStyle {
+    color: dimgray;
+}
 li:hover {
     background-color: lightgrey;
-    cursor:pointer;
+    cursor: pointer;
 }

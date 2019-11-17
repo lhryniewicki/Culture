@@ -30,14 +30,17 @@ namespace Culture.DataAccess.Context
                 }
                 if(context.Users.Where(x => x.UserName == "admin").FirstOrDefault() == null)
                 {
+                  
                     var user = new AppUser()
                     {
                         Email = "Lukasz12380@gmail.com",
                         SecurityStamp = Guid.NewGuid().ToString(),
                         FirstName = "admin",
                         LastName = "admin",
-                        UserName = "admin"
+                        UserName = "admin",
+                      
                     };
+
 
                     await userManager.CreateAsync(user, "Kappa123$");
                     await userManager.AddToRoleAsync(user, "Admin");

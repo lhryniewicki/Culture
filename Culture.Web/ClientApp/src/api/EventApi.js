@@ -202,3 +202,22 @@ export const editEvent = (id,
         })
         .catch(e => console.log(e));
 }
+
+
+export const deleteEvent = (id) => {
+    let api = `${API_URL}/delete/${id}`;
+    let options = {
+        method: 'delete',
+        headers: {
+            'Authorization': `Bearer ${getToken()}`,
+            'content-type': 'application/json'
+        }
+
+    };
+    return fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Edycja wydarzenia się nie powiodła";
+        })
+        .catch(e => console.log(e));
+}

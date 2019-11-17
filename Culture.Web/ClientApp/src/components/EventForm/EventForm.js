@@ -3,6 +3,8 @@ import DayPickerInput from 'react-day-picker/DayPickerInput';
 import TimePicker from 'rc-time-picker';
 import EventPost from '../EventPost/EventPost';
 import { createEvent } from '../../api/EventApi';
+import { userIsAuthenticated } from '../../utils/JwtUtils';
+import { Redirect } from 'react-router';
 import 'react-day-picker/lib/style.css';
 import '../EventForm/EventForm.css'
 import 'rc-time-picker/assets/index.css';
@@ -38,13 +40,16 @@ class EventForm extends React.Component {
 
     }
     componentDidMount() {
-        this.refs.dayPicker.input.readOnly = true;
-        this.refs.dayPicker.input.setAttribute("class", "form-control");
-        this.refs.dayPicker.input.setAttribute("class", "form-control");
-        this.refs.dayPicker.input.style.backgroundColor = "white";
-        var timePicker = document.getElementsByClassName("rc-time-picker-input");
-        timePicker[0].readonly = true;
-        timePicker[0].setAttribute("class", "form-control");
+        if (userIsAuthenticated()) {
+
+            this.refs.dayPicker.input.readOnly = true;
+            this.refs.dayPicker.input.setAttribute("class", "form-control");
+            this.refs.dayPicker.input.setAttribute("class", "form-control");
+            this.refs.dayPicker.input.style.backgroundColor = "white";
+            var timePicker = document.getElementsByClassName("rc-time-picker-input");
+            timePicker[0].readonly = true;
+            timePicker[0].setAttribute("class", "form-control");
+        }
     }
 
      handleDayChange(day, modifiers, picker) {
@@ -126,179 +131,187 @@ class EventForm extends React.Component {
 
         return (
             <div className="container">
-                <form  onSubmit={this.submitForm}>
-                <div className="row">
-                    <div className="card my-4 col-md-3">
-                        <h5 className="card-header">Kategorie</h5>
-                        <div className="card-body">
+                {userIsAuthenticated()
+                    ?
+                    <div>
+
+                        <form onSubmit={this.submitForm}>
                             <div className="row">
-                                <div className="col-md-9">
-                                    <div className="custom-control custom-checkbox" onClick={this.onCheckBoxClick} >
-                                        <div className="form-check-inline"  >
-                                            <label htmlFor="check1">
-                                                    <input type="checkbox" name="eventCategory" className="form-check-input" id="check1" value="Nauka" />Nauka
+                                <div className="card my-4 col-md-3">
+                                    <h5 className="card-header">Kategorie</h5>
+                                    <div className="card-body">
+                                        <div className="row">
+                                            <div className="col-md-9">
+                                                <div className="custom-control custom-checkbox" onClick={this.onCheckBoxClick} >
+                                                    <div className="form-check-inline"  >
+                                                        <label htmlFor="check1">
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check1" value="Nauka" />Nauka
                                         </label>
-                                        </div>
-                                        <div className="form-check-inline">
-                                            <label htmlFor="check2">
-                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check2" value="Sport" />Sport
+                                                    </div>
+                                                    <div className="form-check-inline">
+                                                        <label htmlFor="check2">
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check2" value="Sport" />Sport
                                         </label>
-                                        </div>
-                                        <div className="form-check-inline">
-                                            <label htmlFor="check3">
-                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check3" value="Dom i Rodzina" />Dom i Rodzina
+                                                    </div>
+                                                    <div className="form-check-inline">
+                                                        <label htmlFor="check3">
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check3" value="Dom i Rodzina" />Dom i Rodzina
                                         </label>
-                                            </div>
-                                            <div className="form-check-inline"  >
-                                                <label htmlFor="check4">
-                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check4" value="Kultura i Sztuka" />Kultura i Sztuka
+                                                    </div>
+                                                    <div className="form-check-inline"  >
+                                                        <label htmlFor="check4">
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check4" value="Kultura i Sztuka" />Kultura i Sztuka
                                         </label>
-                                            </div>
-                                            <div className="form-check-inline">
-                                                <label htmlFor="check5">
-                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check5" value="Muzyka" />Muzyka
+                                                    </div>
+                                                    <div className="form-check-inline">
+                                                        <label htmlFor="check5">
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check5" value="Muzyka" />Muzyka
                                         </label>
-                                            </div>
-                                            <div className="form-check-inline">
-                                                <label htmlFor="check6">
-                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check6" value="Turystyka" />Turystyka
+                                                    </div>
+                                                    <div className="form-check-inline">
+                                                        <label htmlFor="check6">
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check6" value="Turystyka" />Turystyka
                                         </label>
-                                            </div>
-                                            <div className="form-check-inline">
-                                                <label htmlFor="check7">
-                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check7" value="Styl Życia" />Styl Życia
+                                                    </div>
+                                                    <div className="form-check-inline">
+                                                        <label htmlFor="check7">
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check7" value="Styl Życia" />Styl Życia
                                         </label>
-                                            </div>
-                                            <div className="form-check-inline">
-                                                <label htmlFor="check8">
-                                                    <input type="checkbox" name="eventCategory"  className="form-check-input" id="check8" value="Regionalia" />Regionalia
+                                                    </div>
+                                                    <div className="form-check-inline">
+                                                        <label htmlFor="check8">
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check8" value="Regionalia" />Regionalia
                                         </label>
+                                                    </div>
+
+                                                </div>
                                             </div>
 
+                                        </div>
                                     </div>
                                 </div>
+                                <div className="card my-4 mx-4 col-md-8"  >
+                                    <h5 className="card-header">Informacje o wydarzeniu</h5>
 
+                                    <div className="mt-4">
+                                        <input type="text"
+                                            name="eventName"
+                                            value={this.state.eventName}
+                                            onChange={this.handleInputChange}
+                                            className="form-control"
+                                            placeholder="Nazwa wydarzenia"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="mt-4">
+                                        <textarea type="text"
+                                            className="form-control showSpace"
+                                            name="eventDescription"
+                                            style={{ whiteSpace: "pre-Wrap" }}
+                                            value={this.state.eventDescription}
+                                            onChange={this.handleInputChange}
+                                            placeholder="Opis wydarzenia"
+                                            required
+                                            rows="6"
+                                        />
+                                    </div>
+                                    <div className="row mx-1 my-4 " >
+                                        <DayPickerInput
+                                            className="col-md-4 "
+                                            ref="dayPicker"
+                                            onDayChange={this.handleDayChange}
+                                            placeholder="Kliknij aby wybrać date"
+                                            dayPickerProps={{
+                                                months: MONTHS,
+                                                weekdaysLong: WEEKDAYS_LONG,
+                                                weekdaysShort: WEEKDAYS_SHORT,
+                                                showOutsideDays: true,
+                                                fromMonth: new Date(),
+                                                disabledDays: [{
+                                                    before: new Date()
+                                                }
+                                                ],
+                                                locale: "pl",
+                                                firstDayOfWeek: 1
+
+                                            }}
+                                        />
+                                        <div className="col-md-4 my-4 my-md-0">
+                                            <TimePicker
+                                                onChange={this.handleTimeChange}
+                                                placeholder="Wybierz godzinę"
+                                                showSecond={false}
+                                                minuteStep={5}
+                                            />
+
+                                        </div>
+                                        <div className="col-md-4">
+                                            <input style={{ display: "none" }}
+                                                type="file"
+                                                onChange={this.handleFilePick}
+                                                ref={fileInput => this.fileInput = fileInput}
+                                            />
+                                            <input
+
+                                                type="button"
+                                                onClick={() => this.fileInput.click()}
+                                                onChange={() => this.fileInput.click()}
+                                                className="form-control "
+                                                value={this.state.file.name}
+
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="row ">
+                                        <div className=" col-md-5 mb-4">
+                                            <input type="text"
+                                                name="eventCity"
+                                                value={this.state.eventCity}
+                                                onChange={this.handleInputChange}
+                                                className="form-control" placeholder="Miasto"
+                                                required />
+                                        </div>
+                                        <div className="col-md-4 mb-4">
+                                            <input type="text"
+                                                name="eventStreet"
+                                                value={this.state.eventStreet}
+                                                onChange={this.handleInputChange}
+                                                className="form-control" placeholder="Ulica numer/lokal"
+                                                required />
+                                        </div>
+                                        <div className=" col-md-3 mb-4">
+                                            <input type="number"
+                                                name="eventPrice"
+                                                value={this.state.eventPrice}
+                                                onChange={this.handleInputChange}
+                                                className="form-control"
+                                                placeholder="Cena biletu"
+                                                required />
+                                        </div>
+                                    </div>
+                                    <div className="row mb-4">
+                                        <div className="col-md-12 text-center">
+                                            <button type="button"
+                                                onClick={() => { this.setState({ showPreview: !this.state.showPreview }); }}
+                                                className="btn btn-success mr-1">Podgląd</button>
+                                            <button className="btn btn-primary">Wyślij</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                        </form>
+                        <div className="col-md-8 offset-md-2">
+                            {this.state.showPreview
+                                ?
+                                this.previewForm()
+                                :
+                                null
+                            }
                         </div>
                     </div>
-                    <div className="card my-4 mx-4 col-md-8"  >
-                        <h5 className="card-header">Informacje o wydarzeniu</h5>
-                        
-                            <div className="mt-4">
-                                <input type="text"
-                                    name="eventName"
-                                    value={this.state.eventName}
-                                    onChange={this.handleInputChange}
-                                    className="form-control"
-                                    placeholder="Nazwa wydarzenia"
-                                    required
-                                />
-                            </div>
-                            <div className="mt-4">
-                                <textarea type="text"
-                                    className="form-control showSpace"
-                                    name="eventDescription"
-                                    style={{ whiteSpace:"pre-Wrap"}}
-                                    value={this.state.eventDescription}
-                                    onChange={this.handleInputChange}
-                                    placeholder="Opis wydarzenia"
-                                    required
-                                    rows="6"
-                                />
-                            </div>
-                            <div className="row mx-1 my-4 " >
-                            <DayPickerInput
-                                className="col-md-4 "
-                                ref="dayPicker"
-                                onDayChange={this.handleDayChange}
-                                placeholder="Kliknij aby wybrać date"
-                                dayPickerProps={{
-                                months: MONTHS,
-                                weekdaysLong: WEEKDAYS_LONG ,
-                                weekdaysShort: WEEKDAYS_SHORT, 
-                                    showOutsideDays: true,
-                                    fromMonth: new Date(),
-                                disabledDays: [{
-                                     before: new Date()
-                                    }
-                                    ],
-                                locale:"pl",
-                                firstDayOfWeek: 1
-                         
-                                    }}
-                                />
-                                <div className="col-md-4 my-4 my-md-0">
-                                        <TimePicker
-                                            onChange={this.handleTimeChange}
-                                            placeholder="Wybierz godzinę"
-                                            showSecond={false}
-                                            minuteStep={5}
-                                        />
-                                   
-                                </div>
-                                <div className="col-md-4">
-                                    <input style={{ display: "none" }}
-                                        type="file"
-                                        onChange={this.handleFilePick}
-                                        ref={fileInput => this.fileInput = fileInput}
-                                    />
-                                    <input
-
-                                        type="button"
-                                        onClick={() => this.fileInput.click()}
-                                        onChange={() => this.fileInput.click()}
-                                        className="form-control "
-                                        value={this.state.file.name}
-
-                                   />
-                                </div>
-                            </div>
-                            <div className="row "> 
-                                <div className=" col-md-5 mb-4">
-                                    <input type="text"
-                                        name="eventCity"
-                                        value={this.state.eventCity}
-                                        onChange={this.handleInputChange}
-                                        className="form-control" placeholder="Miasto"
-                                        required />
-                                </div>
-                                <div className="col-md-4 mb-4">
-                                    <input type="text"
-                                        name="eventStreet"
-                                        value={this.state.eventStreet}
-                                        onChange={this.handleInputChange}
-                                        className="form-control" placeholder="Ulica numer/lokal"
-                                        required />
-                                </div>
-                                <div className=" col-md-3 mb-4">
-                                    <input type="number"
-                                        name="eventPrice"
-                                        value={this.state.eventPrice}
-                                        onChange={this.handleInputChange}
-                                        className="form-control"
-                                        placeholder="Cena biletu"
-                                        required />
-                                </div>
-                            </div>
-                            <div className="row mb-4">
-                                <div className="col-md-12 text-center">
-                                    <button type="button"
-                                        onClick={() => { this.setState({ showPreview: !this.state.showPreview }); }}
-                                        className="btn btn-success mr-1">Podgląd</button>
-                                    <button  className="btn btn-primary">Wyślij</button>
-                                </div>
-                            </div>
-                    </div>
-                    </div>
-                </form>
-                <div className="col-md-8 offset-md-2">
-                    {this.state.showPreview
-                        ?
-                        this.previewForm()
-                        :
-                        null
-                    }
-                </div>
+                    :
+               <Redirect to={`/konto/login`} />
+                        }
             </div>
 
         );

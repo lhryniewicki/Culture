@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import '../EventPost/EventPost.css';
 import CommReactionBar from '../CommReactionBar/CommReactionBar';
+import { isAdmin } from '../../utils/JwtUtils';
 
 class EventPost extends React.Component {
     constructor(props) {
@@ -12,22 +13,46 @@ class EventPost extends React.Component {
             id: this.props.id,
             urlSlug: this.props.urlSlug
         };
+
     }
+
+    changeFile = () => {
+        const file = this.props.picture;
+        const reader = new FileReader();
+        const url = reader.readAsDataURL(file);
+
+        reader.onloadend = function (e) {
+            this.setState({
+                source: [reader.result]
+            })
+        }.bind(this);
+
+    }
+   
+
     componentDidMount() {
         if (this.props.isPreview) {
+            
             this.props.picture.name === 'Wybierz plik' ? this.setState({ source: "https://via.placeholder.com/750x300" })
-                : this.setState({ source: this.props.picture });
+                : this.changeFile()
         }
         else {
+            
             this.setState({ source: this.props.picture });
         }
         
     }
 
-    componentDidUpdate() {
-        if (this.state.source !== this.props.picture)
-            this.setState({ source: this.props.picture });
+    componentDidUpdate(prevProps,prevState) {
+        console.log(prevState);
+        console.log(this.state.source)
+        if (this.state.source !== 'https://via.placeholder.com/750x300' && prevState.source !== this.state.source) {
+            this.setState({ source: this.state.source });
+
+            }
+            
     }
+
 
     render() {
         return (
@@ -45,7 +70,14 @@ class EventPost extends React.Component {
                         :
                         <span className="btn btn-primary">Szczegóły... &rarr;</span>
                     }
-              
+                    {
+                        isAdmin() ?
+                            <div className="float-right">
+                                <i className="fas fa-trash-alt fa-lg" onClick={this.props.isPreview === false ? (e) => this.props.deleteEvent(e, this.state.id) : null} />
+                            </div>
+                            :
+                            null
+                    }
                 </div>
                 <CommReactionBar
                     avatarPath={this.props.avatarPath}

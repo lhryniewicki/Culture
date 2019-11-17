@@ -33,7 +33,8 @@ export const getMoreComments = (eventId, page) => {
     let options = {
         method: 'get',
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
         }
     }
     return fetch(api, options)

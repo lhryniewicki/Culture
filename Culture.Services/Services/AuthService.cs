@@ -1,4 +1,5 @@
-﻿using Culture.Contracts.Exceptions;
+﻿using Culture.Contracts;
+using Culture.Contracts.Exceptions;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
 using Culture.Models;
@@ -19,16 +20,19 @@ namespace Culture.Services.Services
 		private readonly SignInManager<AppUser> _signInManager;
 		private readonly UserManager<AppUser> _userManager;
 		private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
-		public AuthService(
+        public AuthService(
 			SignInManager<AppUser> signInManager,
 			UserManager<AppUser> userManager,
-			IConfiguration configuration)
+			IConfiguration configuration,
+            IUnitOfWork unitOfWork)
 		{
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_configuration = configuration;
-		}
+            _unitOfWork = unitOfWork;
+        }
 
 		public async Task<string> Login(LoginViewModel loginViewModel)
 		{
@@ -151,6 +155,9 @@ namespace Culture.Services.Services
 
 		private async Task<string> GetToken(AppUser user)
 		{
+            var config = await _unitOfWork.UserRepository.GetUserConfiguration(user.Id);
+            var expirationTime = config?.LogOutAfter ?? 5;
+
             var userRoles = await _userManager.GetRolesAsync(user);
             var claims = new[]
             {
@@ -167,7 +174,7 @@ namespace Culture.Services.Services
 				signingCredentials: signingCredentials,
 				claims: claims,
 				notBefore: utcNow,
-				expires: utcNow.AddSeconds(_configuration.GetValue<int>("Values:TokenLifetime"))
+				expires: utcNow.AddSeconds(expirationTime*60)
 			);
 
 			return new JwtSecurityTokenHandler().WriteToken(jst);

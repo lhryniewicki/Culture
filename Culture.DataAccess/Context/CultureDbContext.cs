@@ -18,10 +18,11 @@ namespace Culture.DataAccess.Context
 		public DbSet<Notification> Notifications { get; set; }
 		public DbSet<UserInEvent> UsersInEvent { get; set; }
 		public DbSet<EventInCalendar> EventsInCalendar { get; set; }
+        public DbSet<UserConfiguration> UserConfigurations { get; set; }
 
 
 
-		public CultureDbContext(DbContextOptions options) : base(options)
+        public CultureDbContext(DbContextOptions options) : base(options)
 		{
 		}
 
@@ -33,15 +34,29 @@ namespace Culture.DataAccess.Context
 			ConfigureUserNotification(builder);
 			ConfigureUserInEvent(builder);
 			ConfigureEventReaction(builder);
+            ConfigureUserConfig(builder);
 
 
-			base.OnModelCreating(builder);
+            base.OnModelCreating(builder);
 
 		}
+
+        private void ConfigureUserConfig(ModelBuilder builder)
+        {
+            var configBuilder = builder.Entity<UserConfiguration>();
+
+            configBuilder.HasKey(x => x.UserId);
+        }
 
 		private void ConfigureAppUser(ModelBuilder builder)
 		{
 			var userBuilder = builder.Entity<AppUser>();
+
+            userBuilder
+                .HasOne(x => x.UserConfiguration)
+                .WithOne(x => x.User)
+                .HasForeignKey<UserConfiguration>(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 			userBuilder
 				.HasOne(x => x.Calendar)
@@ -85,6 +100,12 @@ namespace Culture.DataAccess.Context
 		private void ConfigureEvent(ModelBuilder builder)
 		{
 			var eventBuilder = builder.Entity<Event>();
+
+            eventBuilder
+                .HasMany(x => x.EventsInCalendar)
+                .WithOne(x => x.Event)
+                .HasForeignKey(x => x.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 			eventBuilder
 				.HasMany(x => x.Comments)

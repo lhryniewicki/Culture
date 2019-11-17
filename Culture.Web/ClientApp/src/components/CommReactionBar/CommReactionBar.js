@@ -23,7 +23,7 @@ class CommReactionBar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            commentContent: '',
+            comment: '',
             showReactionModal: false,
             showComments: false,
             commentsPage: 1,
@@ -82,6 +82,7 @@ class CommReactionBar extends React.Component {
     }
 
     handleInputChange(e) {
+        
         this.setState({ [e.target.name]: e.target.value });
     }
     closeModal() {
@@ -102,7 +103,6 @@ class CommReactionBar extends React.Component {
 
         if (result === undefined) return false;
         if (name === this.state.currentReaction) {
-            console.log("null");
 
             this.setState({
                 currentReaction: null,
@@ -225,13 +225,13 @@ class CommReactionBar extends React.Component {
         e.preventDefault();
 
         if (this.props.isPreview === true) return false;
-
-        const newComment = await sendComment(this.props.id, this.state.commentContent, this.state.image);
+        console.log(this.state.co)
+        const newComment = await sendComment(this.props.id, this.state.content, this.state.image);
         this.setState(prevState => ({
             showComments: true,
             imageClicked: false,
             image: null,
-            commentContent: '',
+            content: '',
             commentsCount: this.state.commentsCount + 1,
             comments: [newComment, ...prevState.comments]
         }));
@@ -306,7 +306,8 @@ class CommReactionBar extends React.Component {
                     :
                     null
                 }
-                {userIsAuthenticated() ?
+                 {
+                  userIsAuthenticated() ?
                     <div>
                         <div className="card-footer text-muted ">
                             <form onSubmit={this.handleCommentSubmit}>
@@ -318,9 +319,9 @@ class CommReactionBar extends React.Component {
                                         height="50px"
                                         className="avatarPreview"
                                     />
-                                    <textarea className="form-control  commentBox"
-                                        placeholder="Wpisz komentarz..."
-                                        onChange={(e) => this.handleCommentChange(e, this)}
+                                        <input className="form-control  commentBox"
+                                            placeholder="Wpisz komentarz..."
+                                            onChange={(e) => this.handleCommentChange(e, this)}
                                         type="text"
                                         value={this.state.content}
                                         name="content"
@@ -335,8 +336,8 @@ class CommReactionBar extends React.Component {
                                         onChange={this.handleFilePick}
                                         ref={fileInput => this.fileInput = fileInput}
                                     />
-                                    <i className="far fa-images icon"
-                                        onClick={() => this.fileInput.click()}
+                                        <i className="far fa-images icon"
+                                            onClick={this.props.isPreview ? null : () => this.fileInput.click()}
                                     />
                                 </div>
                             </form>

@@ -83,7 +83,7 @@ namespace Culture.Web.Controllers
         }
 
         [Authorize]
-        [HttpPost("user")]
+        [HttpPut("user")]
         public async Task<IActionResult> UpdateUserData([FromForm] UpdateUserViewModel userData)
         {
             var userId = User.GetClaim(JwtTypes.jti);
@@ -93,6 +93,21 @@ namespace Culture.Web.Controllers
             var oldAvatarPath = await _userService.UpdateUserData(userId, userData, avatarPath);
 
             if (oldAvatarPath != avatarPath && avatarPath != null) _fileService.RemoveImage(oldAvatarPath);
+
+            await _userService.Commit();
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPut("user/config")]
+        public async Task<IActionResult> UpdateUserConfig([FromBody] UpdateUserConfigViewModel userConfig)
+        {
+            var userId = User.GetClaim(JwtTypes.jti);
+
+            var updated = await _userService.UpdateUserConfig(userConfig, Guid.Parse(userId));
+
+            if (updated == null) return Unauthorized();
 
             await _userService.Commit();
 

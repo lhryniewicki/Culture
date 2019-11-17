@@ -1,11 +1,12 @@
 ﻿import React from 'react';
-import { getUserData, updateUserData } from '../../api/AccountApi';
+import { getUserData, updateUserData, updateUserConfig } from '../../api/AccountApi';
 import { Redirect } from 'react-router-dom';
 import Shortcuts from '../Shortcuts/Shortcuts';
 import '../Shortcuts/Shortcuts.css';
 import '../MyAccountView/MyAccountView.css';
 import { getUserId } from '../../utils/JwtUtils';
 import  defaultImage from '../../assets/default_avatar.jpg';
+import UserConfiguration from '../UserConfiguration/UserConfiguration';
 
 
 class MyAccountView extends React.Component {
@@ -23,24 +24,41 @@ class MyAccountView extends React.Component {
             redirect: false,
             file: {
                 name: "Zmiana zdjęcia"
-            }
+            },
+            commentsAmount: null,
+            eventsAmount: null,
+            anonymous: null,
+            calendar: null,
+            emailNotification: null,
+            logOutMinutes: null,
+            done:false
         };
 
     }
 
     async componentDidMount() {
         const result = await getUserData(this.props.match.params.userId);
-        this.setState({
+        console.log(result)
+       await  this.setState({
             userName: result.userName,
-            firstName: result.firstName,
-            lastName: result.lastName,
-            email: result.email,
+           firstName: result.userConfiguration.anonymous === false || result.ownerId === getUserId() ? result.firstName : null,
+           lastName: result.userConfiguration.anonymous === false || result.ownerId === getUserId() ?  result.lastName : null,
+           email: result.userConfiguration.anonymous === false || result.ownerId === getUserId() ?  result.email: null,
             ownerId: result.ownerId,
-            avatarPath: result.avatarPath
-        });
-        console.log(getUserId());
-        console.log(result.ownerId);
+            avatarPath: result.avatarPath,
+           commentsAmount: result.ownerId === getUserId() ? result.userConfiguration.commentsDisplayAmount : null,
+           eventsAmount: result.ownerId === getUserId() ? result.userConfiguration.eventsDisplayAmount: null,
+           anonymous: result.userConfiguration.anonymous,
+           calendar: result.ownerId === getUserId() ? result.userConfiguration.calendarPastEvents : null,
+           emailNotification: result.ownerId === getUserId() ? result.userConfiguration.sendEmailNotification : null,
+           logOutMinutes: result.ownerId === getUserId() ? result.userConfiguration.logOutAfter : null
+       });
+        this.setState({ done: true });
 
+        if (this.props.location.settings === true) {
+            this.scrollToBottom();
+
+        }
     }
 
     handleSumbit = async (e) => {
@@ -75,92 +93,139 @@ class MyAccountView extends React.Component {
     }
 
     handleClick = (e) => {
-        this.setState({
-            redirect: true,
-            redirectTarget: e.target.getAttribute('name')
-        });
+        console.log(e.target.getAttribute('name'))
+        if (e.target.getAttribute('name') === "wydarzenia/nowe") {
+            this.setState({
+                redirect: true,
+                redirectTarget: `wydarzenia/nowe`
+            });
+        }
+        else if (e.target.getAttribute('name') === "ustawienia") {
+            this.setState({
+                redirect: true,
+                redirectTarget: `/konto/${getUserId()}`
+            });
+        }
+        else {
+
+            this.setState({
+                redirect: true,
+                redirectTarget: `/konto/${e.target.getAttribute('name')}`
+            });
+
+        }
+    }
+
+    scrollToBottom = () => {
+        this.messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
 
     redirect = () => {
-        return <Redirect to={`/konto/${this.state.redirectTarget}`} />;
+        return <Redirect to={{ pathname: `${this.state.redirectTarget}`, settings: this.state.settings }} />;
     }
 
     render() {
         const divName = this.state.ownerId === getUserId() ? "col-md-offset-3 col-md-4" : "col-md-offset-4 col-md-4"; 
         return (
             <div className="container-fluid">
-                {this.state.redirect === true ? this.redirect() : null}
-                <div className="row">
-                    <div className={divName}>
-                        <img className="img-fluid pull-left mt-4 myAvatar" width="550" height="500" src={this.state.avatarPath !== null ? this.state.avatarPath : defaultImage} />
-                        {this.state.ownerId === getUserId() ?
-                            <div className="col-md-10">
-                                <input style={{ display: "none" }}
-                                    type="file"
-                                    onChange={this.handleFilePick}
-                                    ref={fileInput => this.fileInput = fileInput}
-                                />
-                                <input
+                {this.state.done ? 
+                    <div>
+                        {this.state.redirect === true ? this.redirect() : null}
+                        <div className="row">
+                            <div className={divName}>
+                                <img className="img-fluid pull-left mt-4 myAvatar" width="550" height="500" src={this.state.avatarPath !== null ? this.state.avatarPath : defaultImage} />
+                                {this.state.ownerId === getUserId() ?
+                                    <div className="col-md-10">
+                                        <input style={{ display: "none" }}
+                                            type="file"
+                                            onChange={this.handleFilePick}
+                                            ref={fileInput => this.fileInput = fileInput}
+                                        />
+                                        <input
 
-                                    type="button"
-                                    onClick={() => this.fileInput.click()}
-                                    onChange={() => this.fileInput.click()}
-                                    className="form-control btn btn-warning mt-3"
-                                    value={this.state.file.name}
+                                            type="button"
+                                            onClick={() => this.fileInput.click()}
+                                            onChange={() => this.fileInput.click()}
+                                            className="form-control btn btn-warning mt-3"
+                                            value={this.state.file.name}
 
-                                />
+                                        />
+                                    </div>
+                                    : null}
+
                             </div>
-                            : null}
-
-                    </div>
-                    {this.state.ownerId === getUserId() ?
-                        <div className="col-md-1 mt-5" >
-                            <div className="card shortcuts ">
-                                <div className="card-header">
-                                    <Shortcuts handleClick={this.handleClick} />
+                            {this.state.ownerId === getUserId() ?
+                                <div className="col-md-1 mt-5" >
+                                    <div className="card shortcuts ">
+                                        <div className="card-header">
+                                            <Shortcuts handleClick={this.handleClick} />
+                                        </div>
+                                    </div>
                                 </div>
+                                : null}
+
+                        </div>
+                        <div className="row mt-5 dataInfo">
+                            <div className="col-md-offset-3 " >
+
+                                <form className="form-inline" onSubmit={this.handleSumbit}>
+
+                                    <div className="col-md-12 mb-4">
+                                        <label htmlFor="userName">Nazwa użytkownika: </label>
+                                        <div className="form-group  ">
+                                            <input type="text" id="userName" value={this.state.userName} readOnly className="form-control" />
+                                        </div>
+                                    </div>
+
+                                    {!this.state.anonymous || this.state.ownerId === getUserId() ?
+                                        <div>
+                                            <div className="col-md-12 mb-4">
+                                                <label htmlFor="firstName">Imię: </label>
+                                                <input type="text" id="firstName" name="firstName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.firstName} className="form-control" />
+                                            </div>
+
+
+                                            <div className="col-md-12 mb-4">
+                                                <label htmlFor="lastName">Nazwisko: </label>
+                                                <input type="text" id="lastName" name="lastName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.lastName} className="form-control" />
+                                            </div>
+
+
+                                            <div className="col-md-12 mb-4">
+                                                <label htmlFor="email">Email: </label>
+                                                <input type="text" id="email" name="userName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.email} className="form-control" />
+                                            </div>
+                                        </div>
+                                        :
+                                        null
+                                    }
+                                    {this.state.ownerId === getUserId() ?
+                                        <button className="btn btn-primary col-md-offset-3">Zapisz</button>
+                                        : null}
+                                </form>
                             </div>
                         </div>
-                        : null}
-                   
-                </div>
-                <div className="row mt-5 dataInfo">
-                    <div className="col-md-offset-3 " >
+                        {this.state.ownerId === getUserId() ?
+                            <div className="col-md-offset-2 mt-5">
 
-                        <form className="form-inline" onSubmit={this.handleSumbit}>
+                                <UserConfiguration
+                                    commentsAmount={this.state.commentsAmount}
+                                    eventsAmount={this.state.eventsAmount}
+                                    anonymous={this.state.anonymous}
+                                    calendar={this.state.calendar}
+                                    emailNotification={this.state.emailNotification}
+                                    logOutMinutes={this.state.logOutMinutes}
+                                />
 
-                            <div className="col-md-12 mb-4">
-                                <label  htmlFor="userName">Nazwa użytkownika: </label>
-                                <div className="form-group  ">
-                                    <input type="text" id="userName" value={this.state.userName} readOnly className="form-control" />
-                                </div>
                             </div>
-                           
-                            <div className="col-md-12 mb-4">
-                                <label  htmlFor="firstName">Imię: </label>
-                                <input type="text" id="firstName" name="firstName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.firstName} className="form-control" />
-                                    </div>
-                           
 
-                            <div className="col-md-12 mb-4">
-                                <label  htmlFor="lastName">Nazwisko: </label>
-                                <input type="text" id="lastName" name="lastName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.lastName} className="form-control" />
-                            </div>
-                            
-
-                            <div className="col-md-12 mb-4">
-                                <label  htmlFor="email">Email: </label>
-                                <input type="text" id="email" name="userName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.email} className="form-control" />
-                            </div>
-                           
-
-                            {this.state.ownerId === getUserId() ?
-                                    <button className="btn btn-primary col-md-offset-1">Zapisz</button>
-                                    : null}
-                        </form>
+                            : null}
                     </div>
+                    :null
+                    }
+                <div style={{ float: "left", clear: "both" }}
+                    ref={(el) => { this.messagesEnd = el; }}>
                 </div>
-              
             </div>
 
         );

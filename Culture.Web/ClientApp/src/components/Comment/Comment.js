@@ -3,7 +3,7 @@ import '../CommReactionBar/CommReactionBar.css';
 import { Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import defaultImage from '../../assets/default_avatar.jpg';
-import { getUserId } from '../../utils/JwtUtils';
+import { getUserId, isAdmin } from '../../utils/JwtUtils';
 import '../Comment/Comment.css';
 import { editComment } from '../../api/CommentApi';
 
@@ -85,7 +85,7 @@ class Comment extends React.Component {
                                         placeholder="Wpisz komentarz..."
                                         onChange={this.handleInputChange}
                                         type="text"
-                                        value={this.state.handleInputChange}
+                                        value={this.state.content}
                                         name="content"
                                         autoComplete="off"
                                         height="70px"
@@ -95,7 +95,7 @@ class Comment extends React.Component {
                         }
                    
 
-                    {getUserId() === this.props.authorId ?
+                    {getUserId() === this.props.authorId || isAdmin()  ?
                         <div className="pull-right">
                         <i className="fas fa-pencil-alt fa-lg mr-2" onClick={this.editCommentFlag}/>
                         <i className="fas fa-trash-alt fa-lg" onClick={(e) => this.props.deleteComment(e,this.props.commentId)}/>

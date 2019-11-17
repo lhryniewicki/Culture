@@ -59,6 +59,7 @@ namespace Culture.Web
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEventReactionService, EventReactionService>();
             services.AddScoped<IGeolocationService, GeolocationService>();
+            services.AddScoped<IEmailService, EmailService>();
 
 
 
@@ -136,8 +137,9 @@ namespace Culture.Web
 						ValidateLifetime = true,
 						ValidateAudience = false,
 						ValidateIssuer = false,
-						ValidateIssuerSigningKey = true
-					};
+						ValidateIssuerSigningKey = true,
+                        RoleClaimType = "Role",
+                    };
 
                     config.Events = new JwtBearerEvents
                     {

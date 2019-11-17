@@ -13,6 +13,7 @@ namespace Culture.Contracts.DTOs
         public string Email { get; set; }
         public Guid OwnerId { get; set; }
         public string AvatarPath { get; set; }
+        public UserConfigurationDto UserConfiguration { get; set; }
         public UserDetailsDto(AppUser user)
         {
             AvatarPath = user.AvatarPath;

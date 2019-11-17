@@ -159,7 +159,7 @@ class CalendarView extends React.Component {
                             format='MM/dd/yyyy'
                             locale="pl"
                             firstDayOfWeek={1}
-                            className="col-md-7 mx-5"
+                            className="col-md-7 mx-5 mb-5"
                             selectedDays={this.state.selectedDays}
                             />
                     <div className="col-md-4" >

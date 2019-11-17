@@ -1,13 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 
 namespace Culture.Models
 {
-	public class AppUser:IdentityUser<Guid>
+    public class AppUser:IdentityUser<Guid>
 	{
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
@@ -20,7 +17,10 @@ namespace Culture.Models
 		public ICollection<Notification> Notifications { get; set; }
 		public ICollection<Comment> Comments { get; set; }
 
-		public int CalendarId { get; set; }
+        public Guid UserConfigurationId { get; set; }
+        public UserConfiguration UserConfiguration { get; set; }
+
+        public int CalendarId { get; set; }
 		public Calendar Calendar { get; set; }
 
 		public AppUser()
@@ -31,6 +31,7 @@ namespace Culture.Models
 			Notifications = new List<Notification>();
             Comments = new List<Comment>();
             Calendar = new Calendar();
+            UserConfiguration = new UserConfiguration();
 		}
 	}
 }

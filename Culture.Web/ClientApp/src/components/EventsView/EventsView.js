@@ -4,8 +4,8 @@ import SearchWidget from '../Widgets/SearchWidget';
 import CategoriesWidget from '../Widgets/CategoriesWidget';
 import Shortcuts from '../Shortcuts/Shortcuts';
 import { Redirect } from 'react-router';
-import { getPreviewEventList } from '../../api/EventApi';
-import { userIsAuthenticated } from '../../utils/JwtUtils';
+import { getPreviewEventList, deleteEvent } from '../../api/EventApi';
+import { userIsAuthenticated, getUserId } from '../../utils/JwtUtils';
 import '../EventsView/EventsView.css';
 
 class EventsView extends React.Component {
@@ -22,7 +22,8 @@ class EventsView extends React.Component {
             redirect: false,
             category: "Wszystkie",
             pageNumber: 0,
-            avatarPath : null
+            avatarPath: null,
+            settings:false
         };
 
         this.displayEvents = this.displayEvents.bind(this);
@@ -52,10 +53,11 @@ class EventsView extends React.Component {
         const eventList = await getPreviewEventList(0, null, this.state.query);
         this.setState({ visibleQuery: this.state.query });
 
-        if (eventList !== undefined && eventList.events.length > 0)
+        if (eventList !== undefined)
             this.setState({
-                events: eventList.events,
-                category: "Wszystkie"
+                events: eventList.events.length > 0 ? eventList.events : [],
+                category: "Wszystkie",
+                canLoadMore: eventList.canLoadMore
             });
         else {
             this.setState({
@@ -65,24 +67,52 @@ class EventsView extends React.Component {
         }
     }
     handleClick = (e) => {
-        this.setState({
-            redirect: true,
-            redirectTarget: e.target.getAttribute('name')
-        });
+        console.log(e.target.getAttribute('name'))
+        if (e.target.getAttribute('name') === "wydarzenia/nowe") {
+            this.setState({
+                redirect: true,
+                redirectTarget: `wydarzenia/nowe`
+            });
+        }
+        else if (e.target.getAttribute('name') === "ustawienia") {
+            this.setState({
+                redirect: true,
+                redirectTarget: `/konto/${getUserId()}`
+            });
+        }
+        else {
+
+            this.setState({
+                redirect: true,
+                redirectTarget: `/konto/${e.target.getAttribute('name')}`
+            });
+
+        }
     }
     redirect = () => {
-        return <Redirect to={`/konto/${this.state.redirectTarget}`} />;
+        return <Redirect  to={{ pathname: `${this.state.redirectTarget}`, settings: this.state.settings }} />;
     }
+
+    deleteEvent = (e, eventId) => {
+        e.preventDefault();
+
+        deleteEvent(eventId);
+
+        this.setState({
+            events: this.state.events.filter(x => { return x.id !== eventId })
+        });
+    }
+
     handleSearchCategory = async (e) => {
         e.preventDefault();
         const name = typeof e.target.name === "undefined" ? e.target.getAttribute("name") : e.target.name;
-        console.log(e.target.name)
-        console.log(name);
-        const eventList = await getPreviewEventList(0, e.target.name==="Wszystkie"?null:name , "");
 
-        if (eventList !== undefined && eventList.events.length > 0)
+        const eventList = await getPreviewEventList(0, e.target.name==="Wszystkie"?null:name , "");
+        console.log(eventList)
+        if (eventList !== undefined  )
             this.setState({
-                events: eventList.events,
+                events: eventList.events.length > 0 ? eventList.events: [],
+                canLoadMore: eventList.canLoadMore,
                 category: name,
                 visibleQuery: "",
                 query:""
@@ -138,6 +168,7 @@ class EventsView extends React.Component {
                             picture={element.image}
                             createdById={element.createdById}
                             avatarPath={this.state.avatarPath}
+                            deleteEvent={this.deleteEvent}
                         />
                     </div>
                 </div>
@@ -175,7 +206,8 @@ class EventsView extends React.Component {
                                 <li className="page-item">
                                     {this.state.canLoadMore === true
                                         ?
-                                        <button className="page-link " onClick={this.moreEvents} href="#">&darr; Więcej</button>
+                                        <button className="btn btn-primary "
+                                            onClick={this.moreEvents} href="#">&darr; Więcej</button>
                                         :
                                         null}
                                 </li>

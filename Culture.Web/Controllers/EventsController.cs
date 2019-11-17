@@ -8,6 +8,8 @@ using Culture.Contracts.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Culture.Utilities.ExtensionMethods;
 using Culture.Utilities.Enums;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace Culture.Web.Controllers
 {
@@ -23,6 +25,8 @@ namespace Culture.Web.Controllers
         private readonly IFileService _fileService;
         private readonly IEventReactionService _eventReactionService;
         private readonly IGeolocationService _geolocationService;
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
         public EventsController(
 			IEventService eventService,
@@ -32,7 +36,9 @@ namespace Culture.Web.Controllers
 			IReactionService reactionService,
             IFileService fileService,
             IEventReactionService eventReactionService,
-            IGeolocationService geolocationService)
+            IGeolocationService geolocationService,
+            IEmailService emailService,
+            IConfiguration configuration)
         {
 			_eventService = eventService;
 			_userService = userService;
@@ -42,6 +48,8 @@ namespace Culture.Web.Controllers
             _fileService = fileService;
             _eventReactionService = eventReactionService;
             _geolocationService = geolocationService;
+            _emailService = emailService;
+            _configuration = configuration;
         }
 
         [Authorize]
@@ -82,7 +90,10 @@ namespace Culture.Web.Controllers
                 var eventDto = await _eventService.GetEventDetailsBySlugAsync(slug, userId);
                 var recommendedEvents = await _eventService.GetRecommendedEvents(eventDto.Id);
 
-                var commentsDto = await  _commentService.GetEventCommentsAsync(eventDto.Id, 0, 5);
+                var userConfig = await _userService.GetUserConfiguration(userId);
+                var take = userConfig?.EventsDisplayAmount ?? 5;
+
+                var commentsDto = await  _commentService.GetEventCommentsAsync(eventDto.Id, 0, take);
                 var reactions = await _eventReactionService.GetReactions(eventDto.Id, userId);
 
                 var isUserAttending = await _userService.IsUserSigned(userId, eventDto.Id);
@@ -110,7 +121,11 @@ namespace Culture.Web.Controllers
                 var res = Guid.TryParse(User.GetClaim(JwtTypes.jti),out userId);
                 userId = res == false ? Guid.Empty : userId;
 
-                var eventList = await _eventService.GetEventPreviewList(userId,page, size,category,query);
+                var userConfig = await _userService.GetUserConfiguration(userId);
+                var sizeEvents = userConfig?.EventsDisplayAmount ?? 5;
+                var sizeComments = userConfig?.CommentsDisplayAmount ?? 5;
+
+                var eventList = await _eventService.GetEventPreviewList(userId,page, sizeEvents, sizeComments, category,query);
 
                 var eventViewModel = new EventPreviewListViewModel(eventList);
 
@@ -132,7 +147,11 @@ namespace Culture.Web.Controllers
             {
                 var userId = User.GetClaim(JwtTypes.jti);
 
-                var eventEdit = await _eventService.EditEvent(eventViewModel, Guid.Parse(userId));
+                var userRole = User.GetClaim(JwtTypes.Role);
+
+                var eventEdit = await _eventService.EditEvent(eventViewModel, Guid.Parse(userId),userRole);
+
+                if (eventEdit == null) return Unauthorized();
 
 				var eventParticipants = await _userService.GetEventParticipants(eventViewModel.Id);
 
@@ -144,7 +163,10 @@ namespace Culture.Web.Controllers
                 }
 
                 await _notificationService.CreateNotificationsAsync(
-					$"Wydarzenie zostało zmienione: {eventEdit?.EditedEvent.Name}! Sprawdz jego szczegóły",eventParticipants, eventViewModel.Id, eventEdit.EditedEvent.UrlSlug);
+					$"Wydarzenie zostało zmienione: {eventEdit?.EditedEvent.Name}! Sprawdz jego szczegóły",eventParticipants.Select(x=>x.Id), eventViewModel.Id, eventEdit.EditedEvent.UrlSlug);
+
+                var emailContent = $"Wydarzenie zostało zmienione: <a href='{_configuration["Values:MessageDomain"]}/wydarzenie/szczegoly/{eventEdit?.EditedEvent.UrlSlug}'> Sprawdz jego szczegóły </a>";
+                await _emailService.SendEmail(emailContent, eventParticipants);
 
                 await _eventService.Commit();
 
@@ -158,24 +180,28 @@ namespace Culture.Web.Controllers
             }
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteEvent(int eventId)
+        [HttpDelete("delete/{eventId}")]
+        public async Task<IActionResult> DeleteEvent([FromRoute]int eventId)
         {
             try
             {
                 var userId = User.GetClaim(JwtTypes.jti);
+                var userRole = User.GetClaim(JwtTypes.Role);
 
-                var user = await _userService.GetUserById(userId); var userRoles = await _userService.GetUserRoles(user);
+                var user = await _userService.GetUserById(userId);
 
 				var eventParticipants = await _userService.GetEventParticipants(eventId);
 
 				var _event = await _eventService.GetEventAsync(eventId);
-                await _eventService.DeleteEvent(eventId, user.Id, userRoles);
+                await _eventService.DeleteEvent(eventId, user.Id, userRole);
 
 				await _notificationService.CreateNotificationsAsync(
-					$"Wydarzenie zostało usunięte: {_event.Name}!", eventParticipants, _event.Id,_event.UrlSlug);
+					$"Wydarzenie zostało usunięte: {_event.Name}!", eventParticipants.Select(x=>x.Id), _event.Id,_event.UrlSlug);
 
-				await _eventService.Commit();
+                var emailContent = $"Wydarzenie zostało usunięte: {_event.Name}' ";
+                await _emailService.SendEmail(emailContent, eventParticipants);
+				
+                await _eventService.Commit();
 
                 return Ok();
 
@@ -204,10 +230,11 @@ namespace Culture.Web.Controllers
 				var targetList = new List<Guid>() { _newEventReactions.Id};
 
                 if(!hasPreviouslyReacted)
-				await _notificationService.CreateNotificationsAsync($"{user.UserName} zareagował na twoje wydarzenie! {_newEventReactions.EventName}" +
-					$"{reactionViewModel.ReactionType}", targetList, reactionViewModel.EventId, _newEventReactions.EventSlug);
-
-				await _reactionService.Commit();
+                {
+                    await _notificationService.CreateNotificationsAsync($"{user.UserName} zareagował na twoje wydarzenie! {_newEventReactions.EventName}" +
+                        $"{reactionViewModel.ReactionType}", targetList, reactionViewModel.EventId, _newEventReactions.EventSlug);
+                }
+                await _reactionService.Commit();
 
                 return Json(new SortedReactionsViewModel(_newEventReactions.Reactions));
 			}

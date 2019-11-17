@@ -50,13 +50,13 @@ namespace Culture.Services.Services
             return eventt;
         }
 
-        public async Task<EditEventDto> EditEvent(EventViewModel eventViewModel, Guid id)
+        public async Task<EditEventDto> EditEvent(EventViewModel eventViewModel, Guid id, string userRole)
         {
             var _event = await GetEventAsync(eventViewModel.Id);
 
             var eventDate = convertDate(eventViewModel.EventDate, eventViewModel.EventTime);
 
-            if (_event.CreatedById != id) return null;
+            if (_event.CreatedById != id && userRole != "Admin") return null;
 
             var needsGeolocation = !(_event.StreetName == eventViewModel.StreetName && _event.CityName == eventViewModel.CityName);
 
@@ -82,10 +82,10 @@ namespace Culture.Services.Services
             return _unitOfWork.EventRepository.GetEventAsync(id);
         }
 
-        public async Task DeleteEvent(int id, Guid userId, IList<string> userRoles)
+        public async Task DeleteEvent(int id, Guid userId, string userRole)
         {
             var _event = await _unitOfWork.EventRepository.GetEventAsync(id);
-            if (_event.CreatedById == userId || userRoles.Contains("Admin"))
+            if (_event.CreatedById == userId || userRole == "Admin")
             {
                 _unitOfWork.EventRepository.DeleteEvent(_event);
             }
@@ -128,13 +128,13 @@ namespace Culture.Services.Services
             return _unitOfWork.Commit();
         }
 
-        public async Task<EventsPreviewWithLoadDto> GetEventPreviewList(Guid userId, int page = 0, int size = 5, string category = null, string query = null)
+        public async Task<EventsPreviewWithLoadDto> GetEventPreviewList(Guid userId, int page = 0, int sizeEvents = 5, int sizeComments=5, string category = null, string query = null)
         {
-            var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page, size, category, query);
+            var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page, sizeEvents, category, query);
             var userAvatarPath = await _unitOfWork.UserRepository.GetUserById(userId.ToString()).ContinueWith(x => x.Result?.AvatarPath);
 
-            var canLoadMore = eventList.Count() > 5 ? true : false;
-            eventList = canLoadMore == true ? eventList.Take(size) : eventList;
+            var canLoadMore = eventList.Count() > sizeEvents ? true : false;
+            eventList = canLoadMore == true ? eventList.Take(sizeEvents) : eventList;
 
             var EventsPreviewDtoList = new EventsPreviewWithLoadDto()
             {
@@ -157,10 +157,10 @@ namespace Culture.Services.Services
                     .OrderByDescending(y => y.Count);
 
                 var commentsCount = await _unitOfWork.CommentRepository.GetCommentCountAsync(eventEntity.Id);
-                var comments = await _unitOfWork.CommentRepository.GetEventCommentsAsync(eventEntity.Id, 0, 5);
+                var comments = await _unitOfWork.CommentRepository.GetEventCommentsAsync(eventEntity.Id, 0, sizeComments);
                 var commentsDto = comments.Select(x => new CommentDto(x));
 
-                var moreCommentsDto = new MoreCommentsDto(commentsDto)
+                var moreCommentsDto = new MoreCommentsDto(commentsDto, sizeComments)
                 {
                     TotalCount = commentsCount
                 };
