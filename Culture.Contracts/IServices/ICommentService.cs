@@ -15,6 +15,6 @@ namespace Culture.Contracts.IServices
         Task<MoreCommentsDto> GetEventCommentsAsync(int id, int skip, int take);
         Task<Comment> DeleteComment(int commentId,Guid userId, string userRoles);
         Task Commit();
-
+        int GetCommentId(CommentDto commentDto);
     }
 }

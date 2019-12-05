@@ -1,4 +1,4 @@
-﻿import { getToken } from '../utils/JwtUtils';
+﻿import { getToken, getEventToken } from '../utils/JwtUtils';
 
 const API_URL = 'http://localhost:50882/api/events';
 
@@ -28,10 +28,10 @@ export const createEvent = async (data) => {
     return await fetch(api, options)
         .then(resp => {
             if (resp.status !== 200)
-                throw "Stworzenie wydarzenia się nie powiodło";
-            return resp.json();
-        })
-        .catch(e => console.log(e));
+                throw resp;
+
+            return "success";
+        });
 }
 
 
@@ -47,7 +47,7 @@ export const getPreviewEventList = async (page, category, query) => {
         method: 'get',
         headers: {
             'content-type': 'application/json',
-            'Authorization': `Bearer ${getToken()}`
+            'Authorization': `Bearer ${getEventToken()}`
         }
     };
 
@@ -103,6 +103,7 @@ export const getEventDetails = async (eventId) => {
         })
         .catch(e => console.log(e));
 };
+
 
 
 export const getMap = async () => {
@@ -166,6 +167,54 @@ export const getEventMap = async (eventId) => {
         .catch(e => console.log(e));
 };
 
+export const getAllMap = async (query,dates,category) => {
+    console.log("hehehehehehe");
+    let api = `${API_URL}/get/allMap`;
+    const options = {
+        method: 'post',
+        body: JSON.stringify({
+            query: query,
+            dates:  dates  ,
+            category: category
+        }),
+        headers: {
+            'content-type': 'application/json'
+        }
+    };
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Pobranie mapy się nie powiodło";
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+};
+
+export const getAllCalendar = async (query, dates, category) => {
+    let api = `${API_URL}/get/allCalendar`;
+    const options = {
+        method: 'post',
+        body: JSON.stringify({
+            query: query,
+            dates: dates,
+            category: category
+        }),
+        headers: {
+            'content-type': 'application/json'
+        }
+    };
+
+    return await fetch(api, options)
+        .then(resp => {
+            if (resp.status !== 200)
+                throw "Pobranie kalendarza się nie powiodło";
+            return resp.json();
+        })
+        .catch(e => console.log(e));
+};
+
+
 export const editEvent = (id,
    name,
     category,
@@ -221,3 +270,4 @@ export const deleteEvent = (id) => {
         })
         .catch(e => console.log(e));
 }
+

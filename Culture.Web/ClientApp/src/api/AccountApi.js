@@ -16,16 +16,42 @@ export const signIn = async (userName, password) => {
     };
     return await fetch(api, options)
         .then(resp => {
-            if (resp.status !== 200)
-                throw "Logowanie się nie powiodło";
+            console.log(resp.status)
+            if (resp.status !== 200) {
+                throw resp;
+            }
+
             return resp.json();
         })
         .then(token => {
 
             return token;
         })
-        .catch(e => console.log(e));
 };
+
+export const getEventTokenApi = async () => {
+    const api = `${API_URL}/unlogged`;
+    const options = {
+        method: 'post',
+        headers: {
+            'content-type': 'application/json'
+        }
+    };
+    return await fetch(api, options)
+        .then(resp => {
+            console.log(resp.status)
+            if (resp.status !== 200) {
+                throw resp;
+            }
+
+            return resp.json();
+        })
+        .then(token => {
+
+            return token;
+        })
+};
+
 
 export const register = async (data) => {
     const api = `${API_URL}/register`;
@@ -45,12 +71,19 @@ export const register = async (data) => {
         })
     };
 
-    await fetch(api, options)
-        .then(resp => resp.json())
+    await fetch(api, options)   
         .then(resp => {
-            localStorage.setItem('token', resp);
+            if (resp.status !== 200) {
+                        throw resp;
+                    }
+            return resp.json()
+        })  
+        .then(resp => {
+            console.log("login")
+            localStorage.setItem('token', resp);      
+            localStorage.setItem('eventToken', resp);                
+
         })
-        .catch(e => console.log(e));
 };
 
 export const getUserData = async (userId) => {
@@ -76,6 +109,7 @@ export const updateUserData = async (data) => {
 
     const formData = new FormData();
 
+    formData.append('username', data.username);
     formData.append('firstName', data.firstName);
     formData.append('lastName', data.lastName);
     formData.append('email', data.email);
@@ -91,11 +125,11 @@ export const updateUserData = async (data) => {
 
     return await fetch(api, options)
         .then(resp => {
-            if (resp.status !== 200)
-                throw "Pobranie danych uzytkownika się nie powiodło";
-            return resp.json();
-        })
-        .catch(e => console.log(e));
+            console.log(resp)
+            if (resp.status !== 200) {
+                throw resp;
+            }
+        });
 }
 
 export const updateUserConfig = async (data) => {
@@ -140,11 +174,13 @@ export const getSecretQuestion = async (userName) => {
 
     return await fetch(api, options)
         .then(resp => {
-            if (resp.status !== 200)
-                throw "Pobranie pytania użytkownika się nie powiodło";
-            return resp.json();
+            if (resp.status !== 200) {
+                throw resp;
+            }
+            else {
+                return resp.json();
+            }
         })
-        .catch(e => console.log(e));
 }
 
 export const checkAnswer = async (answer, userName) => {
@@ -178,9 +214,8 @@ export const sendPassword = async (password, userName) => {
 
     return await fetch(api, options)
         .then(resp => {
+            console.log(resp)
             if (resp.status !== 200)
-                throw "Sprawdzenie pytania użytkownika się nie powiodło";
-            return resp.json();
+                throw "Zmiana hasła użytkownika się nie powiodła";
         })
-        .catch(e => console.log(e));
-}
+            }

@@ -46,7 +46,7 @@ class UserConfiguration extends React.Component {
 
     render() {
         return (
-            <form className="form-inline" onSubmit={this.handleConfigSubmit}>
+            <form className="form-inline col-md-12 col-offset-md-1" onSubmit={this.handleConfigSubmit} style={{ backgroundColor: "#efffed" }}>
             <table className="table ">
                 <thead>
                     <tr className="tableHeader">
@@ -105,6 +105,7 @@ class UserConfiguration extends React.Component {
                             <th scope="row">Wyloguj po</th>
                             <td>
                                 <input type="number"
+                                    min="1"
                                     name="logOutMinutes"
                                     value={this.state.logOutMinutes}
                                     onChange={this.handleInputChange}
@@ -116,7 +117,8 @@ class UserConfiguration extends React.Component {
                     <tr>
                         <th scope="row">Ilość komentarzy</th>
                         <td>
-                            <input type="number"
+                                <input type="number"
+                                    min="1"
                                 name="commentsAmount"
                                 value={this.state.commentsAmount}
                                 onChange={this.handleInputChange}
@@ -129,7 +131,8 @@ class UserConfiguration extends React.Component {
                     <tr>
                         <th scope="row">Ilość wydarzeń</th>
                         <td>
-                            <input type="number"
+                                <input type="number"
+                                    min="1"
                                 name="eventsAmount"
                                 value={this.state.eventsAmount}
                                 onChange={this.handleInputChange}

@@ -1,5 +1,12 @@
-﻿using Culture.Contracts.Facades;
+﻿using Culture.Contracts.DTOs;
+using Culture.Contracts.Exceptions;
+using Culture.Contracts.Facades;
+using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
+using Culture.Models;
+using Culture.Utilities.Enums;
+using Culture.Utilities.ExtensionMethods;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -10,44 +17,102 @@ namespace Culture.Implementation.Facades
 {
     public class AccountFacade : IAccountFacade
     {
+        private readonly IAuthService _authService;
+        private readonly IUserService _userService;
+        private readonly IFileService _fileService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public AccountFacade(
+            IAuthService authService,
+            IUserService userService,
+            IFileService fileService,
+            IHttpContextAccessor httpContextAccessor)
+        {
+            _authService = authService;
+            _userService = userService;
+            _fileService = fileService;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+
         public async Task<bool> CheckAnswer(string username, string answer)
         {
-            throw new NotImplementedException();
+            var isAnswerCorrect = await _authService.CheckAnswer(username,answer);
+
+            return isAnswerCorrect;
         }
 
-        public Task<JsonResult> GetUserData(string userId)
+        public async Task<UserDetailsDto> GetUserData(string userId)
         {
-            throw new NotImplementedException();
+            var user = await _userService.GetUserById(userId);
+
+            var userData = await _userService.GetUserDetailsByName(user.UserName);
+
+            return userData;
         }
 
-        public Task<JsonResult> GetUserSecretQuestion(string username)
+        public async Task<string> GetUserSecretQuestion(string username)
         {
-            throw new NotImplementedException();
+            var question = await _authService.GetUserQuestion(username);
+
+            return question;
         }
 
-        public Task<JsonResult> Login(LoginViewModel loginViewModel)
+        public async Task<string> Login(LoginViewModel loginViewModel)
         {
-            throw new NotImplementedException();
+                var token = await _authService.Login(loginViewModel);
+
+                return token;
+        }
+        public async Task<string> UnloggedUser()
+        {
+            var token = await _authService.UnloggedUser();
+
+            return token;
         }
 
-        public Task<JsonResult> Register(RegisterViewModel registerViewModel)
+
+        public async Task<string> Register(RegisterViewModel registerViewModel)
         {
-            throw new NotImplementedException();
+            var token = await _authService.Register(registerViewModel);
+
+            return token;
         }
 
-        public Task<IActionResult> SendPassword(string username, string password)
+        public async Task SendPassword(string username, string password)
         {
-            throw new NotImplementedException();
+            await _authService.UpdatePassword(username, password);
+
+            await _userService.Commit();
         }
 
-        public Task<IActionResult> UpdateUserConfig(UpdateUserConfigViewModel userConfig)
+        public async Task UpdateUserConfig(UpdateUserConfigViewModel userConfig)
         {
-            throw new NotImplementedException();
+            var userId = _httpContextAccessor.HttpContext.User.GetClaim(JwtTypes.jti);
+
+            var updated = await _userService.UpdateUserConfig(userConfig, Guid.Parse(userId));
+
+            await _userService.Commit();
         }
 
-        public Task<IActionResult> UpdateUserData(UpdateUserViewModel userData)
+        public async Task UpdateUserData(UpdateUserViewModel userData)
         {
-            throw new NotImplementedException();
+            var emailUnique = await _userService.GetUserByEmail(userData.Email);
+            if (emailUnique != null && userData.Username != emailUnique.UserName)
+            {
+                throw new RegistrationErrorException("Email jest w użyciu.");
+
+            }
+
+            var userId = _httpContextAccessor.HttpContext.User.GetClaim(JwtTypes.jti);
+
+            var avatarPath = await _fileService.UploadImage(userData.Image);
+
+            var oldAvatarPath = await _userService.UpdateUserData(userId, userData, avatarPath);
+
+            if (oldAvatarPath != avatarPath && avatarPath != null) _fileService.RemoveImage(oldAvatarPath);
+
+            await _userService.Commit();
         }
     }
 }

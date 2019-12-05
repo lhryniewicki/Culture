@@ -150,5 +150,25 @@ namespace Culture.Services.Services
                 }
             };
         }
+
+        public async Task<IEnumerable<MapGeometryDto>> GetAllMap(string query = null, IEnumerable<string[]> dates = null, string category = null)
+        {
+            var events = await _unitOfWork.EventRepository.GetAllEvents(query, dates, category);
+
+            var geometryList = new List<MapGeometryDto>();
+
+            foreach (var calendarEvent in events)
+            {
+                geometryList.Add(new MapGeometryDto
+                {
+                    Name = calendarEvent.Name,
+                    Latitude = calendarEvent.Latitude,
+                    Longitude = calendarEvent.Longitude,
+                    Address = calendarEvent.CityName + ", " + calendarEvent.StreetName,
+                    UrlSlug = calendarEvent.UrlSlug
+                });
+            }
+            return geometryList;
+        }
     }
 }

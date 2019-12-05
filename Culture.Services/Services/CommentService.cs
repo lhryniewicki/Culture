@@ -8,15 +8,22 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Culture.Implementation.SignalR;
 
 namespace Culture.Services.Services
 {
 	public class CommentService:ICommentService
 	{
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHubContext<EventHub> _hubContext;
 
-        public CommentService(IUnitOfWork unitOfWork)
+        public CommentService(
+            IUnitOfWork unitOfWork,
+            IHubContext<EventHub> hubContext
+            )
 		{
+            _hubContext = hubContext;
            _unitOfWork = unitOfWork;
         }
 		public async Task<CommentDto> CreateCommentAsync(string content, int eventId, Guid userId,string username,string imagePath)
@@ -34,16 +41,26 @@ namespace Culture.Services.Services
                 ImagePath = imagePath
 			};
             
+
+
 			await _unitOfWork.CommentRepository.AddCommentAsync(comment);
 
-            return new CommentDto()
+            var commentDto = new CommentDto()
             {
+                Id=comment.Id,
+                AuthorId=comment.AuthorId.ToString(),
                 CreationDate = comment.CreationDate,
                 Content = comment.Content,
                 AuthorName = username,
                 ImagePath = imagePath,
                 AvatarPath = user.AvatarPath
             };
+
+            var connectionId = EventHub.userIdConnectionId.GetValueOrDefault(userId.ToString());
+
+            await _hubContext.Clients.Group($"event-{eventId}").SendAsync("UpdateComments",eventId,commentDto);
+
+            return commentDto;
 		}
 
         public async Task<Comment> DeleteComment(int commentId, Guid userId, string userRole)
@@ -87,6 +104,10 @@ namespace Culture.Services.Services
         {
             return _unitOfWork.Commit();
         }
- 
+
+        public int GetCommentId(CommentDto commentDto)
+        {
+            return _unitOfWork.CommentRepository.GetCommentId(commentDto);
+        }
     }
 }

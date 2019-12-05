@@ -4,8 +4,10 @@ import DayPicker from 'react-day-picker/DayPicker';
 import CategoriesWidget from '../Widgets/CategoriesWidget';
 import SearchWidget from '../Widgets/SearchWidget';
 import { Modal } from 'react-bootstrap';
+import { userIsAuthenticated } from '../../utils/JwtUtils';
 import { getUserCalendarDays, getEventsInDays } from '../../api/AttendanceApi';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router';
 import 'react-day-picker/lib/style.css';
 
 
@@ -25,15 +27,16 @@ class CalendarView extends React.Component {
         this.closeModal = this.closeModal.bind(this);
     }
 
-   async componentDidMount() {
-
-       const days = await getUserCalendarDays(null,""   );
-       const JsDays = days.map((item, key) => {
-           return new Date(Date.parse(item));
-       })
-        this.setState({
-            selectedDays: JsDays
-        });
+    async componentDidMount() {
+        if (userIsAuthenticated()) {
+            const days = await getUserCalendarDays(null, "");
+            const JsDays = days.map((item, key) => {
+                return new Date(Date.parse(item));
+            })
+            this.setState({
+                selectedDays: JsDays
+            });
+        }
     }
     closeModal() {
         this.setState({ showModal: false });
@@ -124,34 +127,36 @@ class CalendarView extends React.Component {
         const WEEKDAYS_SHORT = ['Ndz', 'Pon', 'Wt', 'Sr', 'Czw', 'Pt', 'Sb'];
         
         return (
-            <div className="container " style={{ backgroundColor:"white" }}>
-                <h1 className="text-center">Kalendarz</h1>
-                <hr/>
-                <Modal   show={this.state.showModal} onHide={this.closeModal}>
-                    <Modal.Header >
-                        <Modal.Title >Wydarzenia dnia: {this.state.modalDate}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        {this.state.modalEvents.map((element, index) => (
-                            <div className=" my-4" key={index}>
-                                <Link className="btn btn-sm btn-info mx-2" to={`/wydarzenie/szczegoly/${element.eventUrl}`}>Przejdź</Link>
-                                <b>{element.eventName}</b>
-                              
-                                <br/>
-                            </div>
-                           
-                        ))}
+            <div className="container " style={{ backgroundColor: "white" }}>
+                {userIsAuthenticated() ?
+                    <React.Fragment>
+                    <h1 className="text-center">Kalendarz</h1>
+                    <hr />
+                    <Modal show={this.state.showModal} onHide={this.closeModal}>
+                        <Modal.Header >
+                            <Modal.Title >Wydarzenia dnia: {this.state.modalDate}</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            {this.state.modalEvents.map((element, index) => (
+                                <div className=" my-4" key={index}>
+                                    <Link className="btn btn-sm btn-info mx-2" to={`/wydarzenie/szczegoly/${element.eventUrl}`}>Przejdź</Link>
+                                    <b>{element.eventName}</b>
+
+                                    <br />
+                                </div>
+
+                            ))}
                         </Modal.Body>
                         <Modal.Footer>
-                        <button className="btn btn-secondary" onClick={this.closeModal}>
-                            Zamknij
+                            <button className="btn btn-secondary" onClick={this.closeModal}>
+                                Zamknij
                              </button>
                         </Modal.Footer>
 
-                </Modal>
-                <div className="row">
+                    </Modal>
+                    <div className="row">
                         <DayPicker
-                            containerProps={{ style: { fontSize: "34px", backgroundColor: "#feffe4", borderRadius:"30px" } }}
+                                containerProps={{ style: { fontSize: "34px", backgroundColor: "#efffed", borderRadius: "30px" } }}
                             months={MONTHS}
                             weekdaysLong={WEEKDAYS_LONG}
                             weekdaysShort={WEEKDAYS_SHORT}
@@ -161,22 +166,27 @@ class CalendarView extends React.Component {
                             firstDayOfWeek={1}
                             className="col-md-7 mx-5 mb-5"
                             selectedDays={this.state.selectedDays}
-                            />
-                    <div className="col-md-4" >
-                        <div className="affix">
-                            <SearchWidget
-                                query={this.state.query}
-                                handleSearch={this.handleSearchBar}
-                                handleOnChange={this.handleOnChange} />
-                            <CategoriesWidget
-                                category={this.state.category}
-                                handleOnChange={this.handleOnChange}
-                                handleSearch={this.handleSearchCategory} />
-                        </div>
+                        />
+                        <div className="col-md-4" >
+                            <div className="affix">
+                                <SearchWidget
+                                    query={this.state.query}
+                                    handleSearch={this.handleSearchBar}
+                                    handleOnChange={this.handleOnChange} />
+                                <CategoriesWidget
+                                    category={this.state.category}
+                                    handleOnChange={this.handleOnChange}
+                                    handleSearch={this.handleSearchCategory} />
+                            </div>
 
-                    </div>
-                </div>
+                        </div>
+                        </div>
+                        </React.Fragment>
+                    :
+                    <Redirect to={`/konto/login`} />
+                    }
             </div>
+
             )
     }
 }

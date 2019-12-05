@@ -1,4 +1,5 @@
-﻿using Culture.Contracts.IRepositories;
+﻿using Culture.Contracts.DTOs;
+using Culture.Contracts.IRepositories;
 using Culture.DataAccess.Context;
 using Culture.Models;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +53,16 @@ namespace Culture.DataAccess.Repositories
                            .Include(x => x.Author)
                            .Where(x => x.EventId == eventId)
                            .CountAsync();
+        }
+
+        public int GetCommentId(CommentDto commentDto)
+        {
+            var comment =   _dbContext.Comments
+                .FirstOrDefault(x => x.Content == commentDto.Content &&
+                 x.CreationDate == commentDto.CreationDate &&
+                 x.AuthorId.ToString() == commentDto.AuthorId);
+
+            return comment.Id;
         }
     }
 }

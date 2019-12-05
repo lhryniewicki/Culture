@@ -2,7 +2,9 @@
 using Culture.Contracts.DTOs;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
+using Culture.Implementation.SignalR;
 using Culture.Models;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +16,15 @@ namespace Culture.Services.Services
     public class EventService : IEventService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHubContext<EventHub> _hubContext;
 
         public EventService(
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            IHubContext<EventHub> hubContext
             )
         {
             _unitOfWork = unitOfWork;
+            _hubContext = hubContext;
         }
 
         public async Task<Event> CreateEventAsync(EventViewModel eventViewModel, string imagePath, Guid userId, GeometryDto geometryDto)
@@ -131,6 +136,16 @@ namespace Culture.Services.Services
         public async Task<EventsPreviewWithLoadDto> GetEventPreviewList(Guid userId, int page = 0, int sizeEvents = 5, int sizeComments=5, string category = null, string query = null)
         {
             var eventList = await _unitOfWork.EventRepository.GetEventPreviewList(page, sizeEvents, category, query);
+
+            string connectionId = null;
+
+            var found = EventHub.userIdConnectionId.TryGetValue(userId.ToString(), out connectionId);
+
+            foreach (var e in eventList)
+            {
+                await _hubContext.Groups.AddToGroupAsync(connectionId, $"event-{e.Id}");
+            }
+
             var userAvatarPath = await _unitOfWork.UserRepository.GetUserById(userId.ToString()).ContinueWith(x => x.Result?.AvatarPath);
 
             var canLoadMore = eventList.Count() > sizeEvents ? true : false;
@@ -202,6 +217,11 @@ namespace Culture.Services.Services
                 UserId = x.Id,
                 Username = x.UserName
             }).ToList();
+        }
+
+        public Task<IEnumerable<DateTime>> GetAllCalendar(string query = null, IEnumerable<string[]> dates = null, string category = null)
+        {
+            return _unitOfWork.EventRepository.GetAllCalendar(query,dates,category);
         }
     }
 }

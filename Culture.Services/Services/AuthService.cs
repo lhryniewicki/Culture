@@ -42,14 +42,18 @@ namespace Culture.Services.Services
 
 			if (!result.Succeeded)
 			{
-				throw new LoginErrorException($"Error while logging");
+				throw new LoginErrorException($"Nazwa użytkownika albo hasło są nieprawidłowe.");
 			}
 
 			var user = await _userManager.FindByNameAsync(loginViewModel.UserName);
 			return await GetToken(user);
 		}
+        public async Task<string> UnloggedUser()
+        {
+            return await GetUnloggedToken();
+        }
 
-		public async Task<string> Register(RegisterViewModel registerViewModel)
+        public async Task<string> Register(RegisterViewModel registerViewModel)
 		{
 			await ValidateRegisterViewModel(registerViewModel);
 
@@ -66,13 +70,13 @@ namespace Culture.Services.Services
 
 			var result = await _userManager.CreateAsync(appUser, registerViewModel.Password);
 
-			if (!result.Succeeded) throw new RegistrationErrorException("Error creating account!");
+			if (!result.Succeeded) throw new RegistrationErrorException("Bład podczas rejestracji. Skontaktuj się z administratorem systemu.");
 
 			var loginResult = await _signInManager.PasswordSignInAsync(registerViewModel.UserName, registerViewModel.Password, false, false);
 
 			if (!loginResult.Succeeded)
 			{
-				throw new RegistrationErrorException($"Error while logging");
+				throw new RegistrationErrorException($"Błąd podczas logowania po rejestracji. Skontaktuj się z administratorem systemu.");
 			}
 
 			return await GetToken(appUser);
@@ -124,16 +128,24 @@ namespace Culture.Services.Services
 			}
 			catch
 			{
-				throw new RegistrationErrorException("Email address is invalid!");
+				throw new RegistrationErrorException("Błędny adres Email.");
 			}
 
-			var emailUnique = await _userManager.FindByEmailAsync(registerViewModel.Email);
+            var userNameUnique = await _userManager.FindByNameAsync(registerViewModel.UserName);
 
-			if (emailUnique != null)
-			{
-				throw new RegistrationErrorException("Email is not unique!");
+            var emailUnique = await _userManager.FindByEmailAsync(registerViewModel.Email);
+            if (emailUnique != null)
+            {
+                throw new RegistrationErrorException("Email jest w użyciu.");
 
-			}
+            }
+
+            if (userNameUnique != null)
+            {
+                throw new RegistrationErrorException("Nazwa użytkownika nie jest unikatowa");
+
+            }
+           
 			if (string.IsNullOrEmpty(registerViewModel.Password))
 			{
 				throw new RegistrationErrorException("Password cannot be null or empty!");
@@ -179,5 +191,27 @@ namespace Culture.Services.Services
 
 			return new JwtSecurityTokenHandler().WriteToken(jst);
 		}
-	}
+
+        private async Task<string> GetUnloggedToken()
+        {
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            };
+
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Values:IssuerToken")));
+            var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+            var utcNow = DateTime.UtcNow;
+
+            var jst = new JwtSecurityToken(
+                signingCredentials: signingCredentials,
+                claims: claims,
+                notBefore: utcNow,
+                expires: utcNow.AddSeconds(6000)
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(jst);
+        }
+    }
 }

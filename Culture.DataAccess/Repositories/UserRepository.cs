@@ -76,5 +76,15 @@ namespace Culture.DataAccess.Repositories
                 .UserConfigurations
                 .FirstOrDefaultAsync(x => x.UserId == userId);
         }
+
+        public Task<AppUser> GetUserByEmail(string email)
+        {
+            return _userManager.FindByEmailAsync(email);
+        }
+        public Task<IdentityResult> SetEmail(AppUser user,string email)
+        {
+            return _userManager.SetEmailAsync(user, email);
+        }
+
     }
 }

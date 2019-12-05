@@ -40,14 +40,30 @@ namespace Culture.Services.Services
 
             foreach (var user in appUsers)
             {
-                mailMessage.To.Add(user.Email);
-                mailMessage.Body = 
-                    $"Użytkowniku, {user.UserName} !"+ "<br/> Otrzymałeś nowe powiadomienie! <br/>"
-                    + content
-                    + " <br/> Jeżeli nie chcesz już dostawać notyfikacji, skonfiguruj odpowiednio konto w ustawieniach. <br/>" +
-                    " Pozdrawiamy administracja MyCulture";
 
-                await client.SendMailAsync(mailMessage);
+                if (isValidEmail(user.Email))
+                {
+                    mailMessage.To.Add(user.Email);
+                    mailMessage.Body =
+                        $"Użytkowniku, {user.UserName} !" + "<br/> Otrzymałeś nowe powiadomienie! <br/>"
+                        + content
+                        + " <br/> Jeżeli nie chcesz już dostawać notyfikacji, skonfiguruj odpowiednio konto w ustawieniach. <br/>" +
+                        " Pozdrawiamy administracja MyCulture";
+
+                    await client.SendMailAsync(mailMessage);
+                }
+            }
+        }
+        private bool isValidEmail(string email)
+        {
+            try
+            {
+                var validEmail = new MailAddress(email);
+                return true;
+            }
+            catch(Exception e)
+            {
+                return false;
             }
         }
     }

@@ -28,7 +28,9 @@ class EventForm extends React.Component {
             eventCategory: "",
             showPreview: false,
             time:"",
-            date: []
+            date: [],
+            errors: [],
+            positiveMessage:""
         };
         this.onCheckBoxClick = this.onCheckBoxClick.bind(this);
         this.handleDayChange = this.handleDayChange.bind(this);
@@ -52,14 +54,17 @@ class EventForm extends React.Component {
         }
     }
 
-     handleDayChange(day, modifiers, picker) {
+    handleDayChange(day, modifiers, picker) {
+
         var dateArray= picker.getInput().value.split('-');
          this.setState({
              date: dateArray
         });
     }
     handleTimeChange(newTime) {
-        this.setState({ time: newTime.format('HH:mm') });
+        if (newTime !== null && typeof newTime !== "undefined") {
+            this.setState({ time: newTime.format('HH:mm') });
+        }
     }
     handleInputChange(evt) {
         this.setState({ [evt.target.name]: evt.target.value });
@@ -85,7 +90,36 @@ class EventForm extends React.Component {
     }
     async submitForm(e) {
         e.preventDefault();
-      await  createEvent(this.state);
+        await this.setState({ errors: [] });
+        if (this.state.time === "") {
+            await this.setState({ errors: ["Wybierz czas wydarzenia"].concat(this.state.errors) })
+            console.log(this.state.date )
+        }
+        if (this.state.date.length === 0) {
+           
+            await this.setState({ errors: ["Wybierz date wydarzenia"].concat(this.state.errors) })
+
+        }
+        if (this.state.eventCategory === "") {
+            await this.setState({ errors: ["Wybierz kategorie wydarzenia"].concat(this.state.errors) })
+
+        }
+        if (this.state.errors.length ===0){
+            await createEvent(this.state)
+                .catch(e => { return e})
+                .then(e => {
+                    e !== "success" ?
+                        this.setState({ errors: [e].concat(this.state.errors) })
+                        :
+                        this.setState({
+                            positiveMessage: "Pomyślnie stworzono wydarzenie",
+                            eventCategory:""
+                        });
+                }
+
+                );
+        }
+      
     }
     previewForm() {
         return <EventPost
@@ -131,6 +165,24 @@ class EventForm extends React.Component {
 
         return (
             <div className="container">
+                {this.state.positiveMessage !== "" ?
+                <div className="alert alert-success" >
+                    {this.state.positiveMessage}
+                </div>
+
+                :
+                null
+            }
+                {this.state.errors.length > 0 ? this.state.errors.map((item) => (
+                    <div className="row">
+                        <div className="alert alert-danger col-md-offset-3 col-md-8" role="alert">
+                            {item}
+                        </div>
+                    </div>
+                )
+                ) :
+                    null
+                }
                 {userIsAuthenticated()
                     ?
                     <div>
@@ -138,29 +190,29 @@ class EventForm extends React.Component {
                         <form onSubmit={this.submitForm}>
                             <div className="row">
                                 <div className="card my-4 col-md-3">
-                                    <h5 className="card-header">Kategorie</h5>
+                                    <h5 className="card-header" style={{ backgroundColor: "#efffed" }}>Kategorie</h5>
                                     <div className="card-body">
                                         <div className="row">
                                             <div className="col-md-9">
                                                 <div className="custom-control custom-checkbox" onClick={this.onCheckBoxClick} >
                                                     <div className="form-check-inline"  >
                                                         <label htmlFor="check1">
-                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check1" value="Nauka" />Nauka
+                                                            <input type="checkbox"  name="eventCategory" className="form-check-input" id="check1" value="Nauka" />Nauka
                                         </label>
                                                     </div>
-                                                    <div className="form-check-inline">
+                                                    <div className="form-check-inline col">
                                                         <label htmlFor="check2">
                                                             <input type="checkbox" name="eventCategory" className="form-check-input" id="check2" value="Sport" />Sport
                                         </label>
                                                     </div>
                                                     <div className="form-check-inline">
                                                         <label htmlFor="check3">
-                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check3" value="Dom i Rodzina" />Dom i Rodzina
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check3" value="Dom" />Dom
                                         </label>
                                                     </div>
                                                     <div className="form-check-inline"  >
                                                         <label htmlFor="check4">
-                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check4" value="Kultura i Sztuka" />Kultura i Sztuka
+                                                            <input type="checkbox" name="eventCategory" className="form-check-input" id="check4" value="Sztuka" />Sztuka
                                         </label>
                                                     </div>
                                                     <div className="form-check-inline">
@@ -191,7 +243,7 @@ class EventForm extends React.Component {
                                     </div>
                                 </div>
                                 <div className="card my-4 mx-4 col-md-8"  >
-                                    <h5 className="card-header">Informacje o wydarzeniu</h5>
+                                    <h5 className="card-header" style={{ backgroundColor: "#efffed" }}>Informacje o wydarzeniu</h5>
 
                                     <div className="mt-4">
                                         <input type="text"
@@ -281,6 +333,7 @@ class EventForm extends React.Component {
                                         </div>
                                         <div className=" col-md-3 mb-4">
                                             <input type="number"
+                                                min="0"
                                                 name="eventPrice"
                                                 value={this.state.eventPrice}
                                                 onChange={this.handleInputChange}

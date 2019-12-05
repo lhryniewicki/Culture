@@ -153,8 +153,13 @@ class CommReactionBar extends React.Component {
     displayComments() {
         console.log(this.state.comments)
         const items = this.state.comments.map((c, index) => {
+
             let jsDate = new Date(Date.parse(c.creationDate));
-            let jsDateFormatted = `${jsDate.getDay()}-${jsDate.getMonth()}-${jsDate.getFullYear()} ${jsDate.getHours()}:${(jsDate.getMinutes() < 10 ? '0' : '') + jsDate.getMinutes()}`;
+            console.log(jsDate.getDay())
+            console.log(jsDate.getDate())
+
+            let jsDateFormatted = `${jsDate.getDate()}-${jsDate.getMonth()+1}-${jsDate.getFullYear()} ${jsDate.getHours()}:${(jsDate.getMinutes() < 10 ? '0' : '') + jsDate.getMinutes()}`;
+
             return (
                 <Comment
                     key={index}
@@ -227,13 +232,14 @@ class CommReactionBar extends React.Component {
         if (this.props.isPreview === true) return false;
         console.log(this.state.co)
         const newComment = await sendComment(this.props.id, this.state.content, this.state.image);
+        console.log(newComment)
         this.setState(prevState => ({
             showComments: true,
             imageClicked: false,
             image: null,
             content: '',
-            commentsCount: this.state.commentsCount + 1,
-            comments: [newComment, ...prevState.comments]
+            //commentsCount: this.state.commentsCount + 1
+            //comments: [newComment, ...prevState.comments]
         }));
     }
 
@@ -261,7 +267,7 @@ class CommReactionBar extends React.Component {
     render() {
         return (
             <div>
-                <div className="card-footer text-muted">
+                <div className="card-footer text-muted" >
                     Umieszczono dnia {this.props.date} przez
             <Link to={`/konto/${this.props.createdById}`}> {this.props.createdBy} </Link>
                     {
@@ -309,7 +315,7 @@ class CommReactionBar extends React.Component {
                  {
                   userIsAuthenticated() ?
                     <div>
-                        <div className="card-footer text-muted ">
+                        <div className="card-footer text-muted " >
                             <form onSubmit={this.handleCommentSubmit}>
                                 
                                 <div className="input-container">
@@ -322,6 +328,7 @@ class CommReactionBar extends React.Component {
                                         <input className="form-control  commentBox"
                                             placeholder="Wpisz komentarz..."
                                             onChange={(e) => this.handleCommentChange(e, this)}
+                                            required
                                         type="text"
                                         value={this.state.content}
                                         name="content"

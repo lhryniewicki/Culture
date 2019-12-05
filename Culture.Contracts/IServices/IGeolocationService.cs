@@ -10,5 +10,6 @@ namespace Culture.Contracts.IServices
         Task<GeometryDto> Localize(string city, string address);
         Task<IEnumerable<MapGeometryDto>> GetMap(Guid userId);
         Task<IEnumerable<MapGeometryDto>> GetEventMap(int eventId);
+        Task<IEnumerable<MapGeometryDto>> GetAllMap(string query = null, IEnumerable<string[]> dates = null, string category = null);
     }
 }

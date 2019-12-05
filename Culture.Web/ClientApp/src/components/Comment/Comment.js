@@ -7,6 +7,7 @@ import { getUserId, isAdmin } from '../../utils/JwtUtils';
 import '../Comment/Comment.css';
 import { editComment } from '../../api/CommentApi';
 
+
 class Comment extends React.Component {
 
     constructor(props) {
@@ -15,7 +16,6 @@ class Comment extends React.Component {
         this.state = {
             displayZoom: false,
             redirect: false,
-            content: this.props.content,
             edit:false
         };
 
@@ -30,9 +30,8 @@ class Comment extends React.Component {
     }
 
     imageClick = () => {
-        return <Modal style={{ left: "-10%" }} show={this.state.displayZoom} onHide={this.closeImageModal} >
-                <img
-                    width="700px"
+        return <Modal dialogClassName="myModal"  show={this.state.displayZoom} onHide={this.closeImageModal} >
+            <img
                     height="700px"
                     src={this.props.image} />
             </Modal>
@@ -56,7 +55,7 @@ class Comment extends React.Component {
 
     render() {
         return (
-            <div className="card-footer ">
+            <div className="card-footer coloredPadding">
                 {this.state.redirect === true ? this.renderRedirect() : null}
                 {this.state.displayZoom ===true ? this.imageClick() : null}
                 <div style={{ paddingBottom: "5px" }}>
@@ -71,19 +70,20 @@ class Comment extends React.Component {
                             </b>
                     </Link>
                   
-                    <div className="pull-right text-muted">
+                    <div className="pull-right text-muted px-3 py-3">
                         {this.props.creationDate}
                     </div>
                 </div>
                 <div className="card-footer commentBox ">
                     {this.state.edit === false ?
-                        this.state.content
+                        this.props.content
                         :
                         <form onSubmit={this.editComment}>
                            <input
                                         className="form-control  commentBox"
                                         placeholder="Wpisz komentarz..."
                                         onChange={this.handleInputChange}
+                                        required
                                         type="text"
                                         value={this.state.content}
                                         name="content"

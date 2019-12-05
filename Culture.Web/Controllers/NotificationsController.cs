@@ -1,4 +1,5 @@
 ﻿using Culture.Contracts.Dtos.NotificationWebJob;
+using Culture.Contracts.Facades;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
 using Culture.Utilities.Enums;
@@ -10,65 +11,74 @@ using System.Threading.Tasks;
 
 namespace Culture.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="User,Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class NotificationsController : Controller
     {
-        private readonly IUserService _userService;
-        private readonly INotificationService _notificationService;
-		private readonly IEventService _eventService;
 
-		public NotificationsController(
-            IUserService userService,
-            INotificationService notificationService,
-			IEventService eventService)
+        private readonly INotificationsFacade _notificationsFacade;
+
+        public NotificationsController(INotificationsFacade notificationsFacade)
         {
-            _userService = userService;
-            _notificationService = notificationService;
-			_eventService = eventService;
-		}
+            _notificationsFacade = notificationsFacade;
+        }
 
         [HttpGet("number")]
         public async Task<JsonResult> GetNumberOfNotifications()
         {
-            var userId = User.GetClaim(JwtTypes.jti);
+            try
+            {
+                var numberOfNotifications = await _notificationsFacade.GetNumberOfNotifications();
 
-            var numberOfNotifications = await _notificationService.GetNumberOfUnreadNotifications(Guid.Parse(userId));
-
-            return Json(numberOfNotifications);
+                return Json(numberOfNotifications);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+           
         }
 
         [HttpGet("get")]
         public async Task<JsonResult> GetNotifications(int page)
         {
-            var userId = User.GetClaim(JwtTypes.jti);
-
-            var notifications = await _notificationService.GetNotifications(Guid.Parse(userId),page);
-
-            await _notificationService.Commit();
-
-            return Json(new NotificationListViewModel(notifications));
+            try
+            {
+                return Json(await _notificationsFacade.GetNotifications(page));
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
         }
 
         [HttpPost("create")]
         public async Task CreateNotificationsWebJob([FromBody]NotificationWebJob notificationWebJob)
         {
-			foreach(var _event in notificationWebJob.Notifications)
-			{
-				var targetEvent = await _eventService.GetEventAsync(_event.EventId);
-
-				var notification = await _notificationService.CreateNotificationsAsync($"Masz nadchodzace wydarzenie: {targetEvent.Name}!", _event.TargetUsers, _event.EventId,null);
-			}
-			await _notificationService.Commit();
+            try
+            {
+                await _notificationsFacade.CreateNotificationsWebJob(notificationWebJob);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+            }
         }
 
         [HttpPut("read")]
         public async Task MarkAsRead([FromBody]int notificationId)
         {
-            await _notificationService.MarkAsRead(notificationId);
-
-            await _notificationService.Commit();
+            try
+            {
+                await _notificationsFacade.MarkAsRead(notificationId);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+            }
         }
     }
 }

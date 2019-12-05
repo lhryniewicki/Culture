@@ -9,9 +9,7 @@ class EventPost extends React.Component {
         super(props);
 
         this.state = {
-            source: null,
-            id: this.props.id,
-            urlSlug: this.props.urlSlug
+            source: null
         };
 
     }
@@ -44,12 +42,14 @@ class EventPost extends React.Component {
     }
 
     componentDidUpdate(prevProps,prevState) {
-        console.log(prevState);
-        console.log(this.state.source)
         if (this.state.source !== 'https://via.placeholder.com/750x300' && prevState.source !== this.state.source) {
             this.setState({ source: this.state.source });
+        }
 
-            }
+        if (this.state.source !== this.props.picture) {
+            this.setState({ source: this.props.picture });
+
+        }
             
     }
 
@@ -66,14 +66,14 @@ class EventPost extends React.Component {
                     <h2 className="card-title mt-0">{this.props.eventName}</h2>
                     <p className="card-text showSpace">{this.props.eventDescription}</p>
                     {this.props.isPreview === false ?
-                        <Link to={`/wydarzenie/szczegoly/${this.state.urlSlug}`}><span className="btn btn-primary">Szczegóły... &rarr;</span></Link>
+                        <Link to={`/wydarzenie/szczegoly/${this.props.urlSlug}`}><span className="btn btn-primary">Szczegóły... &rarr;</span></Link>
                         :
                         <span className="btn btn-primary">Szczegóły... &rarr;</span>
                     }
                     {
                         isAdmin() ?
                             <div className="float-right">
-                                <i className="fas fa-trash-alt fa-lg" onClick={this.props.isPreview === false ? (e) => this.props.deleteEvent(e, this.state.id) : null} />
+                                <i className="fas fa-trash-alt fa-lg" onClick={this.props.isPreview === false ? (e) => this.props.deleteEvent(e, this.props.id) : null} />
                             </div>
                             :
                             null

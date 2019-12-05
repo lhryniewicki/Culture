@@ -11,7 +11,8 @@ namespace Culture.Contracts.IServices
 	public interface IUserService
 	{
 		Task<AppUser> GetUserById(string id);
-		Task<AppUser> GetUserByName(string name);
+        Task<AppUser> GetUserByEmail(string email);
+        Task<AppUser> GetUserByName(string name);
         Task<IList<string>> GetUserRoles(AppUser user);
         Task<AppUser> GetUserByNameWithCalendar(string userName);
 		Task<IEnumerable<AppUser>> GetEventParticipants(int id);

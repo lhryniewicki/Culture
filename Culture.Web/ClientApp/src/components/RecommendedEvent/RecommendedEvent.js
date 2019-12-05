@@ -20,7 +20,7 @@ class RecommendedEvent extends React.Component {
         return (
             <div className="card mb-3 pointer" onClick={() => this.props.handleRecommendedEventClick(this.state.redirectUrl)}>
                 <img src={this.props.source} className="card-img-top" />
-                <div className="card-header ">
+                <div className="card-header " style={{ backgroundColor: "#efffed" }}>
                     <b>{this.props.name}</b>
                 </div>
             </div>

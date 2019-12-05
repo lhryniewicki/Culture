@@ -140,7 +140,6 @@ class EventDetailsView extends React.Component {
         await this.componentDidMount();
     }
 
-
     displayRecommendedEvents = () => {
 
         console.log(this.state.recommendedEvents)
@@ -333,6 +332,7 @@ class EventDetailsView extends React.Component {
                         {this.state.showMapModal ?
                             <Modal style={{ left: "-20%" }} show={this.state.showMapModal} onHide={this.onModalMapClose} >
                                 <MyMap
+                                    visible={true}
                                     eventId={this.state.id}
                                 />
                             </Modal> :
@@ -382,7 +382,7 @@ class EventDetailsView extends React.Component {
                                             <b>Informacje ogólne</b>
                                         </div>
                                         <div className="card mb-3">
-                                            <div className="card-header ">
+                                            <div className="card-header " style={{ backgroundColor: "#efffed" }}>
                                                 Nazwa
                     {getUserId() === this.state.authorId || isAdmin() ?
                                                     <i name="editName" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
@@ -413,7 +413,7 @@ class EventDetailsView extends React.Component {
                                             </div>
                                         </div>
                                         <div className="card mb-3">
-                                            <div className="card-header ">
+                                            <div className="card-header " style={{ backgroundColor: "#efffed" }}>
                                                 Data odbycia
                                          {getUserId() === this.state.authorId || isAdmin() ?
                                                     <i name="editDate" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
@@ -446,7 +446,7 @@ class EventDetailsView extends React.Component {
                                         </div>
 
                                         <div className="card mb-3">
-                                            <div className="card-header ">
+                                            <div className="card-header " style={{ backgroundColor: "#efffed" }}>
                                                 Adres
                                          {getUserId() === this.state.authorId || isAdmin() ?
                                                     <i name="editAddress" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
@@ -478,7 +478,7 @@ class EventDetailsView extends React.Component {
                                             </div>
                                         </div>
                                         <div className="card mb-3">
-                                            <div className="card-header ">
+                                            <div className="card-header " style={{ backgroundColor: "#efffed" }}>
                                                 Kategoria
                                          {getUserId() === this.state.authorId || isAdmin() ?
                                                     <i name="editCategory" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
@@ -510,7 +510,7 @@ class EventDetailsView extends React.Component {
                                             </div>
                                         </div>
                                         <div className="card mb-3">
-                                            <div className="card-header ">
+                                            <div className="card-header " style={{ backgroundColor: "#efffed" }}>
                                                 Cena
                                          {getUserId() === this.state.authorId || isAdmin() ?
                                                     <i name="editPrice" className="fas fa-pencil-alt fa-lg mr-2 pull-right" onClick={(e) => this.editEventFlag(e)} />
@@ -541,7 +541,7 @@ class EventDetailsView extends React.Component {
                                                 }
                                             </div>
                                         </div>
-                                        <div className="card-header clickable ">
+                                        <div className="card-header clickable " style={{ backgroundColor: "#efffed" }}>
                                             <div onClick={this.participantsClick}>
                                                 {`Liczba uczestniczących:${this.state.participantsNumber}`}
                                             </div>
@@ -578,9 +578,9 @@ class EventDetailsView extends React.Component {
                                 </div>
                                 {this.state.recommendedEvents.length > 0 ?
                                     <div className="card mt-4">
-                                        <div className="card-header text-center">
+                                        <div className="card-header text-center" >
                                             <div className="text-center mb-3">
-                                                <b>Podobne wydarzenia</b>
+                                               <b>Podobne wydarzenia</b>
                                             </div>
                                             {this.displayRecommendedEvents()}
                                         </div>

@@ -1,6 +1,7 @@
 ﻿.myNavbar {
-    background-image: linear-gradient(90deg,#404081, #3b5998); /* Standard syntax (must be last) */;
-    font-size:16px;
+    background-image: linear-gradient(90deg,#2f783a, #04755f); /* Standard syntax (must be last) */
+    ;
+    font-size: 16px;
 }
 .myFont {
     color: white
@@ -8,9 +9,9 @@
 .myFont:focus {
     color: white
 }
-.myFont:hover {
-        color:white;
-        background-color: #3b3b85;
+    .myFont:hover {
+        color: white;
+        background-color: #255e2d;
     }
 nav.navbar.navbar-default {
     border-bottom: none;
@@ -44,11 +45,11 @@ nav.navbar.navbar-default {
     background-color: inherit;
     border: none;
 }
-.bgInherit:hover {
-        background-color: #3b3b85;
-        color: #152c59;
+    .bgInherit:hover {
+        background-color: #255e2d;
+        color:;
         border: none;
-}
+    }
 .bgInherit:focus {
         color: white;
     }
@@ -67,4 +68,8 @@ nav.navbar.navbar-default {
     height: auto;
     max-height: 250px;
     overflow-x: hidden;
+}
+.mapsStyle {
+    color: white;
+    padding-top:3px;
 }

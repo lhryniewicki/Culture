@@ -1,5 +1,5 @@
-﻿import React from 'react';
-import { getUserData, updateUserData, updateUserConfig } from '../../api/AccountApi';
+﻿    import React from 'react';
+import { getUserData, updateUserData } from '../../api/AccountApi';
 import { Redirect } from 'react-router-dom';
 import Shortcuts from '../Shortcuts/Shortcuts';
 import '../Shortcuts/Shortcuts.css';
@@ -7,7 +7,7 @@ import '../MyAccountView/MyAccountView.css';
 import { getUserId } from '../../utils/JwtUtils';
 import  defaultImage from '../../assets/default_avatar.jpg';
 import UserConfiguration from '../UserConfiguration/UserConfiguration';
-
+import {validateEmail } from '../../utils/loginValidators';
 
 class MyAccountView extends React.Component {
     constructor(props) {
@@ -31,7 +31,8 @@ class MyAccountView extends React.Component {
             calendar: null,
             emailNotification: null,
             logOutMinutes: null,
-            done:false
+            done: false,
+            errors:[]
         };
 
     }
@@ -63,13 +64,31 @@ class MyAccountView extends React.Component {
 
     handleSumbit = async (e) => {
         e.preventDefault();
-        await updateUserData({
-            firstName: this.state.firstName,
-            lastName: this.state.lastName,
-            email: this.state.email,
-            file: this.state.file
-        });
+        await this.setState({ errors: [] });
 
+        const errorsArray = validateEmail(this.state.email);
+
+        console.log(errorsArray)
+        await this.setState({ errors: this.state.errors.concat(errorsArray) });
+
+      
+        if (this.state.errors.length === 0) {
+            await updateUserData({
+                firstName: this.state.firstName,
+                lastName: this.state.lastName,
+                email: this.state.email,
+                file: this.state.file,
+                username: this.state.userName
+            }).catch(e => { return e.json() })
+                .then(e => {
+                    typeof e !== "undefined" ?
+                        this.setState({ errors: [e].concat(this.state.errors) })
+                        :
+                        null
+                }
+
+                );
+        }
     }
 
     handleFilePick = (event)=> {
@@ -97,7 +116,7 @@ class MyAccountView extends React.Component {
         if (e.target.getAttribute('name') === "wydarzenia/nowe") {
             this.setState({
                 redirect: true,
-                redirectTarget: `wydarzenia/nowe`
+                redirectTarget: `/wydarzenia/nowe`
             });
         }
         else if (e.target.getAttribute('name') === "ustawienia") {
@@ -128,99 +147,119 @@ class MyAccountView extends React.Component {
         const divName = this.state.ownerId === getUserId() ? "col-md-offset-3 col-md-4" : "col-md-offset-4 col-md-4"; 
         return (
             <div className="container-fluid">
+                {this.state.errors.length > 0 ? this.state.errors.map((item) => (
+                    <div className="row">
+                        <div className="alert alert-danger col-md-offset-3 col-md-4" role="alert">
+                            {item}
+                        </div>
+                    </div>
+                )
+                ) :
+                    null
+                }
+               
+              
                 {this.state.done ? 
-                    <div>
-                        {this.state.redirect === true ? this.redirect() : null}
-                        <div className="row">
-                            <div className={divName}>
-                                <img className="img-fluid pull-left mt-4 myAvatar" width="550" height="500" src={this.state.avatarPath !== null ? this.state.avatarPath : defaultImage} />
-                                {this.state.ownerId === getUserId() ?
-                                    <div className="col-md-10">
-                                        <input style={{ display: "none" }}
-                                            type="file"
-                                            onChange={this.handleFilePick}
-                                            ref={fileInput => this.fileInput = fileInput}
-                                        />
-                                        <input
+                    <div className="card col-md-offset-2  col-md-8 " style={{ backgroundColor: "#efffed" }}>
+                        <div className="card-header col-md-offset-1  col-md-10" style={{ backgroundColor: "#f2f6f7" }}>
+                            <div>
+                                {this.state.redirect === true ? this.redirect() : null}
+                                <div className="row">
+                                    <div className={divName}>
+                                        <img className="img-fluid pull-left mt-4 myAvatar" width="550" height="500" src={this.state.avatarPath !== null ? this.state.avatarPath : defaultImage} />
+                                        {this.state.ownerId === getUserId() ?
+                                            <div className="col-md-10">
+                                                <input style={{ display: "none" }}
+                                                    type="file"
+                                                    onChange={this.handleFilePick}
+                                                    ref={fileInput => this.fileInput = fileInput}
+                                                />
+                                                <input
 
-                                            type="button"
-                                            onClick={() => this.fileInput.click()}
-                                            onChange={() => this.fileInput.click()}
-                                            className="form-control btn btn-warning mt-3"
-                                            value={this.state.file.name}
+                                                    type="button"
+                                                    onClick={() => this.fileInput.click()}
+                                                    onChange={() => this.fileInput.click()}
+                                                    className="form-control btn btn-warning mt-3"
+                                                    value={this.state.file.name}
 
-                                        />
+                                                />
+                                            </div>
+                                            : null}
+
                                     </div>
-                                    : null}
-
-                            </div>
-                            {this.state.ownerId === getUserId() ?
-                                <div className="col-md-1 mt-5" >
-                                    <div className="card shortcuts ">
-                                        <div className="card-header">
-                                            <Shortcuts handleClick={this.handleClick} />
+                                    {this.state.ownerId === getUserId() ?
+                                        <div className="col-md-1 mt-5" >
+                                            <div className="card shortcuts ">
+                                                <div className="card-header">
+                                                    <Shortcuts handleClick={this.handleClick} />
+                                                </div>
+                                            </div>
                                         </div>
+                                        : null}
+
+                                </div>
+                                <div className="row mt-5 dataInfo">
+                                    <div className="col-md-offset-3 " >
+                                        {!this.state.anonymous || this.state.ownerId === getUserId() ?
+                                            <React.Fragment>
+                                                <form className="form-inline" onSubmit={this.handleSumbit}>
+
+                                                    <div className="col-md-12 mb-4">
+                                                        <span className="col-md-2 font-weight-bold" >Nick: </span>
+                                                        <input type="text" id="userName" value={this.state.userName} readOnly className="form-control" required />
+                                                    </div>
+                                                    <div className="col-md-12 mb-4">
+                                                        <span className="col-md-2 font-weight-bold" >Imię: </span>
+                                                        <input type="text" id="firstName" name="firstName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.firstName} className="form-control" required />
+                                                    </div>
+
+
+                                                    <div className="col-md-12 mb-4">
+                                                        <span className="col-md-2 font-weight-bold" >Nazwisko: </span>
+                                                        <input type="text" id="lastName" name="lastName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.lastName} className="form-control " required />
+                                                    </div>
+
+
+                                                    <div className="col-md-12 mb-4">
+                                                        <span className="col-md-2 font-weight-bold" >Email: </span>
+                                                        <input type="text" id="email" name="email" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.email} className="form-control" required />
+                                                    </div>
+                                                    {this.state.ownerId === getUserId() ?
+                                                        <button className="btn btn-primary col-md-offset-3">Zapisz</button>
+                                                        : null}
+                                                </form>
+                                            </React.Fragment>
+
+                                            :
+                                            <div className="col-md-12 mb-4">
+                                                <span className=" font-weight-bold" >Nazwa użytkownika: </span>
+                                                <input type="text" id="userName" value={this.state.userName} readOnly className="form-control mb-5" />
+                                                <span className="font-weight-bold" >Użytkownik nie zgodził się na wyświetlanie danych personalnych. </span>
+
+                                            </div>
+                                        }
+
                                     </div>
                                 </div>
-                                : null}
+                                {this.state.ownerId === getUserId() ?
+                                    <div className=" mt-5">
 
-                        </div>
-                        <div className="row mt-5 dataInfo">
-                            <div className="col-md-offset-3 " >
+                                        <UserConfiguration
+                                            commentsAmount={this.state.commentsAmount}
+                                            eventsAmount={this.state.eventsAmount}
+                                            anonymous={this.state.anonymous}
+                                            calendar={this.state.calendar}
+                                            emailNotification={this.state.emailNotification}
+                                            logOutMinutes={this.state.logOutMinutes}
+                                        />
 
-                                <form className="form-inline" onSubmit={this.handleSumbit}>
-
-                                    <div className="col-md-12 mb-4">
-                                        <label htmlFor="userName">Nazwa użytkownika: </label>
-                                        <div className="form-group  ">
-                                            <input type="text" id="userName" value={this.state.userName} readOnly className="form-control" />
-                                        </div>
                                     </div>
 
-                                    {!this.state.anonymous || this.state.ownerId === getUserId() ?
-                                        <div>
-                                            <div className="col-md-12 mb-4">
-                                                <label htmlFor="firstName">Imię: </label>
-                                                <input type="text" id="firstName" name="firstName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.firstName} className="form-control" />
-                                            </div>
-
-
-                                            <div className="col-md-12 mb-4">
-                                                <label htmlFor="lastName">Nazwisko: </label>
-                                                <input type="text" id="lastName" name="lastName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.lastName} className="form-control" />
-                                            </div>
-
-
-                                            <div className="col-md-12 mb-4">
-                                                <label htmlFor="email">Email: </label>
-                                                <input type="text" id="email" name="userName" onChange={this.state.ownerId === getUserId() ? this.handleInputChange : null} value={this.state.email} className="form-control" />
-                                            </div>
-                                        </div>
-                                        :
-                                        null
-                                    }
-                                    {this.state.ownerId === getUserId() ?
-                                        <button className="btn btn-primary col-md-offset-3">Zapisz</button>
-                                        : null}
-                                </form>
+                                    : null}
                             </div>
                         </div>
-                        {this.state.ownerId === getUserId() ?
-                            <div className="col-md-offset-2 mt-5">
-
-                                <UserConfiguration
-                                    commentsAmount={this.state.commentsAmount}
-                                    eventsAmount={this.state.eventsAmount}
-                                    anonymous={this.state.anonymous}
-                                    calendar={this.state.calendar}
-                                    emailNotification={this.state.emailNotification}
-                                    logOutMinutes={this.state.logOutMinutes}
-                                />
-
-                            </div>
-
-                            : null}
                     </div>
+                   
                     :null
                     }
                 <div style={{ float: "left", clear: "both" }}

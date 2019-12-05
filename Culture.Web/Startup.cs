@@ -20,6 +20,10 @@ using System;
 using System.Text;
 using Culture.Services.SignalR;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Culture.Contracts.Facades;
+using Culture.Implementation.Facades;
+using Culture.Implementation.SignalR;
 
 namespace Culture.Web
 {
@@ -62,7 +66,7 @@ namespace Culture.Web
             services.AddScoped<IEmailService, EmailService>();
 
 
-
+            
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserInEventRepository, UserInEventRepository>();
@@ -72,9 +76,16 @@ namespace Culture.Web
             services.AddScoped<IEventReactionRepository, EventReactionRepository> ();
             services.AddScoped<INotificationRepository, NotificationRepository>();
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddScoped<IAccountFacade, AccountFacade>();
+            services.AddScoped<IAttendanceFacade, AttendanceFacade>();
+            services.AddScoped<ICommentsFacade, CommentsFacade>();
+            services.AddScoped<IEventsFacade, EventsFacade>();
+            services.AddScoped<INotificationsFacade, NotificationsFacade>();
 
 
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             
             // In production, the React files will be served from this directory
@@ -151,7 +162,8 @@ namespace Culture.Web
                             // If the request is for our hub...
                             var path = context.HttpContext.Request.Path;
                             if (!string.IsNullOrEmpty(accessToken) &&
-                                (path.StartsWithSegments("/notification")))
+                                (path.StartsWithSegments("/notification"))||
+                                path.StartsWithSegments("/event"))
                             {
                                 // Read the token out of the query string
                                 context.Token = accessToken;
@@ -172,6 +184,8 @@ namespace Culture.Web
             app.UseSignalR(routes =>
             {
                 routes.MapHub<NotificationHub>("/notification");
+                routes.MapHub<EventHub>("/event");
+
             });
 
 

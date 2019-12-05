@@ -67,6 +67,37 @@ namespace Culture.DataAccess.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Event>> GetAllEvents(string query = null, IEnumerable<string[]> dates = null, string category = null)
+        {
+            var events = _dbContext.Events.AsQueryable();
+
+            events = category != null ? events.Where(x => x.Category == category) : events;
+
+            events = query != null ? events.Where(x => x.Content.IndexOf(query, StringComparison.OrdinalIgnoreCase) != -1 
+            || x.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) != -1 ) : events;
+
+            if (dates != null && dates.ElementAt(0) != null)
+            {
+
+                var dateStart = convertDate(dates.ElementAt(0));
+                events = events.Where(x => DateTime.Compare(x.TakesPlaceDate.Date,dateStart.Date) >= 0);
+
+                if (dates.Count() > 1)
+                {
+                    events = events.Where(x => DateTime.Compare(x.TakesPlaceDate.Date ,convertDate(dates.ElementAt(1)).Date) <= 0);
+                }
+
+            }
+
+            return events;
+        }
+        private DateTime convertDate(string[] date)
+        {
+            var intDate = Array.ConvertAll(date, Int32.Parse);
+
+            return new DateTime(intDate[0], intDate[1], intDate[2]);
+        }
+
         public async Task<IEnumerable<Event>> GetRecommendedEvents(Event queryEvent, int skip=0 , int take=3)
         {
             var nameWords = queryEvent.Name.Split();
@@ -93,5 +124,32 @@ namespace Culture.DataAccess.Repositories
                      x.UserName.Contains(query)) : true))
                  .ToListAsync();
         }
+
+        public async Task<IEnumerable<DateTime>> GetAllCalendar(string query = null, IEnumerable<string[]> dates=null, string category=null)
+        {
+            var events = _dbContext.Events.AsQueryable();
+
+            events = category != null ? events.Where(x => x.Category == category) : events;
+
+            events = query != null ? events.Where(x => x.Content.IndexOf(query, StringComparison.OrdinalIgnoreCase) != -1
+            || x.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) != -1) : events;
+
+            if (dates != null && dates.ElementAt(0) != null)
+            {
+
+                var dateStart = convertDate(dates.ElementAt(0));
+                events = events.Where(x => DateTime.Compare(x.TakesPlaceDate.Date, dateStart.Date) >= 0);
+
+                if (dates.Count() > 1)
+                {
+                    events = events.Where(x => DateTime.Compare(x.TakesPlaceDate.Date, convertDate(dates.ElementAt(1)).Date) <= 0);
+                }
+
+            }
+
+            var datess = await events.Select(x=>x.TakesPlaceDate).ToListAsync();
+            return datess;
+        }
+
     }
 }

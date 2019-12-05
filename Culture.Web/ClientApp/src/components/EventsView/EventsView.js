@@ -4,8 +4,10 @@ import SearchWidget from '../Widgets/SearchWidget';
 import CategoriesWidget from '../Widgets/CategoriesWidget';
 import Shortcuts from '../Shortcuts/Shortcuts';
 import { Redirect } from 'react-router';
+import { getEventConnection, createEventConnection, disconnectEventConnection } from '../../utils/signalRUtils';
+import { getEventTokenApi } from '../../api/AccountApi';
 import { getPreviewEventList, deleteEvent } from '../../api/EventApi';
-import { userIsAuthenticated, getUserId } from '../../utils/JwtUtils';
+import { userIsAuthenticated, getUserId, setEventToken, getToken } from '../../utils/JwtUtils';
 import '../EventsView/EventsView.css';
 
 class EventsView extends React.Component {
@@ -29,7 +31,47 @@ class EventsView extends React.Component {
         this.displayEvents = this.displayEvents.bind(this);
 
     }
+
+
     async componentDidMount() {
+
+        const eventToken = await getEventTokenApi();
+        await setEventToken(eventToken);
+
+
+        let connection = getEventConnection();
+        console.log(connection)
+
+        if ("undefined" === typeof connection) {
+
+            connection = await createEventConnection();
+        }
+
+        connection = getEventConnection();
+
+       // if (typeof connection.methods.updatecomments === "undefined" || connection.methods.updatecomments.length === 0) {
+
+            connection.on("UpdateComments", async (eventId, comment) => {
+
+                //if (comment.authorId === getToken()) {
+
+                //}
+
+                let index;
+                this.state.events.forEach((element, indexx) => {
+                        if (element.id === eventId)index = indexx;
+                    })
+                
+                const event = this.state.events.filter(x => { return x.id === eventId })[0];
+                const newState = [comment].concat(event.comments);
+                let oldEventState = this.state.events;
+                oldEventState[index].comments = newState;
+                oldEventState[index].commentsCount += 1;
+                await this.setState({
+                    events: oldEventState
+                });
+            });
+        //}
         const eventList = await getPreviewEventList(0, null, this.state.query);
         console.log(eventList)
         if (eventList !== undefined && eventList.events.length > 0)
@@ -42,6 +84,11 @@ class EventsView extends React.Component {
 
 
     }
+
+    componentWillUnmount() {
+        disconnectEventConnection();
+    }
+
     handleOnChange = (e) => {
         this.setState({
             [e.target.name]:e.target.value
@@ -71,12 +118,13 @@ class EventsView extends React.Component {
         if (e.target.getAttribute('name') === "wydarzenia/nowe") {
             this.setState({
                 redirect: true,
-                redirectTarget: `wydarzenia/nowe`
+                redirectTarget: `/wydarzenia/nowe`
             });
         }
         else if (e.target.getAttribute('name') === "ustawienia") {
             this.setState({
                 redirect: true,
+                settings:true,
                 redirectTarget: `/konto/${getUserId()}`
             });
         }

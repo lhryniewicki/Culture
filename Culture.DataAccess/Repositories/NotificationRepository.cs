@@ -35,7 +35,6 @@ namespace Culture.DataAccess.Repositories
                 Where(x => x.UserId == userId)
                 .OrderBy(x=>x.IsRead)
                 .ThenByDescending(x=>x.SentData)
-                .Skip(skip*take)
                 .Take(take)
                 .ToListAsync();
         }

@@ -20,6 +20,9 @@ namespace Culture.Contracts.IServices
         Task<EditEventDto> EditEvent(EventViewModel eventViewModel, Guid id, string userRole);
         Task DeleteEvent(int id, Guid userId, string userRoles);
         Task<IEnumerable<ParticipantDto>> GetEventParticipants(int eventId, string query);
+        Task<IEnumerable<DateTime>> GetAllCalendar(string query = null, IEnumerable<string[]> dates = null, string category = null);
+
+
         Task Commit();
     }
 }

@@ -11,14 +11,21 @@ class NavBar extends React.Component {
 
     constructor(props) {
         super(props);
-           
+
+
         
         if (window.performance) {
             if (userIsAuthenticated()) {
 
                 if (performance.navigation.type === 1) {
 
-                    createConnection();
+                    let connection = getConnection();
+
+                    if ("undefined" === typeof connection) {
+                        createConnection();
+                        connection = getConnection();
+
+                    }
                 }
            
             }
@@ -29,7 +36,8 @@ class NavBar extends React.Component {
             notifications: [],
             notificationPage: 0,
             notificationsNumber: 0,
-            isProcessingPage: null
+            isProcessingPage: null,
+            fromSocket:false
         };
 
         this.toggleMenu = this.toggleMenu.bind(this);
@@ -37,8 +45,6 @@ class NavBar extends React.Component {
 
     }
 
-
-   
 
     async componentDidMount() {
         if (userIsAuthenticated()) {
@@ -53,23 +59,34 @@ class NavBar extends React.Component {
     async  componentDidUpdate() {
         if (userIsAuthenticated()) {
 
-            
-            const notificationsNumber = await getNotificationsNumber();
+            if (!this.state.fromSocket) {
 
-            if (this.state.notificationsNumber !== notificationsNumber)
-            this.setState({
-                notificationsNumber: notificationsNumber
-            });
+                const notificationsNumber = await getNotificationsNumber();
+
+                if (this.state.notificationsNumber !== notificationsNumber)
+                    this.setState({
+                        notificationsNumber: notificationsNumber
+                    });
+
+            }
+
             let connection = getConnection();
 
             if ("undefined" === typeof connection) {
                 createConnection();
                 connection = getConnection();
+               
             }
-            console.log(connection)
-            connection.on("ReceiveNotification", async () => {
-                await this.setState({ notificationsNumber: this.state.notificationsNumber +1 });
-            });
+            if ( typeof connection.methods.receivenotification ==="undefined" || connection.methods.receivenotification.length === 0 ) {
+
+                connection.on("ReceiveNotification", async () => {
+                    await this.setState({
+                        notificationsNumber: this.state.notificationsNumber + 1,
+                        fromSocket:true
+                    });
+                });
+            }
+            console.log(connection);
 
         }
     }
@@ -110,12 +127,14 @@ class NavBar extends React.Component {
         
     
     loadNotifications = async () => {
+        console.log("zassane");
         const notifications = await getNotifications(this.state.notificationPage);
         const notificationsNumber = await getNotificationsNumber();
+
         const newNotificationState = this.state.notifications.concat(notifications.notifications);
 
         this.setState({
-                    notificationsNumber: notificationsNumber,
+                    notificationsNumber: notificationsNumber ,
                     notifications: newNotificationState,
                     notificationPage: this.state.notificationPage + 1
                 });}
@@ -140,6 +159,24 @@ class NavBar extends React.Component {
                                 <Link className="nav-link myFont" to="">Strona główna
                                 </Link>
                             </li>
+                            <li className="nav-item ">
+                                <Link className="nav-link myFont " style={{ paddingTop:"0px" }} to="/mapa">
+                                    <span className="fas fa-map-marked-alt mr-2 fa-2x mapsStyle" >
+                                    </span>
+                                    Mapa
+                                </Link>
+                                
+                            </li>
+                            <li className="nav-item ">
+                                <Link className="nav-link myFont " style={{ paddingTop: "0px" }} to="/kalendarz">
+                                    <span className="far fa-calendar-alt mr-2 fa-2x mapsStyle" >
+                                    </span>
+                                    Kalendarz
+                                </Link>
+
+                            </li>
+                           
+
                             {
                                 localStorage.getItem('token') === null
                                     ?

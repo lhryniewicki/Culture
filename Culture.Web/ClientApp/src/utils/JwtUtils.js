@@ -46,3 +46,11 @@ export const removeUserToken = () => {
 export const getToken = () => {
     return localStorage.getItem('token');
 };
+
+export const getEventToken = () => {
+    return localStorage.getItem('eventToken');
+};
+
+export const setEventToken = async (token) => {
+    return localStorage.setItem('eventToken',token);
+};

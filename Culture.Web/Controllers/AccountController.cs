@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Culture.Contracts.Exceptions;
+using Culture.Contracts.Facades;
 using Culture.Contracts.IServices;
 using Culture.Contracts.ViewModels;
 using Culture.Utilities.Enums;
@@ -16,18 +17,11 @@ namespace Culture.Web.Controllers
 	[Route("api/[controller]")]
 	public class AccountController : Controller
 	{
-		private readonly IAuthService _authService;
-        private readonly IUserService _userService;
-        private readonly IFileService _fileService;
+        private readonly IAccountFacade _accountFacade;
 
-        public AccountController(
-            IAuthService authService,
-            IUserService userService,
-            IFileService fileService)
+        public AccountController(IAccountFacade accountFacade)
 		{
-			_authService = authService;
-            _userService = userService;
-            _fileService = fileService;
+            _accountFacade = accountFacade;
         }
 
 		[HttpPost("login")]
@@ -35,7 +29,7 @@ namespace Culture.Web.Controllers
 		{
 			try
 			{
-				var token = await _authService.Login(loginViewModel);
+				var token = await _accountFacade.Login(loginViewModel);
                 
 				return Json(token);
 			}
@@ -51,13 +45,33 @@ namespace Culture.Web.Controllers
 			}
 		}
 
-		[HttpPost("register")]
+        [HttpPost("unlogged")]
+        public async Task<JsonResult> UnloggedUser()
+        {
+            try
+            {
+                var token = await _accountFacade.UnloggedUser();
+
+                return Json(token);
+            }
+            catch (LoginErrorException e)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(e.Message);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message);
+            }
+        }
+
+        [HttpPost("register")]
 		public async Task<JsonResult> Register([FromBody] RegisterViewModel registerViewModel)
 		{
-
 			try
 			{
-				var token = await _authService.Register(registerViewModel);
+				var token = await _accountFacade.Register(registerViewModel);
 
                 return Json(token);
 			}
@@ -74,71 +88,106 @@ namespace Culture.Web.Controllers
 		}
         [HttpGet("user")]
         public async Task<JsonResult> GetUserData(string userId)
-        {   
-            var user = await _userService.GetUserById(userId);
+        {
+            try
+            {
+                var userData = await _accountFacade.GetUserData(userId);
 
-            var userData = await _userService.GetUserDetailsByName(user.UserName);
+                return Json(userData);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
 
-            return Json(userData);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User,Admin")]
         [HttpPut("user")]
         public async Task<IActionResult> UpdateUserData([FromForm] UpdateUserViewModel userData)
         {
-            var userId = User.GetClaim(JwtTypes.jti);
+            try
+            {
+                await _accountFacade.UpdateUserData(userData);
 
-            var avatarPath = await _fileService.UploadImage(userData.Image);
-
-            var oldAvatarPath = await _userService.UpdateUserData(userId, userData, avatarPath);
-
-            if (oldAvatarPath != avatarPath && avatarPath != null) _fileService.RemoveImage(oldAvatarPath);
-
-            await _userService.Commit();
-
-            return Ok();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+           
         }
 
-        [Authorize]
+        [Authorize(Roles = "User,Admin")]
         [HttpPut("user/config")]
         public async Task<IActionResult> UpdateUserConfig([FromBody] UpdateUserConfigViewModel userConfig)
         {
-            var userId = User.GetClaim(JwtTypes.jti);
+            try
+            {
+                await _accountFacade.UpdateUserConfig(userConfig);
 
-            var updated = await _userService.UpdateUserConfig(userConfig, Guid.Parse(userId));
-
-            if (updated == null) return Unauthorized();
-
-            await _userService.Commit();
-
-            return Ok();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+           
         }
 
         [HttpGet("user/question")]
         public async Task<JsonResult> GetUserSecretQuestion(string username)
         {
+            try
+            {
+                var question = await _accountFacade.GetUserSecretQuestion(username);
 
-            var question = await _authService.GetUserQuestion(username);
-
-            return Json(question);
+                return Json(question);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+            
         }
 
         [HttpGet("user/answer")]
         public async Task<bool> CheckAnswer(string username, string answer)
         {
-            var isAnswerCorrect = await _authService.CheckAnswer(answer, username);
+            try
+            {
+                var isAnswerCorrect = await _accountFacade.CheckAnswer(answer, username);
 
-            return isAnswerCorrect;
+                return isAnswerCorrect;
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return false;
+            }
+
         }
 
         [HttpGet("user/password")]
         public async Task<IActionResult> SendPassword(string username, string password)
         {
+            try
+            {
+                await _accountFacade.SendPassword(username, password);
 
-            await _authService.UpdatePassword(username,password);
-
-            await _userService.Commit();
-            return Ok();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+           
         }
     }
 }

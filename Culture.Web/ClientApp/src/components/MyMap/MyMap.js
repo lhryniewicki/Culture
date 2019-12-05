@@ -3,7 +3,8 @@ import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
 import { getMap, getEventMap } from '../../api/EventApi';
 import '../MyMap/MyMap.css';
 import { Link } from 'react-router-dom';
-
+import { userIsAuthenticated } from '../../utils/JwtUtils';
+import { Redirect } from 'react-router';
 
 class MyMap extends React.Component {
 
@@ -12,8 +13,8 @@ class MyMap extends React.Component {
 
         this.state = {
             Markers: [], 
-            position: [51.91916667, 19.13441667],
-                zoom: 6
+            position: [53.1324886, 23.1688403],
+            zoom: 11,
         }
     }
 
@@ -31,7 +32,6 @@ class MyMap extends React.Component {
         }
         else {
             data = await getMap();
-
         }
         const items = data.map((item, index) => 
         {
@@ -48,7 +48,6 @@ class MyMap extends React.Component {
                     </Popup>
                 </Marker>
             }
-              
                    }
         );
         console.log(items);
@@ -60,15 +59,26 @@ class MyMap extends React.Component {
 
         return (
             <div className="container">
-                <Map style={{ height:"800px" }} center={this.state.position} zoom={this.state.zoom}>
-                    <TileLayer
-                        attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    {this.state.Markers.map((item) => {
-                        return item;
-                    })}
-                </Map>
+                {userIsAuthenticated() || this.props.visible ?
+                    <div className="card">
+                        <h1>Mapa twoich wydarzeń</h1>
+                        <div className="card-header">
+
+                    <Map style={{ height: "800px" }} center={this.state.position} zoom={this.state.zoom}>
+                        <TileLayer
+                            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        {this.state.Markers.map((item) => {
+                            return item;
+                        })}
+                            </Map>
+                        </div>
+                        <h1>Tutaj znajdziesz wydarzenia, które dodałeś do kalendarza</h1>
+                    </div>
+                    :
+                    <Redirect to={`/konto/login`} />
+                    }
                 </div>
             
         )

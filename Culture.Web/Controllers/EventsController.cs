@@ -10,6 +10,7 @@ using Culture.Utilities.ExtensionMethods;
 using Culture.Utilities.Enums;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
+using Culture.Contracts.Facades;
 
 namespace Culture.Web.Controllers
 {
@@ -17,56 +18,20 @@ namespace Culture.Web.Controllers
     [ApiController]
     public class EventsController : Controller
     {
-        private readonly IEventService _eventService;
-		private readonly IUserService _userService;
-		private readonly ICommentService _commentService;
-		private readonly INotificationService _notificationService;
-		private readonly IReactionService _reactionService;
-        private readonly IFileService _fileService;
-        private readonly IEventReactionService _eventReactionService;
-        private readonly IGeolocationService _geolocationService;
-        private readonly IEmailService _emailService;
-        private readonly IConfiguration _configuration;
+        private readonly IEventsFacade _eventsFacade;
 
-        public EventsController(
-			IEventService eventService,
-			IUserService userService,
-			ICommentService commentService,
-			INotificationService notificationService,
-			IReactionService reactionService,
-            IFileService fileService,
-            IEventReactionService eventReactionService,
-            IGeolocationService geolocationService,
-            IEmailService emailService,
-            IConfiguration configuration)
+        public EventsController(IEventsFacade eventsFacade)
         {
-			_eventService = eventService;
-			_userService = userService;
-			_commentService = commentService;
-			_notificationService = notificationService;
-			_reactionService = reactionService;
-            _fileService = fileService;
-            _eventReactionService = eventReactionService;
-            _geolocationService = geolocationService;
-            _emailService = emailService;
-            _configuration = configuration;
+            _eventsFacade = eventsFacade;
         }
 
-        [Authorize]
+        [Authorize(Roles = "User,Admin")]
 		[HttpPost("create")]
 		public async Task<JsonResult> CreateEvent([FromForm]EventViewModel eventViewModel)
 		{
 			try
 			{
-                var userId = User.GetClaim(JwtTypes.jti);
-
-                var imagePath = await _fileService.UploadImage(eventViewModel.Image);
-
-                var geometry = await _geolocationService.Localize(eventViewModel.CityName, eventViewModel.StreetName);
-
-                var eventModel = await _eventService.CreateEventAsync(eventViewModel, imagePath, Guid.Parse(userId), geometry);
-
-                await _eventService.Commit();
+                var eventModel = await _eventsFacade.CreateEvent(eventViewModel);
 
                 return Json(eventModel);
 			}
@@ -76,32 +41,16 @@ namespace Culture.Web.Controllers
 				return Json(e.Message+e.InnerException);
 			}
 		}
-        [Authorize]
+        [Authorize(Roles ="User,Admin")]
         [AllowAnonymous]
         [HttpGet("get/details/{slug}")]
 		public async Task<JsonResult> GetEvent([FromRoute]string slug)
 		{
 			try
 			{
-                Guid userId;
-                var res = Guid.TryParse(User.GetClaim(JwtTypes.jti), out userId);
-                userId = res == false ? Guid.Empty : userId;
+                var eventViewModel = await _eventsFacade.GetEvent(slug);
 
-                var eventDto = await _eventService.GetEventDetailsBySlugAsync(slug, userId);
-                var recommendedEvents = await _eventService.GetRecommendedEvents(eventDto.Id);
-
-                var userConfig = await _userService.GetUserConfiguration(userId);
-                var take = userConfig?.EventsDisplayAmount ?? 5;
-
-                var commentsDto = await  _commentService.GetEventCommentsAsync(eventDto.Id, 0, take);
-                var reactions = await _eventReactionService.GetReactions(eventDto.Id, userId);
-
-                var isUserAttending = await _userService.IsUserSigned(userId, eventDto.Id);
-
-
-                var eventViewModel = new EventDetailsViewModel(eventDto,commentsDto,reactions,isUserAttending,recommendedEvents);
-
-				return Json(eventViewModel);
+                return Json(eventViewModel);
 			}
 			catch(Exception e)
 			{
@@ -117,17 +66,7 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                Guid userId;
-                var res = Guid.TryParse(User.GetClaim(JwtTypes.jti),out userId);
-                userId = res == false ? Guid.Empty : userId;
-
-                var userConfig = await _userService.GetUserConfiguration(userId);
-                var sizeEvents = userConfig?.EventsDisplayAmount ?? 5;
-                var sizeComments = userConfig?.CommentsDisplayAmount ?? 5;
-
-                var eventList = await _eventService.GetEventPreviewList(userId,page, sizeEvents, sizeComments, category,query);
-
-                var eventViewModel = new EventPreviewListViewModel(eventList);
+                var eventViewModel = await _eventsFacade.GetEventPreviewList(page, size, category, query);
 
                 return Json(eventViewModel);
             }
@@ -139,39 +78,15 @@ namespace Culture.Web.Controllers
 
         }
 
-        [Authorize]
+        [Authorize(Roles = "User,Admin")]
         [HttpPut("edit")]
         public async Task<IActionResult> Edit([FromBody]EventViewModel eventViewModel)
         {
             try
             {
-                var userId = User.GetClaim(JwtTypes.jti);
-
-                var userRole = User.GetClaim(JwtTypes.Role);
-
-                var eventEdit = await _eventService.EditEvent(eventViewModel, Guid.Parse(userId),userRole);
-
-                if (eventEdit == null) return Unauthorized();
-
-				var eventParticipants = await _userService.GetEventParticipants(eventViewModel.Id);
-
-                if (eventEdit.NeedsGeolocation)
-                {
-                    var geometry = await _geolocationService.Localize(eventViewModel.CityName, eventViewModel.StreetName);
-                    eventEdit.EditedEvent.Longitude = geometry.Longtitute;
-                    eventEdit.EditedEvent.Latitude = geometry.Latitute;
-                }
-
-                await _notificationService.CreateNotificationsAsync(
-					$"Wydarzenie zostało zmienione: {eventEdit?.EditedEvent.Name}! Sprawdz jego szczegóły",eventParticipants.Select(x=>x.Id), eventViewModel.Id, eventEdit.EditedEvent.UrlSlug);
-
-                var emailContent = $"Wydarzenie zostało zmienione: <a href='{_configuration["Values:MessageDomain"]}/wydarzenie/szczegoly/{eventEdit?.EditedEvent.UrlSlug}'> Sprawdz jego szczegóły </a>";
-                await _emailService.SendEmail(emailContent, eventParticipants);
-
-                await _eventService.Commit();
+                await _eventsFacade.Edit(eventViewModel);
 
                 return Ok();
-
             }
             catch (Exception e)
             {
@@ -185,26 +100,9 @@ namespace Culture.Web.Controllers
         {
             try
             {
-                var userId = User.GetClaim(JwtTypes.jti);
-                var userRole = User.GetClaim(JwtTypes.Role);
-
-                var user = await _userService.GetUserById(userId);
-
-				var eventParticipants = await _userService.GetEventParticipants(eventId);
-
-				var _event = await _eventService.GetEventAsync(eventId);
-                await _eventService.DeleteEvent(eventId, user.Id, userRole);
-
-				await _notificationService.CreateNotificationsAsync(
-					$"Wydarzenie zostało usunięte: {_event.Name}!", eventParticipants.Select(x=>x.Id), _event.Id,_event.UrlSlug);
-
-                var emailContent = $"Wydarzenie zostało usunięte: {_event.Name}' ";
-                await _emailService.SendEmail(emailContent, eventParticipants);
-				
-                await _eventService.Commit();
+                await _eventsFacade.DeleteEvent(eventId);
 
                 return Ok();
-
             }
             catch (Exception e)
             {
@@ -213,30 +111,13 @@ namespace Culture.Web.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User,Admin")]
 		[HttpPost("reaction")]
 		public async Task<JsonResult> SetReaction(SetReactionViewModel reactionViewModel)
 		{
 			try
 			{
-                var userId = User.GetClaim(JwtTypes.jti);
-
-                var user = await _userService.GetUserById(userId); var userRoles = await _userService.GetUserRoles(user);
-
-                var hasPreviouslyReacted = await _reactionService.SetReaction(reactionViewModel,user.Id);
-
-				var _newEventReactions = await _eventService.GetEventReactionsWAuthor(reactionViewModel.EventId);
-
-				var targetList = new List<Guid>() { _newEventReactions.Id};
-
-                if(!hasPreviouslyReacted)
-                {
-                    await _notificationService.CreateNotificationsAsync($"{user.UserName} zareagował na twoje wydarzenie! {_newEventReactions.EventName}" +
-                        $"{reactionViewModel.ReactionType}", targetList, reactionViewModel.EventId, _newEventReactions.EventSlug);
-                }
-                await _reactionService.Commit();
-
-                return Json(new SortedReactionsViewModel(_newEventReactions.Reactions));
+                return Json(await _eventsFacade.SetReaction(reactionViewModel));
 			}
 			catch(Exception e)
 			{
@@ -245,15 +126,47 @@ namespace Culture.Web.Controllers
 			}
 		}
 
-        [Authorize]
+        [Authorize(Roles = "User,Admin")]
         [HttpGet("geolocation")]
         public async Task<JsonResult> GetUserMap()
         {
             try
             {
-                var userId = User.GetClaim(JwtTypes.jti);
+                var mapCoords = await _eventsFacade.GetUserMap();
 
-                var mapCoords = await _geolocationService.GetMap(Guid.Parse(userId));
+                return Json(mapCoords);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("get/allMap")]
+        public async Task<JsonResult> GetAllMap(AllMapViewModel allMapViewModel)
+        {
+            try
+            {
+                var mapCoords = await _eventsFacade.GetAllMap(allMapViewModel.Query, allMapViewModel.Dates, allMapViewModel.Category);
+
+                return Json(mapCoords);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("get/allCalendar")]
+        public async Task<JsonResult> GetAllCalendar(AllMapViewModel allMapViewModel)
+        {
+            try
+            {
+                var mapCoords = await _eventsFacade.GetAllCalendar(allMapViewModel.Query, allMapViewModel.Dates, allMapViewModel.Category);
 
                 return Json(mapCoords);
             }
@@ -267,17 +180,33 @@ namespace Culture.Web.Controllers
         [HttpGet("get/participants/{eventId}")]
         public async Task<JsonResult> GetEventParticipants([FromRoute]int eventId,string query = null)
         {
-            var participants = await _eventService.GetEventParticipants(eventId,query);
+            try
+            {
+                var participants = await _eventsFacade.GetEventParticipants(eventId, query);
 
-            return Json(participants);
+                return Json(participants);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
         }
 
         [HttpGet("get/map/{eventId}")]
         public async Task<JsonResult> GetEventMap([FromRoute]int eventId)
         {
-            var eventMap = await _geolocationService.GetEventMap(eventId);
+            try
+            {
+                var eventMap = await _eventsFacade.GetEventMap(eventId);
 
-            return Json(eventMap);
+                return Json(eventMap);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message + e.InnerException);
+            }
         }
     }
 }

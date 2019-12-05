@@ -38,6 +38,10 @@ namespace Culture.Services.Services
         {
             return _unitOfWork.UserRepository.GetUserByNameWithCalendar(userName);
         }
+        public Task<AppUser> GetUserByEmail(string email)
+        {
+            return _unitOfWork.UserRepository.GetUserByEmail(email);
+        }
 
         public  Task<IList<string>> GetUserRoles(AppUser user)
         {
@@ -113,7 +117,7 @@ namespace Culture.Services.Services
             user.AvatarPath = avatarPath ?? oldAvatarPath;
             user.FirstName = userData.FirstName;
             user.LastName = userData.LastName;
-            user.Email = userData.Email;
+            await _unitOfWork.UserRepository.SetEmail(user, userData.Email);
 
             return oldAvatarPath;
         }
